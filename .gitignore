@@ -2,6 +2,7 @@
 __pycache__
 $RESULT_DIR
 ${RESULT_DIR}
+lib/merged.lib*
 **/results/**
 *_results
 demo
