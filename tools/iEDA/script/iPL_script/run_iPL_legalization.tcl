@@ -40,6 +40,7 @@ def_init -path [expr {[info exists ::env(INPUT_DEF)]? $::env(INPUT_DEF) : $DEFAU
 run_incremental_flow -config $::env(CONFIG_DIR)/pl_default_config.json
 
 feature_tool -path $::env(RESULT_DIR)/feature/ipl_legalization.json -step legalization
+feature_cong_map -dir "$::env(RESULT_DIR)/feature" -step legalization
 
 #===========================================================
 ##   save def 

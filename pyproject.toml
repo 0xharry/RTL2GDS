@@ -18,6 +18,9 @@ classifiers = [
 ]
 dependencies = ["pyyaml", "orjson"]
 
+[tool.pylint]
+extension-pkg-whitelist = ["orjson"]
+
 [project.urls]
 Homepage = "https://atomgit.com/harrywh/rtl2gds"
 Issues = "https://atomgit.com/harrywh/rtl2gds/issues"
