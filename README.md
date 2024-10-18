@@ -47,12 +47,12 @@ Prepare your RTL design (Verilog files), and configuration (yaml file).
 
 ### 2. Run RTL2GDS flow
 
-`rtl2gds` has been tested on the following Docker images: `ubuntu:20.04`, `debian:11`, and `debian:12`.
+`rtl2gds` has been tested on the following Docker images: `ubuntu:20.04`, `ubuntu:22.04`, `debian:11`, and `debian:12`.
 
 To compile your design, use the following commands:
 
 ```shell
-$ docker run --rm -it -v $(pwd):/rtl2gds ubuntu:20.04 bash
+$ docker run --rm -it -v $(pwd):/rtl2gds ubuntu:22.04 bash
 $ cd /rtl2gds && apt update && apt install -y python3 python3-pip && pip3 install pyyaml orjson
 $ python3 -m rtl2gds -c <your-design-config>.yaml
 ```
