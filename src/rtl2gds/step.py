@@ -1,21 +1,22 @@
-import os
+"""
+description: behavior of each RTL2GDS step
+"""
+
+import math
 import subprocess
-from multiprocessing import Pool
 
-import orjson
-
-from . import configs
+from . import configs, step_dump_json
 
 
 class Step:
     def __init__(self):
-        # self.input = input
-        # self.output = output
+        # self.input: str
+        # self.output: str
         self.name: str
         self.description: str
-        self.shell_cmd: list[str]
+        self.shell_cmd: list
 
-    def run(self, io_env: dict[str:str]):
+    def run(self, io_env: dict):
         """
         TCL KEY IO ENV:
         INPUT_DEF
@@ -29,6 +30,27 @@ class Step:
         pass
 
 
+def get_yosys_top_info(file_path):
+    """return top module area and name from synth_stat.txt"""
+    # assert os.path.basename(file_path) != "synth_stat.txt",
+    # "Input file name must be 'synth_stat.txt'"
+
+    found_design_hierarchy = False
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        for line in file:
+            if "=== design hierarchy ===" in line:
+                found_design_hierarchy = True
+            if found_design_hierarchy and "Chip area for top module" in line:
+                # Extract the top name and area from the line
+                parts = line.split(":")
+                top_name = parts[0].split("'\\")[-1].strip("': ")
+                top_area = float(parts[1].strip())
+                return top_area, top_name
+
+    return None, None
+
+
 class Synthesis(Step):
     def __init__(self):
         super().__init__()
@@ -37,6 +59,24 @@ class Synthesis(Step):
         # RTL_FILE, DESIGN_TOP, SDC
         # NETLIST_FILE, MODULE_AREA
         self.shell_cmd = configs.SHELL_CMD[self.name]
+
+    def run(self, io_env: dict):
+        """
+        RTL_FILE, DESIGN_TOP, SDC
+        NETLIST_FILE, MODULE_AREA
+        """
+        print("step." + self.name)
+        ret_code = subprocess.call(self.shell_cmd, env=io_env)
+        assert ret_code == 0, f"Step {self.name} failed with return code {ret_code}"
+
+        if not {"DIE_AREA", "CORE_AREA"}.issubset(io_env.keys()):
+            assert "UTILIZATION" in io_env.keys(), "UTILIZATION must be set"
+            yosys_report_path = io_env["RESULT_DIR"] + "/yosys/synth_stat.txt"
+            top_area, top_name = get_yosys_top_info(yosys_report_path)
+            assert top_name == io_env["DESIGN_TOP"], "Top module name mismatch"
+            length = math.sqrt(top_area / float(io_env["UTILIZATION"]))
+            io_env["DIE_AREA"] = f"0 0 {length} {length}"
+            io_env["CORE_AREA"] = f"10 10 {length-10} {length-10}"
 
 
 class Floorplan(Step):
@@ -128,51 +168,16 @@ class DumpLayout(Step):
             # GDS_JSON_FILE
             self.shell_cmd = configs.SHELL_CMD[self.name]
 
-        # elif layout_fmt == 'oasis':
-        #     self.shell_cmd = Configs.shell_cmd['layout_oasis']
-
-
-MAX_FILE_SIZE = 49 * 1024 * 1024  # 49MB in bytes
-
-
-def process_chunk(args):
-    data_chunk, file_no_suffix, index = args
-    chunk_data = {"data": data_chunk}
-    with open(f"{file_no_suffix}-{index}.json", "wb") as file:
-        file.write(orjson.dumps(chunk_data))
-
-
-def split_gds_json(filename: str):
-    with open(filename, "rb") as f:
-        data = orjson.loads(f.read())
-
-    assert "data" in data, "Invalid data format: 'data' key missing"
-    assert isinstance(data["data"], list), "Invalid data format: not a list"
-
-    header = {key: value for key, value in data.items() if key != "data"}
-    file_no_suffix = os.path.splitext(filename)[0]
-
-    with open(f"{file_no_suffix}-header.json", "wb") as file:
-        file.write(orjson.dumps(header))
-
-    chunks = []
-    current_chunk = []
-    current_size = 0
-
-    for item in data["data"]:
-        item_size = len(orjson.dumps(item))
-        if current_size + item_size > MAX_FILE_SIZE:
-            chunks.append((current_chunk, file_no_suffix, len(chunks)))
-            current_chunk = []
-            current_size = 0
-        current_chunk.append(item)
-        current_size += item_size
-
-    if current_chunk:
-        chunks.append((current_chunk, file_no_suffix, len(chunks)))
-
-    with Pool() as pool:
-        pool.map(process_chunk, chunks)
+    def run(self, io_env: dict):
+        """
+        INPUT_DEF
+        GDS_JSON_FILE
+        """
+        print("step." + self.name)
+        ret_code = subprocess.call(self.shell_cmd, env=io_env)
+        assert ret_code == 0, f"Step {self.name} failed with return code {ret_code}"
+        if self.name == "layout_json":
+            step_dump_json.split_gds_json(io_env["GDS_JSON_FILE"])
 
 
 def factory(step_name: str):
