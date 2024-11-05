@@ -8,13 +8,13 @@ version = "0.0.1"
 authors = [{ name = "Harry Wizard", email = "harry0789@qq.com" }]
 description = "A tool to compile your RTL files into GDSII layouts."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.8",
 ]
 dependencies = ["pyyaml", "orjson"]
 
