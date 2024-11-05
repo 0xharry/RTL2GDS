@@ -40,7 +40,7 @@ def_init -path [expr {[info exists ::env(OUTPUT_DEF)] ? $::env(OUTPUT_DEF) : $DE
 init_rt -temp_directory_path "$::env(RESULT_DIR)/rt/" \
         -bottom_routing_layer "met1" \
         -top_routing_layer "met4" \
-        -thread_number 64
+        -thread_number 16
 
 run_rt
 

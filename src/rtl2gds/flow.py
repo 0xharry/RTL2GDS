@@ -3,12 +3,36 @@ import yaml
 from . import chip, metrics, step
 
 
-class RTL2GDS:
+class _Flow:
+    """interface class for flow"""
+
+    def __init__(self):
+        pass
+        # self.chip: chip.Chip
+        # self.metrics: FlowMetrics
+        # self._steps: list[str]
+
+    def run(self):
+        """execute costum steps"""
+
+    def update_metrics(self):
+        """update tool/chip related metrics"""
+
+    def dump_metrics(self):
+        """print metrics"""
+
+    def dump_gds(self):
+        """dump gds"""
+
+
+class RTL2GDS(_Flow):
+    """run rtl to gds"""
 
     def __init__(self, cc: chip.Chip):
         self.chip = cc
         self.metrics: FlowMetrics
         self._steps = [
+            "synthesis",
             "floorplan",
             "fixfanout",
             "place",
@@ -31,7 +55,8 @@ class RTL2GDS:
         # self.update_metrics()
 
         # iterate over steps except theose with special input and output
-        for step_name in self._steps[1:-1]:
+        # (synthesis, floorplan and layout_gds)
+        for step_name in self._steps[2:-1]:
             s = step.factory(step_name)
             s.run(self.chip.io_env)
             # step.input = self.chip.path_setting.def_file
@@ -41,17 +66,7 @@ class RTL2GDS:
         layout_gds = step.DumpLayout("gds")
         # input=self.chip.path_setting.def_file, output=self.chip.gds_file
         layout_gds.run(self.chip.io_env)
-        # step.split_gds_json(self.chip.io_env["GDS_JSON_FILE"])
         # self.update_metrics()
-
-    def update_metrics(self):
-        pass
-
-    def dump_metrics(self):
-        pass
-
-    def dump_gds(self):
-        pass
 
 
 class FlowMetrics:
