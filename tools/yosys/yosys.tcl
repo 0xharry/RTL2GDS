@@ -8,8 +8,8 @@ set RPT_PATH                "$::env(RESULT_DIR)/yosys"
 set SDC_FILE                "$::env(SDC_FILE)"
 set NETLIST_FILE            "$::env(NETLIST_FILE)"
 set VERILOG_FILES           "$::env(RTL_FILE)"
-set VERILOG_INCLUDE_DIRS    ""
-set CLOCK_PERIOD            [expr 1000.0 / $::env(CLK_FREQ_MHZ)]
+set VERILOG_INCLUDE_DIRS    "$::env(VERILOG_INCLUDE_DIRS)"
+set CLOCK_PERIOD_PS         [expr 1000000.0 / $::env(CLK_FREQ_MHZ)]
 
 set MERGED_LIB_FILE         "$FOUNDRY_DIR/lib/merged.lib"
 set BLACKBOX_V_FILE         "$FOUNDRY_DIR/verilog/blackbox.v" 
@@ -84,7 +84,7 @@ dfflibmap -liberty $MERGED_LIB_FILE
 opt -undriven
 
 # Technology mapping for cells
-abc -D [expr $CLOCK_PERIOD * 1000] \
+abc -D $CLOCK_PERIOD_PS \
     -constr "$SDC_FILE" \
     -liberty $MERGED_LIB_FILE \
     -showtmp \
