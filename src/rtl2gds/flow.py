@@ -6,11 +6,19 @@ from . import chip, metrics, step
 class _Flow:
     """interface class for flow"""
 
-    def __init__(self):
-        pass
-        # self.chip: chip.Chip
-        # self.metrics: FlowMetrics
-        # self._steps: list[str]
+    rtl2gds_flow = [
+        "synthesis",
+        "floorplan",
+        "fixfanout",
+        "place",
+        "cts",
+        "drv_opt",
+        "hold_opt",
+        "legalize",
+        "route",
+        "filler",
+        "layout_gds",
+    ]
 
     def run(self):
         """execute costum steps"""
@@ -28,22 +36,9 @@ class _Flow:
 class RTL2GDS(_Flow):
     """run rtl to gds"""
 
-    def __init__(self, cc: chip.Chip):
-        self.chip = cc
-        self.metrics: FlowMetrics
-        self._steps = [
-            "synthesis",
-            "floorplan",
-            "fixfanout",
-            "place",
-            "cts",
-            "drv_opt",
-            "hold_opt",
-            "legalize",
-            "route",
-            "filler",
-            "layout_gds",
-        ]
+    def __init__(self, chip_inst: chip.Chip):
+        self.chip = chip_inst
+        self._steps = _Flow.rtl2gds_flow
 
     def run(self):
         synthesis = step.Synthesis()
@@ -69,11 +64,34 @@ class RTL2GDS(_Flow):
         # self.update_metrics()
 
 
-class FlowMetrics:
+def _find_index_range(lst, elem1, elem2):
+    start_index = lst.index(elem1)
+    end_index = lst.index(elem2)
+    return start_index, end_index
 
-    def __init__(self):
-        self.design: metrics.DesignMetrics
-        self.step: metrics.EDAMetrics
 
-    def dump(self):
-        return yaml.dump(self.__dict__)
+class CostumFlow(_Flow):
+    """run costum flow"""
+
+    def __init__(self, start_step: str, end_step: str, cc: chip.Chip):
+        self.chip = cc
+
+        start_index, end_index = _find_index_range(
+            _Flow.rtl2gds_flow, start_step, end_step
+        )
+        self._steps = _Flow.rtl2gds_flow[start_index : end_index + 1]
+
+    def run(self):
+        for step_name in self._steps:
+            s = step.factory(step_name)
+            s.run(self.chip.io_env)
+
+
+# class FlowMetrics:
+
+#     def __init__(self):
+#         self.design: metrics.DesignMetrics
+#         self.step: metrics.EDAMetrics
+
+#     def dump(self):
+#         return yaml.dump(self.__dict__)

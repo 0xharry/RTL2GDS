@@ -8,8 +8,9 @@ A tool to compile your RTL files into GDSII layouts.
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
   - [Usage](#usage)
+    - [0. Setup Runtime Environment](#0-setup-runtime-environment)
     - [1. Prepare File Inputs](#1-prepare-file-inputs)
-    - [2. Compile](#2-compile)
+    - [2. Run RTL2GDS flow](#2-run-rtl2gds-flow)
   - [Contributing](#contributing)
 
 ## Overview
@@ -20,7 +21,7 @@ A tool to compile your RTL files into GDSII layouts.
 
 ### 0. Setup Runtime Environment
 
-`rtl2gds` depends on [yosys](https://github.com/YosysHQ/yosys) and [iEDA](https://gitee.com/oscc-project/iEDA). A prebuilt iEDA binary is presented at `/home/wsl/rtl2gds/bin/iEDA`.
+`rtl2gds` depends on [yosys](https://github.com/YosysHQ/yosys) and [iEDA](https://gitee.com/oscc-project/iEDA). A prebuilt iEDA binary is presented at `/rtl2gds/bin/iEDA`.
 
 If you prefer to build from source code, [here](https://gitee.com/oscc-project/iEDA/blob/master/README.md#method-2--install-dependencies-and-compile) is how you do it:
 
@@ -52,7 +53,7 @@ Prepare your RTL design (Verilog files), and configuration (yaml file).
 To compile your design, use the following commands:
 
 ```shell
-$ docker run --rm -it -v $(pwd):/rtl2gds ubuntu:22.04 bash
+$ docker run --rm -it -v $(pwd):/rtl2gds -e PYTHONPATH="/rtl2gds/src" ubuntu:22.04 bash
 $ cd /rtl2gds && apt update && apt install -y python3 python3-pip && pip3 install pyyaml orjson klayout
 $ python3 -m rtl2gds -c <your-design-config>.yaml
 ```

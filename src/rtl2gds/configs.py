@@ -16,6 +16,7 @@ ENV_TOOLS_PATH = {
     "CONFIG_DIR": f"{PKG_TOOL_DIR}/iEDA/iEDA_config",
     "SDC_FILE": f"{PKG_TOOL_DIR}/default.sdc",
     "RUST_BACKTRACE": "1",
+    "VERILOG_INCLUDE_DIRS": "",
 }
 
 CONFIG_KEYWORDS = {
@@ -126,3 +127,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
