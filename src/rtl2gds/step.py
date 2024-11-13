@@ -196,3 +196,35 @@ def factory(step_name: str):
         "layout_json": DumpLayout("json"),
     }
     return step_map[step_name]()
+
+
+from klayout import lay
+
+
+def save_gds_image(gds_file: str, img_file: str, weight: int = 800, height: int = 800):
+    """
+    Takes a screenshot of a GDS file and saves it as an image.
+
+    Parameters:
+    gds_file (str): Path to the input GDS file.
+    img_file (str): Path to the output image file.
+
+    Reference:
+    https://gist.github.com/sequoiap/48af5f611cca838bb1ebc3008eef3a6e
+    """
+    # Set display configuration options
+    lv = lay.LayoutView()
+    lv.set_config("background-color", "#ffffff")
+    lv.set_config("grid-visible", "false")
+    lv.set_config("grid-show-ruler", "false")
+    lv.set_config("text-visible", "false")
+
+    # Load the GDS file
+    lv.load_layout(gds_file, 0)
+    lv.max_hier()
+
+    # event processing for delayed configuration events
+    lv.timer()
+
+    # Save the image
+    lv.save_image(img_file, weight, height)

@@ -53,7 +53,7 @@ To compile your design, use the following commands:
 
 ```shell
 $ docker run --rm -it -v $(pwd):/rtl2gds ubuntu:22.04 bash
-$ cd /rtl2gds && apt update && apt install -y python3 python3-pip && pip3 install pyyaml orjson
+$ cd /rtl2gds && apt update && apt install -y python3 python3-pip && pip3 install pyyaml orjson klayout
 $ python3 -m rtl2gds -c <your-design-config>.yaml
 ```
 
