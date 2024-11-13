@@ -7,3 +7,4 @@ lib/merged.lib*
 *_results
 demo
 uv.lock
+.ipynb_checkpoints
