@@ -53,8 +53,11 @@ Prepare your RTL design (Verilog files), and configuration (yaml file).
 To compile your design, use the following commands:
 
 ```shell
+$ cd RTL2GDS # make sure you are in the root directory of RTL2GDS
 $ docker run --rm -it -v $(pwd):/rtl2gds -e PYTHONPATH="/rtl2gds/src" ubuntu:22.04 bash
-$ cd /rtl2gds && apt update && apt install -y python3 python3-pip && pip3 install pyyaml orjson klayout
+# After entering the container, you can run the following commands
+$ cd /rtl2gds && apt update && apt install -y python3 python3-pip libcurl4-openssl-dev libexpat1-dev libpng-dev && pip3 install pyyaml orjson klayout
+# Then enter the design directory, e.g., /rtl2gds/design_zoo/gcd
 $ python3 -m rtl2gds -c <your-design-config>.yaml
 ```
 
