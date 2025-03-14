@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "rtl2gds_demo"
+name = "rtl2gds"
 version = "0.0.1"
 authors = [{ name = "Harry Wizard", email = "harry0789@qq.com" }]
 description = "A tool to compile your RTL files into GDSII layouts."
@@ -26,6 +26,13 @@ Homepage = "https://atomgit.com/harrywh/rtl2gds"
 Issues = "https://atomgit.com/harrywh/rtl2gds/issues"
 Documentation = "https://atomgit.com/harrywh/rtl2gds"
 Repository = "https://atomgit.com/harrywh/rtl2gds"
+
+[project.scripts]
+rtl2gds = "rtl2gds.__main__:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["rtl2gds"]
 
 [tool.uv]
 index-url = "https://mirrors.aliyun.com/pypi/simple/"
