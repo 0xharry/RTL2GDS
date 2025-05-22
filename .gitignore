@@ -1,5 +1,7 @@
 .vscode
+.idea
 __pycache__
+build/
 $RESULT_DIR
 ${RESULT_DIR}
 lib/merged.lib*
