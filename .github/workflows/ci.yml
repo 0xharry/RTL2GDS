@@ -1,0 +1,32 @@
+name: "Build and check RTL2GDS"
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test-designs:
+    name: test RTL2GDS - ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: gcd
+            config_file: gcd.yaml
+            dir: gcd
+          # Add more designs here
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - name: Run ${{ matrix.name }} flows
+        run: |
+          nix build -L
+          cd "design_zoo/${{ matrix.dir }}"
+          ../../result/bin/rtl2gds -c "${{ matrix.config_file }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "RTL2GDS-results"
+          path: ./results/bin/rtl2gds
