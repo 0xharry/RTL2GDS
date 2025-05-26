@@ -10,15 +10,25 @@ R2G_TOOL_DIR = os.path.abspath(R2G_SRC_DIR + "/../../tools")
 
 _BIN_ENV = os.environ["PATH"] if "PATH" in os.environ else ""
 _LIB_ENV = os.environ["LD_LIBRARY_PATH"] if "LD_LIBRARY_PATH" in os.environ else ""
+# Set the environment variable to use iEDA tools in RTL2GDS local library
+_USE_PROJ_BIN_LIB = os.environ.get("RTL2GDS_USE_PROJ_BIN_LIB", "0") == "1"
+
+if _USE_PROJ_BIN_LIB:
+    _TOOL_PATH = f"{R2G_BIN_DIR}/iEDA:{R2G_BIN_DIR}/sv2v-Linux:{R2G_BIN_DIR}/yosys/bin:{_BIN_ENV}"
+    _TOOL_LIB = f"{R2G_BIN_DIR}/lib:{_LIB_ENV}"
+else:
+    _TOOL_PATH = _BIN_ENV
+    _TOOL_LIB = _LIB_ENV
 
 ENV_TOOLS_PATH = {
-    "PATH": f"{R2G_BIN_DIR}/iEDA:{R2G_BIN_DIR}/yosys/bin:{R2G_BIN_DIR}/sv2v-Linux:{_BIN_ENV}",
-    "LD_LIBRARY_PATH": f"{R2G_BIN_DIR}/lib:{_LIB_ENV}",
+    "PATH": _TOOL_PATH,
+    "LD_LIBRARY_PATH": _TOOL_LIB,
     "FOUNDRY_DIR": R2G_PDK_DIR_SKY130,
     "IEDA_TCL_SCRIPT_DIR": f"{R2G_TOOL_DIR}/iEDA/script",
     "IEDA_CONFIG_DIR": f"{R2G_TOOL_DIR}/iEDA/iEDA_config",
     "RUST_BACKTRACE": "1",
     "VERILOG_INCLUDE_DIRS": "",
+    "RTL2GDS_DIR": R2G_SRC_DIR,
 }
 
 DEFAULT_SDC_FILE = f"{R2G_TOOL_DIR}/default.sdc"

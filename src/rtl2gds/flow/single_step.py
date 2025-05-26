@@ -43,7 +43,7 @@ def run(
                 save_layout_json = True
 
     if take_snapshot:
-        layout_files = runner.run_save_layout_gds(step_name=expect_step, take_snapshot=True)
+        layout_files = runner.run_dump_layout_gds(step_name=expect_step, take_snapshot=True)
         result_files.update(layout_files)
 
     # Dump and return json files

@@ -1,0 +1,49 @@
+name: "Build and check RTL2GDS"
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  gcd-test:
+    name: test RTL2GDS with GCD
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip3 install pyyaml orjson klayout
+      - name: Run GCD flows
+        run: |
+          export PYTHONPATH=$(pwd)/src
+          cd design_zoo/gcd
+          python3 -m rtl2gds -c gcd.yaml
+          nix shell nixpkgs#ieda
+          nix shell nixpkgs#yosys
+  picorv-test:
+    name: test RTL2GDS with Picorv
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip3 install pyyaml orjson klayout
+          nix shell nixpkgs#ieda
+          nix shell nixpkgs#yosys
+      - name: Run Picorv flows
+        run: |
+          export PYTHONPATH=$(pwd)/src
+          cd design_zoo/picorv32a
+          python3 -m rtl2gds -c pico.yaml

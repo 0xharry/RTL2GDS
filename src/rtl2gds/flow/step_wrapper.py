@@ -3,6 +3,8 @@ import os
 from .. import step
 from ..chip import Chip
 from ..global_configs import RTL2GDS_FLOW_STEPS, StepName
+from ..utils import process
+from ..utils.time import time_decorator, save_execute_time_data
 
 
 def get_expected_step(finished_step: str) -> str | None:
@@ -26,7 +28,8 @@ class StepWrapper:
         if expected_step != step_name:
             raise ValueError(f"Expected step: {expected_step}, but got: {step_name}")
 
-    def run_synthesis(self) -> dict[str, object]:
+    @time_decorator
+    def run_synthesis(self) -> dict:
         """Run synthesis step"""
         step_name = StepName.SYNTHESIS
         self._check_expected_step(step_name)
@@ -59,7 +62,8 @@ class StepWrapper:
 
         return artifacts
 
-    def run_floorplan(self) -> dict[str, object]:
+    @time_decorator
+    def run_floorplan(self) -> dict:
         """Run floorplan step"""
         step_name = StepName.FLOORPLAN
         self._check_expected_step(step_name)
@@ -83,7 +87,7 @@ class StepWrapper:
         self.chip.constrain.core_bbox = metrics["core_bbox"]
         self.chip.constrain.core_util = metrics["core_util"]
 
-        self.chip.metrics.area.die  = metrics["die_area"]
+        self.chip.metrics.area.die = metrics["die_area"]
         self.chip.metrics.area.core = metrics["core_area"]
 
         self.chip.metrics.area.cell = metrics["cell_area"]
@@ -98,7 +102,8 @@ class StepWrapper:
 
         return artifacts
 
-    def run_pr_step(self, step_name: str) -> dict[str, object]:
+    @time_decorator
+    def run_pr_step(self, step_name: str) -> dict:
         """Run a specific place & route step"""
         self._check_expected_step(step_name)
 
@@ -106,9 +111,7 @@ class StepWrapper:
         if not step_obj:
             raise ValueError(f"Unknown PR step: {step_name}")
 
-        step_file_prefix = (
-            f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}"
-        )
+        step_file_prefix = f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}"
         output_def = f"{step_file_prefix}.def"
         output_verilog = f"{step_file_prefix}.v"
         # Create metrics directory (iEDA issue workaround)
@@ -138,7 +141,8 @@ class StepWrapper:
 
         return artifacts
 
-    def run_save_layout_gds(self, step_name: str, take_snapshot: bool = False) -> dict[str, object]:
+    @time_decorator
+    def run_dump_layout_gds(self, step_name: str, take_snapshot: bool = False) -> dict:
         """Run dump layout GDS step"""
         gds_file = f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}.gds"
         snapshot_file = f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}.png"
@@ -155,9 +159,32 @@ class StepWrapper:
         self.chip.update2config()
 
         if take_snapshot:
-            return dict({
-                "gds_file": gds_file,
-                "snapshot_file": snapshot_file
-            })
+            return dict({"gds_file": gds_file, "snapshot_file": snapshot_file})
         else:
             return dict({"gds_file": gds_file})
+
+    def run_collect_timing_metrics(
+        self
+    ) -> dict:
+        """Run collect timing metrics step"""
+
+        output_file = f"{self.chip.path_setting.result_dir}/{self.chip.top_name}.timing.json"
+        process.merge_timing_reports(
+            result_dir=f"{self.chip.path_setting.result_dir}",
+            log_path=f"{self.chip.path_setting.result_dir}/{self.chip.top_name}.log",
+        )
+
+        return dict({output_file: output_file})
+
+    def save_execute_time_report(self) -> str:
+        """Save execute time report"""
+        return save_execute_time_data(
+            self.chip.path_setting.result_dir,
+            self.chip.top_name
+        )
+
+    def save_merged_metrics(self, execute_time_json: str):
+        """Merge and save the metrics from execution time and timing reports"""
+        from ..utils import time as time_utils
+
+        return time_utils.save_merged_metrics(self.chip, execute_time_json=execute_time_json)

@@ -1,0 +1,57 @@
+{
+  "INPUT": {
+    "tech_lef_path": "${LEF_PATH}/sky130_fd_sc_hd.tlef",
+    "lef_paths": [
+      "${LEF_PATH}/sky130_ef_io__com_bus_slice_10um.lef",
+      "${LEF_PATH}/sky130_ef_io__com_bus_slice_1um.lef",
+      "${LEF_PATH}/sky130_ef_io__com_bus_slice_20um.lef",
+      "${LEF_PATH}/sky130_ef_io__com_bus_slice_5um.lef",
+      "${LEF_PATH}/sky130_ef_io__connect_vcchib_vccd_and_vswitch_vddio_slice_20um.lef",
+      "${LEF_PATH}/sky130_ef_io__corner_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__disconnect_vccd_slice_5um.lef",
+      "${LEF_PATH}/sky130_ef_io__disconnect_vdda_slice_5um.lef",
+      "${LEF_PATH}/sky130_ef_io__gpiov2_pad_wrapped.lef",
+      "${LEF_PATH}/sky130_ef_io__vccd_hvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vccd_lvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vdda_hvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vdda_lvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vddio_hvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vddio_lvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vssa_hvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vssa_lvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vssd_hvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vssd_lvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vssio_hvc_pad.lef",
+      "${LEF_PATH}/sky130_ef_io__vssio_lvc_pad.lef",
+      "${LEF_PATH}/sky130_fd_io__top_xres4v2.lef",
+      "${LEF_PATH}/sky130_fd_sc_hd_merged.lef",
+      "${LEF_PATH}/sky130_fd_sc_hd.tlef",
+      "${LEF_PATH}/sky130_fd_sc_hs_merged.lef",
+      "${LEF_PATH}/sky130_fd_sc_hs.tlef",
+      "${LEF_PATH}/sky130io_fill.lef",
+      "${LEF_PATH}/sky130_sram_1rw1r_128x256_8.lef",
+      "${LEF_PATH}/sky130_sram_1rw1r_44x64_8.lef",
+      "${LEF_PATH}/sky130_sram_1rw1r_64x256_8.lef",
+      "${LEF_PATH}/sky130_sram_1rw1r_80x64_8.lef"
+    ],
+    "def_path": "${DEF_PATH}",
+    "verilog_path": "${NETLIST_FILE}",
+    "lib_path": [
+      "${LIB_PATH}/sky130_dummy_io.lib",
+      "${LIB_PATH}/sky130_fd_sc_hd__tt_025C_1v80.lib",
+      "${LIB_PATH}/sky130_fd_sc_hs__tt_025C_1v80.lib",
+      "${LIB_PATH}/sky130_fd_sc_hs__tt_100C_1v80.lib",
+      "${LIB_PATH}/sky130_sram_1rw1r_128x256_8_TT_1p8V_25C.lib",
+      "${LIB_PATH}/sky130_sram_1rw1r_44x64_8_TT_1p8V_25C.lib",
+      "${LIB_PATH}/sky130_sram_1rw1r_64x256_8_TT_1p8V_25C.lib",
+      "${LIB_PATH}/sky130_sram_1rw1r_80x64_8_TT_1p8V_25C.lib"
+    ],
+    "sdc_path": "${SDC_FILE}"
+  },
+  "OUTPUT": {
+    "output_dir_path": "${OUTPUT_DIR_PATH}"
+  },
+  "LayerSettings": {
+    "routing_layer_1st": "met1"
+  }
+}
