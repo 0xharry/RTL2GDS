@@ -1,0 +1,14 @@
+diff --git a/tools/iEDA/script/iRT_script/run_iRT.tcl b/tools/iEDA/script/iRT_script/run_iRT.tcl
+index 5f4783d..c9c2f07 100755
+--- a/tools/iEDA/script/iRT_script/run_iRT.tcl
++++ b/tools/iEDA/script/iRT_script/run_iRT.tcl
+@@ -68,7 +68,7 @@ init_rt -temp_directory_path $TOOL_REPORT_DIR \
+         -thread_number $NUM_THREADS \
+         -output_inter_result 0 \
+         -enable_timing 0 \
+-        -enable_fast_mode 0
++        -enable_fast_mode 1
+ 
+ run_rt
+ 
+

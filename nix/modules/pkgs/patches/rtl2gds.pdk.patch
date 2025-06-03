@@ -1,0 +1,13 @@
+diff --git a/src/rtl2gds/global_configs.py b/src/rtl2gds/global_configs.py
+index 059eb4d..05860e6 100644
+--- a/src/rtl2gds/global_configs.py
++++ b/src/rtl2gds/global_configs.py
+@@ -5,7 +5,7 @@ R2G_SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+ R2G_BIN_DIR = os.path.abspath(R2G_SRC_DIR + "/../../bin")
+ R2G_PDK_DIR = os.path.abspath(R2G_SRC_DIR + "/../../foundry")
+ R2G_PDK_DIR_SKY130 = os.path.abspath(R2G_PDK_DIR + "/sky130")
+-R2G_PDK_DIR_IHP130 = os.path.abspath(R2G_PDK_DIR + "/ihp130")
++R2G_PDK_DIR_IHP130 = os.environ["IHP130_PDK_DIR"] if "IHP130_PDK_DIR" in os.environ else R2G_PDK_DIR + "/ihp130"
+ R2G_TOOL_DIR = os.path.abspath(R2G_SRC_DIR + "/../../tools")
+
+ _BIN_ENV = os.environ["PATH"] if "PATH" in os.environ else ""

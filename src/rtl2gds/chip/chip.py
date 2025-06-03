@@ -197,7 +197,7 @@ class Chip:
             if override:
                 config_yaml = self.config_yaml
             else:
-                config_yaml = f"{self.config_yaml.split('.')[0]}_checkpoint_{self.last_update_time}_{self.finished_step}.yaml"
+                config_yaml = f"{str(self.config_yaml).split('.')[0]}_checkpoint_{self.last_update_time}_{self.finished_step}.yaml"
                 path = pathlib.Path(config_yaml)
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()

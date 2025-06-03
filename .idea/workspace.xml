@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bc6e45ee-dbed-4671-b4e8-681958f8bad6" name="Changes" comment="Changes">
+      <change afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/RTL2GDS.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_def_to_lef.tcl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/yosys/global_var.tcl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/yosys/scripts/abc-opt.script" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/yosys/scripts/filter_output.awk" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/yosys/scripts/init_tech.tcl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/yosys/scripts/yosys_synthesis.tcl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/yosys/src/abc.constr" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tools/yosys/src/lazy_man_synth_library.aig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/iEDA/iEDA" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/design_zoo/aes/rtl2gds_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/design_zoo/aes/rtl2gds_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design_zoo/gcd/rtl2gds_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/design_zoo/gcd/rtl2gds_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design_zoo/gcd_cloud/call_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/design_zoo/gcd_cloud/call_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design_zoo/gcd_cloud/cloud.py" beforeDir="false" afterPath="$PROJECT_DIR$/design_zoo/gcd_cloud/cloud.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design_zoo/picorv32a/rtl2gds_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/design_zoo/picorv32a/rtl2gds_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/SystemDesign.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/SystemDesign.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/__main__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/chip/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/chip/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/chip/chip.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/chip/chip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/chip/design_path.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/chip/design_path.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/evaluation/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/evaluation/timing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/flow/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/flow/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/flow/rtl2gds_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/flow/rtl2gds_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/flow/single_step.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/flow/single_step.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/flow/step_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/flow/step_wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/global_configs.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/global_configs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/step/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/step/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/step/configs.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/step/configs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/step/floorplan.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/step/floorplan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/step/layout_gds.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/step/layout_gds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/step/step.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/step/step.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/step/synthesis.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/step/synthesis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/rtl2gds/utils/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/utils/json_helper.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/utils/process.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rtl2gds/utils/time.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/cts_default_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/iEDA_config/cts_default_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/db_config.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/db_default_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/iEDA_config/db_default_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/drc_default_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/iEDA_config/drc_default_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/flow_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/iEDA_config/flow_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/no_default_config_fixfanout.json" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/iEDA_config/no_default_config_fixfanout.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/pl_default_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/iEDA_config/pl_default_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/rt_default_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/iEDA_config/rt_default_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/to_default_config_drv.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/to_default_config_hold.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/iEDA_config/to_default_config_setup.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/db_init_lib_drv.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/db_init_lib_fixfanout.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/db_init_lib_hold.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/db_init_lib_setup.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/db_path_setting.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/DB_script/db_path_setting.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/env_var_setup.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/DB_script/env_var_setup.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_db.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_db_checknet.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_db_report_evl.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_def_to_gds_text.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_def_to_gds_text.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_def_to_json_text.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_def_to_json_text.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_feature_summary.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/DB_script/run_read_verilog.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iCTS_script/run_iCTS.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iCTS_script/run_iCTS.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iCTS_script/run_iCTS_STA.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iEVAL_script/run_timing_eval.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iFP_script/module/create_tracks.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iFP_script/module/create_tracks.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iFP_script/module/pdn.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iFP_script/module/pdn.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iFP_script/run_iFP.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iFP_script/run_iFP.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iNO_script/run_iNO_fix_fanout.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iNO_script/run_iNO_fix_fanout.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iPL_script/run_iPL.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iPL_script/run_iPL.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iPL_script/run_iPL_filler.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iPL_script/run_iPL_filler.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iPL_script/run_iPL_gui.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iPL_script/run_iPL_legalization.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iPL_script/run_iPL_legalization.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iRT_script/run_iRT.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iRT_script/run_iRT.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iRT_script/run_iRT_DRC.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iRT_script/run_iRT_STA.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iRT_script/run_iRT_with_drc.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iSTA_script/run_iSTA.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/iEDA/script/iSTA_script/run_iSTA.tcl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iTO_script/run_iTO_drv.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iTO_script/run_iTO_drv_STA.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iTO_script/run_iTO_hold.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iTO_script/run_iTO_hold_STA.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iTO_script/run_iTO_setup.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/iEDA/script/iTO_script/run_iTO_setup_STA.tcl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/yosys/yosys.tcl" beforeDir="false" afterPath="$PROJECT_DIR$/tools/yosys/yosys.tcl" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="workflow" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2wo3GS7qEOcqcZ53EwLIYYkC5sr" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.__main__.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.mappings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.symlinks&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.date&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.permissions&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.size&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev/metrics-evaluation&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/qimingchu/workbench/RTL2GDS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/nix/modules/pkgs/patches" />
+      <recent name="$PROJECT_DIR$/src/rtl2gds/utils" />
+      <recent name="$PROJECT_DIR$/src/rtl2gds/evaluation" />
+      <recent name="$PROJECT_DIR$/tools/iEDA/iEDA_config" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-PY-251.25410.159" />
+        <option value="bundled-python-sdk-e0ed3721d81e-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.25410.159" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bc6e45ee-dbed-4671-b4e8-681958f8bad6" name="Changes" comment="" />
+      <created>1746694003479</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1746694003479</updated>
+      <workItem from="1746694004760" duration="59000" />
+      <workItem from="1746694085751" duration="2144000" />
+      <workItem from="1746696255208" duration="1546000" />
+      <workItem from="1746700261916" duration="8023000" />
+      <workItem from="1746758920577" duration="17048000" />
+      <workItem from="1746796646899" duration="1200000" />
+      <workItem from="1747020620498" duration="4094000" />
+      <workItem from="1747037975816" duration="11291000" />
+      <workItem from="1747103632798" duration="3763000" />
+      <workItem from="1747202566035" duration="12972000" />
+      <workItem from="1747228332148" duration="1712000" />
+      <workItem from="1747290322041" duration="1291000" />
+      <workItem from="1747291622118" duration="11757000" />
+      <workItem from="1747315870714" duration="2184000" />
+      <workItem from="1747364807252" duration="1658000" />
+      <workItem from="1747366498545" duration="7708000" />
+      <workItem from="1747381184525" duration="4517000" />
+      <workItem from="1747397274412" duration="4579000" />
+      <workItem from="1747401866936" duration="3827000" />
+      <workItem from="1747621915347" duration="557000" />
+      <workItem from="1747622484826" duration="14556000" />
+      <workItem from="1747644684765" duration="1193000" />
+      <workItem from="1747653830781" duration="5000" />
+      <workItem from="1747654560276" duration="3786000" />
+      <workItem from="1747659953611" duration="1647000" />
+      <workItem from="1747662966811" duration="543000" />
+      <workItem from="1747706839221" duration="76000" />
+      <workItem from="1747707186387" duration="3654000" />
+      <workItem from="1747724685117" duration="18289000" />
+      <workItem from="1747816208767" duration="2283000" />
+      <workItem from="1747826688452" duration="4083000" />
+      <workItem from="1747834749258" duration="1019000" />
+      <workItem from="1747880733567" duration="4227000" />
+      <workItem from="1747925675488" duration="921000" />
+      <workItem from="1747926950693" duration="669000" />
+      <workItem from="1747967430575" duration="676000" />
+      <workItem from="1747970970048" duration="3320000" />
+      <workItem from="1748164771327" duration="1540000" />
+      <workItem from="1748175488626" duration="1021000" />
+      <workItem from="1748226429087" duration="1786000" />
+      <workItem from="1748261583193" duration="973000" />
+      <workItem from="1748263368469" duration="11000" />
+      <workItem from="1748263486144" duration="4068000" />
+      <workItem from="1748321493973" duration="1213000" />
+      <workItem from="1748416703247" duration="53000" />
+      <workItem from="1748416775149" duration="1196000" />
+      <workItem from="1748441983428" duration="34000" />
+      <workItem from="1748832988117" duration="4082000" />
+      <workItem from="1748846881301" duration="5455000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/RTL2GDS$__main__.coverage" NAME="__main__ 覆盖结果" MODIFIED="1746761641647" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/rtl2gds" />
+  </component>
+</project>
