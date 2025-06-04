@@ -40,11 +40,6 @@ def_init -path $RESULT_DIR/iPL_result.def
 run_power -output $RESULT_DIR/sta/
 
 #===========================================================
-##   run timing evaluation
-#===========================================================
-run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
-
-#===========================================================
 ##   Exit 
 #===========================================================
 flow_exit

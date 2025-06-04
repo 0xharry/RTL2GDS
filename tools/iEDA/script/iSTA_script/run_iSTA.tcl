@@ -57,11 +57,6 @@ def_init -path $INPUT_DEF
 run_sta -output $TOOL_REPORT_DIR
 
 #===========================================================
-##   run timing evaluation
-#===========================================================
-run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
-
-#===========================================================
 ##   Exit 
 #===========================================================
 flow_exit
