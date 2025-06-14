@@ -55,7 +55,7 @@ def run(
         "CORE_AREA": core_bbox,
         "DESIGN_STAT_TEXT": artifacts["design_stat_text"],
         "DESIGN_STAT_JSON": artifacts["design_stat_json"],
-        "DESIGN_TIMING_EVAL_REPORT": artifacts["timing_eval_report"],
+        "DESIGN_EVAL_REPORT": artifacts["timing_eval_report"],
         "CLK_PORT_NAME": clk_port_name,
         "CLK_FREQ_MHZ": str(clk_freq_mhz),
         "ROUTING_TYPE": "HPWL",

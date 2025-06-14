@@ -115,7 +115,12 @@ feature_summary -step floorplan -path $DESIGN_STAT_JSON
 source $IEDA_TCL_SCRIPT_DIR/DB_script/db_init_lib.tcl
 source $IEDA_TCL_SCRIPT_DIR/DB_script/db_init_sdc.tcl
 
-run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
+run_timing_eval -eval_output_path $::env(DESIGN_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
+
+#===========================================================
+##   run density evaluation
+#===========================================================
+run_density_eval -eval_output_path $::env(DESIGN_EVAL_REPORT) -grid_size $::env(DENSITY_GRID_SIZE) -stage "floorplan"
 
 #===========================================================
 ##   Exit 

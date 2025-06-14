@@ -83,7 +83,7 @@ feature_tool -step fixFanout -path $TOOL_METRICS_JSON
 #===========================================================
 ##   run timing evaluation
 #===========================================================
-run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
+run_timing_eval -eval_output_path $::env(DESIGN_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
 
 #===========================================================
 ##   Exit 
