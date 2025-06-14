@@ -1,0 +1,41 @@
+name: "Build and check RTL2GDS"
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  test:
+    name: test RTL2GDS with ${{ matrix.design }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        design: [gcd, picorv32a]
+        include:
+          - design: gcd
+            config: gcd.yaml
+            path: design_zoo/gcd
+          - design: picorv32a
+            config: pico.yaml
+            path: design_zoo/picorv32a
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          git submodule update --init
+          python -m pip install --upgrade pip
+          pip3 install pyyaml orjson klayout
+          nix profile install nixpkgs#yosys nixpkgs#ieda
+          sed -i '' 's/-enable_fast_mode 0/-enable_fast_mode 1/g' tools/iEDA/script/iRT_script/run_iRT.tcl
+      - name: Run ${{ matrix.design }} flow
+        run: |
+          export PYTHONPATH=$(pwd)/src
+          cd ${{ matrix.path }}
+          python3 -m rtl2gds -c ${{ matrix.config }}
