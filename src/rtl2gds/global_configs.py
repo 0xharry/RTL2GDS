@@ -10,7 +10,8 @@ R2G_TOOL_DIR = os.path.abspath(R2G_SRC_DIR + "/../../tools")
 
 _BIN_ENV = os.environ["PATH"] if "PATH" in os.environ else ""
 _LIB_ENV = os.environ["LD_LIBRARY_PATH"] if "LD_LIBRARY_PATH" in os.environ else ""
-# Set the environment variable to use iEDA tools in RTL2GDS local library
+# Set the environment variable `RTL2GDS_USE_PROJ_BIN_LIB` to "1" to use the
+# local iEDA tools and libraries in the project's `bin` directory. Defaults to "0".
 _USE_PROJ_BIN_LIB = os.environ.get("RTL2GDS_USE_PROJ_BIN_LIB", "0") == "1"
 
 if _USE_PROJ_BIN_LIB:

@@ -80,7 +80,9 @@ feature_summary -path $DESIGN_STAT_JSON -step legalization
 #===========================================================
 ##   run timing evaluation
 #===========================================================
-run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
+if { [info exists ::env(enable_eval)] && ($::env(enable_eval) == "true" || $::env(enable_eval) == "1") } {
+    run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
+}
 
 #===========================================================
 ##   Exit 
