@@ -29,11 +29,14 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
+          # Replace fast github with normal github
+          sed -i 's|https://githubfast.com/|https://github.com/|g' .gitmodules
+          # Enable fast mode for iEDA route
+          sed -i 's/-enable_fast_mode 0/-enable_fast_mode 1/g' tools/iEDA/script/iRT_script/run_iRT.tcl
           git submodule update --init
           python -m pip install --upgrade pip
           pip3 install pyyaml orjson klayout
           nix profile install nixpkgs#yosys nixpkgs#ieda
-          sed -i '' 's/-enable_fast_mode 0/-enable_fast_mode 1/g' tools/iEDA/script/iRT_script/run_iRT.tcl
       - name: Run ${{ matrix.design }} flow
         run: |
           export PYTHONPATH=$(pwd)/src
