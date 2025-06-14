@@ -36,7 +36,7 @@ jobs:
           git submodule update --init
           python -m pip install --upgrade pip
           pip3 install pyyaml orjson klayout
-          nix profile install nixpkgs#yosys nixpkgs#ieda
+          nix profile add nixpkgs#yosys nixpkgs#ieda
       - name: Run ${{ matrix.design }} flow
         run: |
           export PYTHONPATH=$(pwd)/src
