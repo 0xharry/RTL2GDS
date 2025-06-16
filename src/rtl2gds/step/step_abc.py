@@ -132,19 +132,12 @@ class Step:
         try:
             start_time = time.perf_counter()
             rusage_start = resource.getrusage(resource.RUSAGE_CHILDREN)
-            # @TODO: may add capture_output=True in the future
-            # It is short for stdout=subprocess.PIPE and stderr=subprocess.PIPE
-            # Now we redirect stderr to stdout
-            e = subprocess.run(
-                shell_cmd,
-                check=True,
-                text=True,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                env=env,
-                timeout=1800,
-            )
+
+            # Use subprocess.call to allow real-time output printing
+            ret_code = subprocess.call(shell_cmd, env=env)
+            if ret_code != 0:
+                raise subprocess.CalledProcessError(ret_code, shell_cmd)
+
             rusage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
             elapsed_time = time.monotonic() - start_time
             peak_memory_mb = (rusage_end.ru_maxrss - rusage_start.ru_maxrss) / 1024
@@ -156,17 +149,10 @@ class Step:
             )
         except subprocess.CalledProcessError as e:
             logging.error(
-                "(step.%s) \n subprocess.CalledProcessError(return code: %d): output: %s",
+                "(step.%s) \n subprocess.CalledProcessError(return code: %d): cmd: %s",
                 self.step_name,
                 e.returncode,
-                e.output,
-            )
-            raise
-        except subprocess.TimeoutExpired as e:
-            logging.error(
-                "(step.%s) \n subprocess.TimeoutExpired: output: %s",
-                self.step_name,
-                e.output,
+                e.cmd,
             )
             raise
 
@@ -179,7 +165,7 @@ class Step:
             "peak_memory_mb": peak_memory_mb,
         }
 
-        return e.stdout, cmd_reproducible, subprocess_metrics
+        return "", cmd_reproducible, subprocess_metrics
 
     @staticmethod
     def _update_matching_keys(base_dict: dict[str, str], updates: dict[str, str]) -> dict[str, str]:
@@ -252,6 +238,7 @@ class Step:
             shell_env.update(self.tool_env["extra_env"])
 
         from rtl2gds.global_configs import _USE_PROJ_BIN_LIB
+
         if _USE_PROJ_BIN_LIB:
             shell_env["PATH"] = os.pathsep.join(
                 [self.tool_env.get("PATH", ""), os.environ.get("PATH", "")]
@@ -299,7 +286,8 @@ class Step:
             start_time=start_time,
             step_name=timer_step_name,
         )
-        logging.debug("(step.%s) runtime_log: %s", self.step_name, runtime_log)
+        # Note: runtime_log is empty since we use subprocess.call for real-time output
+        logging.info("(step.%s) Step completed successfully", self.step_name)
 
         Step._check_files_exist(output_files)
         # metrics = self._collect_metrics()
