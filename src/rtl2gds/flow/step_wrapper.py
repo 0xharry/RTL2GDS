@@ -1,13 +1,12 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
 from rtl2gds import step
 from rtl2gds.chip import Chip
 from rtl2gds.global_configs import DEFAULT_SDC_FILE, RTL2GDS_FLOW_STEPS, StepName
+from rtl2gds.step import step_abc
 from rtl2gds.utils import process
 from rtl2gds.utils.time import save_execute_time_data
-
-from rtl2gds.step import step_abc
 
 
 def get_expected_step(finished_step: str) -> str | None:
@@ -43,7 +42,7 @@ class StepWrapper:
         self._check_expected_step(step_name)
 
         # @TODO: temporarily migrate from synthesis.py, need to be refactored
-        from rtl2gds.step.synthesis import parse_synth_stat, _calculate_areas, _convert_sv_to_v
+        from rtl2gds.step.synthesis import _calculate_areas, _convert_sv_to_v, parse_synth_stat
 
         rtl_file = _convert_sv_to_v(
             self.chip.path_setting.rtl_file, self.chip.path_setting.result_dir, self.chip.top_name

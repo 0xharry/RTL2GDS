@@ -1,13 +1,14 @@
 import logging
 import os
-import subprocess
-import yaml
-import time
 import resource
+import subprocess
+import time
 from pathlib import Path
 from string import Template
 
-from rtl2gds.global_configs import R2G_BASE_DIR, R2G_PDK_DIR_IHP130, R2G_BIN_DIR, R2G_TOOL_DIR
+import yaml
+
+from rtl2gds.global_configs import R2G_BASE_DIR, R2G_BIN_DIR, R2G_PDK_DIR_IHP130, R2G_TOOL_DIR
 
 STEP_CONFIG = os.path.dirname(os.path.abspath(__file__)) + "/step.yaml"
 
