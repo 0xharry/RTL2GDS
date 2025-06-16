@@ -68,7 +68,7 @@ init_rt -temp_directory_path $TOOL_REPORT_DIR \
         -thread_number $NUM_THREADS \
         -output_inter_result 0 \
         -enable_timing 0 \
-        -enable_fast_mode 0
+        -enable_fast_mode 1
 
 run_rt
 
@@ -93,10 +93,10 @@ netlist_save -path $OUTPUT_VERILOG -exclude_cell_names {}
 report_db -path $DESIGN_STAT_TEXT
 feature_summary -path $DESIGN_STAT_JSON -step route
 
-#===========================================================
-##   run timing evaluation
-#===========================================================
-run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
+# #===========================================================
+# ##   run timing evaluation
+# #===========================================================
+# run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
 
 #===========================================================
 ##   Exit 

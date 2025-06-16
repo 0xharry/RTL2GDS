@@ -106,7 +106,7 @@ def run_ieda(
 def run_magic(
     top_name: str,
     input_def: str,
-    die_area_bbox: str,
+    die_bbox: str,
     gds_file: str,
 ):
     """
@@ -117,10 +117,16 @@ def run_magic(
 
     # Prepare environment variables that the Tcl script will use
     pdk_stdcell_base = f"{R2G_PDK_DIR_IHP130}/ihp-sg13g2/libs.ref/sg13g2_stdcell"
+    tmp_test_macro_name = "gcd"
+    tmp_test_macro_gds = "/opt/rtl2gds/design_zoo/merge_result/gcd_magic.gds"
+    tmp_test_macro_lef = "/opt/rtl2gds/design_zoo/gcd/gcd_results/gcd_filler.lef"
+    tmp_test_macro_bbox = "0 0 108.07 108.07"
     step_env = {
         "MAGIC_SCRIPTS_DIR": f"{R2G_TOOL_DIR}/magic",
         "TECH_LEF": f"{pdk_stdcell_base}/lef/sg13g2_tech.lef",
         "CELL_GDS": f"{pdk_stdcell_base}/gds/sg13g2_stdcell.gds",
+        "__MACRO_GDS": f"{tmp_test_macro_name} {tmp_test_macro_gds} {tmp_test_macro_bbox}",
+        "MACRO_LEFS": tmp_test_macro_lef,
     }
 
     # Prepare the command-line arguments for Magic and the Tcl script
@@ -132,7 +138,7 @@ def run_magic(
         f"{R2G_PDK_DIR_IHP130}/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc",
         f"{R2G_TOOL_DIR}/magic/gds.tcl",
         top_name,
-        die_area_bbox,
+        die_bbox,
         input_def,
         result_dir,
         gds_file,
@@ -143,7 +149,7 @@ def run_magic(
 
     logging.info(
         "(step.%s) \n subprocess cmd: %s \n subprocess env: %s",
-        StepName.ABSTRACT_LEF,
+        StepName.LAYOUT_GDS,
         str(shell_cmd),
         str(step_env),
     )
@@ -171,7 +177,7 @@ def run_magic(
 def run(
     top_name: str,
     input_def: str,
-    die_area_bbox: str,
+    die_bbox: str,
     gds_file: str,
     snapshot_file: str | None = None,
     tool: str = "magic",
@@ -182,7 +188,7 @@ def run(
     Args:
         top_name (str): Top module name
         input_def (str): Input DEF file path
-        die_area_bbox (str): Die area bounding box (for magic)
+        die_bbox (str): Die area bounding box (for magic)
         gds_file (str): Output GDS file path
         result_dir (str): Result directory path
         tool (str): Tool to use for GDS dump. Default is "magic".
@@ -195,7 +201,7 @@ def run(
         subprocess.CalledProcessError: If the GDS dump command fails
     """
     if tool == "magic":
-        run_magic(top_name, input_def, die_area_bbox, gds_file)
+        run_magic(top_name, input_def, die_bbox, gds_file)
     elif tool == "ieda":
         run_ieda(input_def, gds_file)
     elif tool == "klayout":
@@ -218,11 +224,21 @@ if __name__ == "__main__":
         level=logging.INFO,
     )
     # Example usage
+    # run(
+    #     top_name="gcd",
+    #     input_def="/opt/rtl2gds/design_zoo/gcd/gcd_results/gcd_filler.def",
+    #     die_bbox="0 0 108.07 108.07",
+    #     gds_file="/opt/rtl2gds/design_zoo/merge_result/gcd_magic.gds",
+    #     snapshot_file="/opt/rtl2gds/design_zoo/merge_result/gcd_magic.png",
+    #     tool="magic",
+    # )
+
+
     run(
-        top_name="gcd",
-        input_def="/opt/rtl2gds/design_zoo/gcd/gcd_results/gcd_filler.def",
-        die_area_bbox="0 0 108.07 108.07",
-        gds_file="./test_result/gcd_magic.gds",
-        snapshot_file="./test_result/gcd_magic.png",
+        top_name="top",
+        input_def="/opt/rtl2gds/design_zoo/merge_result/top_macro_fp.def",
+        die_bbox="0 0 2000 2000",
+        gds_file="./merge_result/top_macro_fp.gds",
+        snapshot_file="./merge_result/top_macro_fp.png",
         tool="magic",
     )

@@ -1,10 +1,13 @@
-import os
+from pathlib import Path
+import json
 
 from rtl2gds import step
 from rtl2gds.chip import Chip
-from rtl2gds.global_configs import RTL2GDS_FLOW_STEPS, StepName
+from rtl2gds.global_configs import DEFAULT_SDC_FILE, RTL2GDS_FLOW_STEPS, StepName
 from rtl2gds.utils import process
 from rtl2gds.utils.time import save_execute_time_data
+
+from rtl2gds.step import step_abc
 
 
 def get_expected_step(finished_step: str) -> str | None:
@@ -22,6 +25,12 @@ class StepWrapper:
 
     def __init__(self, chip: Chip):
         self.chip = chip
+        self.step_counter = 1
+        self.timing_setup = {
+            "SDC_FILE": DEFAULT_SDC_FILE,
+            "CLK_PORT_NAME": self.chip.constrain.clk_port_name,
+            "CLK_FREQ_MHZ": str(self.chip.constrain.clk_freq_mhz),
+        }
 
     def _check_expected_step(self, step_name: str) -> None:
         expected_step = get_expected_step(self.chip.finished_step)
@@ -33,113 +42,193 @@ class StepWrapper:
         step_name = StepName.SYNTHESIS
         self._check_expected_step(step_name)
 
-        metrics, artifacts = step.synthesis.run(
-            top_name=self.chip.top_name,
-            rtl_file=self.chip.path_setting.rtl_file,
-            netlist_file=self.chip.path_setting.netlist_file,
-            result_dir=self.chip.path_setting.result_dir,
-            clk_freq_mhz=self.chip.constrain.clk_freq_mhz,
-            die_bbox=self.chip.constrain.die_bbox,
-            core_bbox=self.chip.constrain.core_bbox,
-            core_util=self.chip.constrain.core_util,
+        # @TODO: temporarily migrate from synthesis.py, need to be refactored
+        from rtl2gds.step.synthesis import parse_synth_stat, _calculate_areas, _convert_sv_to_v
+
+        rtl_file = _convert_sv_to_v(
+            self.chip.path_setting.rtl_file, self.chip.path_setting.result_dir, self.chip.top_name
         )
+        if isinstance(rtl_file, list):
+            # check if all files exist
+            for rtl in rtl_file:
+                if not Path(rtl).exists():
+                    raise FileNotFoundError(f"File {rtl} does not exist")
+            rtl_file = " \n ".join(rtl_file)
+        #############################################
 
-        self.chip.constrain.die_bbox = metrics["die_bbox"]
-        self.chip.constrain.core_bbox = metrics["core_bbox"]
-        self.chip.constrain.core_util = metrics["core_util"]
+        synth_step = step_abc.Step(step_name)
+        synth_parameters = {
+            "RTL_FILE": rtl_file,
+            "RESULT_DIR": self.chip.path_setting.result_dir,
+            "CLK_FREQ_MHZ": self.chip.constrain.clk_freq_mhz,
+            "TOP_NAME": self.chip.top_name,
+        }
+        _, step_reproducible, _ = synth_step.run(
+            parameters=synth_parameters,
+            output_prefix=f"{self.step_counter:02d}",
+        )
+        self.step_counter += 1
 
-        self.chip.metrics.num_instances = metrics["num_cells"]
-        self.chip.metrics.area.cell = metrics["cell_area"]
-        self.chip.metrics.area.core_util = metrics["core_util"]
+        # @TODO: temporarily migrate from synthesis.py, need to be refactored
+        stats = parse_synth_stat(step_reproducible["output_files"]["SYNTH_STAT_JSON"])
+        cell_area = stats["cell_area"]
+        assert 0 < cell_area
+        MAX_CELL_AREA = 1_000_000
+        if cell_area > MAX_CELL_AREA:
+            raise ValueError(f"Cell area ({cell_area}) exceeds RTL2GDS limit ({MAX_CELL_AREA})")
+        die_bbox, core_bbox, core_util = _calculate_areas(
+            cell_area,
+            self.chip.constrain.core_util,
+            self.chip.constrain.die_bbox,
+            self.chip.constrain.core_bbox,
+        )
+        #############################################
+        self.chip.path_setting.netlist_file = step_reproducible["output_files"]["NETLIST_FILE"]
+
+        self.chip.constrain.die_bbox = die_bbox
+        self.chip.constrain.core_bbox = core_bbox
+        self.chip.constrain.core_util = core_util
+
+        self.chip.metrics.num_instances = stats["num_cells"]
+        self.chip.metrics.area.cell = cell_area
+        self.chip.metrics.area.core_util = core_util
 
         self.chip.finished_step = step_name
         self.chip.expected_step = get_expected_step(step_name)
 
         self.chip.update2config()
-        self.chip.dump_config_yaml()
+        self.chip.dump_config_yaml(
+            config_yaml=Path(
+                f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}.yaml"
+            )
+        )
 
-        return artifacts
+        return step_reproducible["output_files"]
 
     def run_floorplan(self) -> dict:
         """Run floorplan step"""
         step_name = StepName.FLOORPLAN
         self._check_expected_step(step_name)
-        # Create metrics directory (iEDA issue workaround)
-        os.makedirs(f"{self.chip.path_setting.result_dir}/metrics", exist_ok=True)
 
-        output_def = f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}.def"
-        self.chip.path_setting.def_file = output_def
-
-        metrics, artifacts = step.floorplan.run(
-            top_name=self.chip.top_name,
-            result_dir=self.chip.path_setting.result_dir,
-            sdc_file=self.chip.path_setting.sdc_file,
-            input_netlist=self.chip.path_setting.netlist_file,
-            output_def=self.chip.path_setting.def_file,
-            die_bbox=self.chip.constrain.die_bbox,
-            core_bbox=self.chip.constrain.core_bbox,
-            clk_port_name=self.chip.constrain.clk_port_name,
-            clk_freq_mhz=self.chip.constrain.clk_freq_mhz,
+        fp_step = step_abc.Step(step_name)
+        fp_parameters = {
+            "NETLIST_FILE": self.chip.path_setting.netlist_file,
+            "TOP_NAME": self.chip.top_name,
+            "DIE_BBOX": self.chip.constrain.die_bbox,
+            "CORE_BBOX": self.chip.constrain.core_bbox,
+            "RESULT_DIR": self.chip.path_setting.result_dir,
+        }
+        fp_parameters.update(self.timing_setup)
+        _, step_reproducible, _ = fp_step.run(
+            parameters=fp_parameters,
+            output_prefix=f"{self.step_counter:02d}",
         )
+        self.step_counter += 1
 
-        self.chip.constrain.die_bbox = metrics["die_bbox"]
-        self.chip.constrain.core_bbox = metrics["core_bbox"]
-        self.chip.constrain.core_util = metrics["core_util"]
+        self.chip.path_setting.def_file = step_reproducible["output_files"]["OUTPUT_DEF"]
 
-        self.chip.metrics.area.die = metrics["die_area"]
-        self.chip.metrics.area.core = metrics["core_area"]
+        # @TODO: migrate from floorplan.py
+        with open(
+            step_reproducible["output_files"]["DESIGN_STAT_JSON"],
+            "r",
+            encoding="utf-8",
+        ) as f:
+            summary = json.load(f)
+            die_width = float(summary["Design Layout"]["die_bounding_width"])
+            die_height = float(summary["Design Layout"]["die_bounding_height"])
+            core_width = float(summary["Design Layout"]["core_bounding_width"])
+            core_height = float(summary["Design Layout"]["core_bounding_height"])
 
-        self.chip.metrics.area.cell = metrics["cell_area"]
-        self.chip.metrics.area.die_util = metrics["die_util"]
-        self.chip.metrics.area.core_util = metrics["core_util"]
-        self.chip.metrics.num_instances = metrics["num_instances"]
+            core_area = float(summary["Design Layout"]["core_area"])
+            core_util = float(summary["Design Layout"]["core_usage"])
+            die_area = float(summary["Design Layout"]["die_area"])
+            die_util = float(summary["Design Layout"]["die_usage"])
+            cell_area = float(summary["Instances"]["total"]["area"])
+            num_instances = int(summary["Design Statis"]["num_instances"])
+
+            margin_width = float(die_width - core_width) / 2
+            margin_height = float(die_height - core_height) / 2
+
+        self.chip.constrain.die_bbox = f"0 0 {die_width} {die_height}"
+        self.chip.constrain.core_bbox = (
+            f"{margin_width} {margin_height} {margin_width+core_width} {margin_height+core_height}"
+        )
+        self.chip.constrain.core_util = core_util
+
+        self.chip.metrics.area.die = die_area
+        self.chip.metrics.area.core = core_area
+
+        self.chip.metrics.area.cell = cell_area
+        self.chip.metrics.area.die_util = die_util
+        self.chip.metrics.area.core_util = core_util
+        self.chip.metrics.num_instances = num_instances
 
         self.chip.finished_step = step_name
         self.chip.expected_step = get_expected_step(step_name)
 
         self.chip.update2config()
-        self.chip.dump_config_yaml()
+        self.chip.dump_config_yaml(
+            config_yaml=Path(
+                f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}.yaml"
+            )
+        )
 
-        return artifacts
+        return step_reproducible["output_files"]
+
+    pr_step_map = {
+        StepName.NETLIST_OPT: step_abc.Step(StepName.NETLIST_OPT),
+        StepName.PLACEMENT: step_abc.Step(StepName.PLACEMENT),
+        StepName.CTS: step_abc.Step(StepName.CTS),
+        StepName.LEGALIZATION: step_abc.Step(StepName.LEGALIZATION),
+        StepName.ROUTING: step_abc.Step(StepName.ROUTING),
+        StepName.FILLER: step_abc.Step(StepName.FILLER),
+    }
 
     def run_pr_step(self, step_name: str) -> dict:
         """Run a specific place & route step"""
         self._check_expected_step(step_name)
 
-        step_obj = step.pr_step_map.get(step_name)
+        step_obj = StepWrapper.pr_step_map.get(step_name)
         if not step_obj:
             raise ValueError(f"Unknown PR step: {step_name}")
 
-        step_file_prefix = f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}"
-        output_def = f"{step_file_prefix}.def"
-        output_verilog = f"{step_file_prefix}.v"
-        # Create metrics directory (iEDA issue workaround)
-        os.makedirs(f"{self.chip.path_setting.result_dir}/metrics", exist_ok=True)
-
-        metrics, artifacts = step_obj.run(
-            top_name=self.chip.top_name,
-            input_def=self.chip.path_setting.def_file,
-            result_dir=self.chip.path_setting.result_dir,
-            output_def=output_def,
-            output_verilog=output_verilog,
-            clk_port_name=self.chip.constrain.clk_port_name,
-            clk_freq_mhz=self.chip.constrain.clk_freq_mhz,
+        step_parameters = {
+            "INPUT_DEF": self.chip.path_setting.def_file,
+            "TOP_NAME": self.chip.top_name,
+            "RESULT_DIR": self.chip.path_setting.result_dir,
+        }
+        step_parameters.update(self.timing_setup)
+        _, step_reproducible, _ = step_obj.run(
+            parameters=step_parameters,
+            output_prefix=f"{self.step_counter:02d}",
         )
+        self.step_counter += 1
 
-        self.chip.path_setting.def_file = output_def
+        self.chip.path_setting.def_file = step_reproducible["output_files"]["OUTPUT_DEF"]
 
         self.chip.finished_step = step_name
         self.chip.expected_step = get_expected_step(step_name)
 
-        self.chip.metrics.area.cell = metrics["cell_area"]
-        self.chip.metrics.area.die_util = metrics["die_util"]
-        self.chip.metrics.area.core_util = metrics["core_util"]
-        self.chip.metrics.num_instances = metrics["num_instances"]
+        # @TODO: migrate from step.py
+        with open(
+            step_reproducible["output_files"]["DESIGN_STAT_JSON"],
+            "r",
+            encoding="utf-8",
+        ) as f:
+            summary = json.load(f)
+            self.chip.metrics.area.core_util = float(summary["Design Layout"]["core_usage"])
+            self.chip.metrics.area.die_util = float(summary["Design Layout"]["die_usage"])
+            self.chip.metrics.area.cell = float(summary["Instances"]["total"]["area"])
+            self.chip.metrics.num_instances = int(summary["Design Statis"]["num_instances"])
 
         self.chip.update2config()
-        self.chip.dump_config_yaml()
+        self.chip.dump_config_yaml(
+            config_yaml=Path(
+                f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}.yaml"
+            )
+        )
 
-        return artifacts
+        return step_reproducible["output_files"]
 
     def run_save_layout_gds(self, step_name: str, take_snapshot: bool = False) -> dict:
         """Run dump layout GDS step"""
@@ -158,7 +247,11 @@ class StepWrapper:
         self.chip.path_setting.gds_file = gds_file
 
         self.chip.update2config()
-        self.chip.dump_config_yaml()
+        self.chip.dump_config_yaml(
+            config_yaml=Path(
+                f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}_gds.yaml"
+            )
+        )
 
         if take_snapshot:
             return dict({"gds_file": gds_file, "snapshot_file": snapshot_file})

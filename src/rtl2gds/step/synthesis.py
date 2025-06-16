@@ -79,7 +79,7 @@ def save_module_preview(
         # yosys -p "prep -top my_top_module; write_json output.json" input.v
         # yosys -p "prep -top my_top_module -flatten; write_json output.json" input.v
         # yosys -p "prep -top my_top_module; aigmap; write_json output.json" input.v
-        print(f"Running Yosys: {' '.join(yosys_cmd)}")
+        logging.info(f"Running Yosys: {' '.join(yosys_cmd)}")
         subprocess.run(yosys_cmd, check=True, env=ENV_TOOLS_PATH)
 
         # Construct netlistsvg command
@@ -89,10 +89,10 @@ def save_module_preview(
 
         # Run netlistsvg
         # netlistsvg input_json_file [-o output_svg_file] [--skin skin_file]
-        print(f"Running netlistsvg: {' '.join(netlistsvg_cmd)}")
+        logging.info(f"Running netlistsvg: {' '.join(netlistsvg_cmd)}")
         subprocess.run(netlistsvg_cmd, check=True)
 
-        print(f"SVG diagram generated successfully: {output_svg}")
+        logging.info(f"SVG diagram generated successfully: {output_svg}")
         return output_svg
 
     finally:
@@ -118,7 +118,7 @@ def convert_sv2v(input_sv, output_v, top=None, write=None, incdir=None, define=N
     # import shutil; shutil.which("sv2v")
     sv2v_executable = "sv2v"
     if not sv2v_executable:
-        print("Error: sv2v is not installed or not in PATH.")
+        logging.error("Error: sv2v is not installed or not in PATH.")
         return False
 
     cmd = [sv2v_executable, input_sv, "-w", output_v]  # Basic sv2v command
@@ -137,9 +137,9 @@ def convert_sv2v(input_sv, output_v, top=None, write=None, incdir=None, define=N
         subprocess.run(cmd, check=True, capture_output=True, text=True, env=ENV_TOOLS_PATH)
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Error running sv2v: {e}")
-        print(f"sv2v stdout: {e.stdout}")  # Capture and print stdout/stderr for debugging
-        print(f"sv2v stderr: {e.stderr}")
+        logging.error(f"Error running sv2v: {e}")
+        logging.error(f"sv2v stdout: {e.stdout}")
+        logging.error(f"sv2v stderr: {e.stderr}")
         return False
 
 
@@ -160,7 +160,7 @@ def parse_synth_stat(synth_stat_json: str):
         encoding="utf-8",
     ) as f:
         summary = json.load(f)
-        print(summary)
+        logging.debug(summary)
         stats["num_cells"] = int(summary["design"]["num_cells"])
         stats["cell_area"] = float(summary["design"]["area"])
 

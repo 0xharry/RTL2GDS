@@ -49,7 +49,7 @@ def_init -path $INPUT_DEF
 ##   Full layer information instance:(-discard li/mcon/nwell/pwell/met/via)
 ##   use (-discard null) to choose all layer
 #===========================================================
-json_save -path $LAYOUT_JSON_FILE -discard li
+json_save -path $LAYOUT_JSON_FILE -discard null
 
 #===========================================================
 ##   Exit 

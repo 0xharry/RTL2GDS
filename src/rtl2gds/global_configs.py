@@ -1,17 +1,18 @@
 import os
 from dataclasses import dataclass
 
-R2G_SRC_DIR = os.path.dirname(os.path.abspath(__file__))
-R2G_BIN_DIR = os.path.abspath(R2G_SRC_DIR + "/../../bin")
-R2G_PDK_DIR = os.path.abspath(R2G_SRC_DIR + "/../../foundry")
+R2G_SRC_DIR = os.path.abspath(__file__ + "/../..")
+R2G_BASE_DIR = os.path.abspath(R2G_SRC_DIR + "/..")
+R2G_BIN_DIR = os.path.abspath(R2G_BASE_DIR + "/bin")
+R2G_PDK_DIR = os.path.abspath(R2G_BASE_DIR + "/foundry")
 R2G_PDK_DIR_SKY130 = os.path.abspath(R2G_PDK_DIR + "/sky130")
 R2G_PDK_DIR_IHP130 = os.path.abspath(R2G_PDK_DIR + "/ihp130")
-R2G_TOOL_DIR = os.path.abspath(R2G_SRC_DIR + "/../../tools")
+R2G_TOOL_DIR = os.path.abspath(R2G_BASE_DIR + "/tools")
 
 _BIN_ENV = os.environ["PATH"] if "PATH" in os.environ else ""
 _LIB_ENV = os.environ["LD_LIBRARY_PATH"] if "LD_LIBRARY_PATH" in os.environ else ""
 # Set the environment variable to use iEDA tools in RTL2GDS local library
-_USE_PROJ_BIN_LIB = os.environ.get("RTL2GDS_USE_PROJ_BIN_LIB", "0") == "1"
+_USE_PROJ_BIN_LIB = os.environ.get("RTL2GDS_USE_PROJ_BIN_LIB", "1") == "1"
 
 if _USE_PROJ_BIN_LIB:
     _TOOL_PATH = f"{R2G_BIN_DIR}/iEDA:{R2G_BIN_DIR}/sv2v-Linux:{R2G_BIN_DIR}/yosys/bin:{_BIN_ENV}"
@@ -29,7 +30,6 @@ ENV_TOOLS_PATH = {
     "LIBERTY_FILE": f"{R2G_PDK_DIR_IHP130}/ihp-sg13g2/libs.ref/sg13g2_stdcell/lib/sg13g2_stdcell_typ_1p20V_25C.lib",
     "RUST_BACKTRACE": "1",
     "VERILOG_INCLUDE_DIRS": "",
-    "RTL2GDS_DIR": R2G_SRC_DIR,
 }
 
 DEFAULT_SDC_FILE = f"{R2G_TOOL_DIR}/default.sdc"
@@ -58,6 +58,11 @@ class StepName:
     LAYOUT_JSON = "layout_json"
     STA = "sta"
     DRC = "drc"
+    ABSTRACT_LEF = "abstract_lef"
+    IP_LIBRARY = "ip_library"
+    OR_STA_LIB = "openroad_sta_lib"
+    # TEMPLATE = "template_soc"
+    MACRO = "macro"
 
 
 # Flow step sequences

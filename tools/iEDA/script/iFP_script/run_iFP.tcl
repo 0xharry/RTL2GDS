@@ -9,8 +9,8 @@ set NETLIST_FILE        "$::env(NETLIST_FILE)"
 
 # input variables
 set TOP_NAME            "$::env(TOP_NAME)"
-set DIE_AREA            "$::env(DIE_AREA)"
-set CORE_AREA           "$::env(CORE_AREA)"
+set DIE_BBOX            "$::env(DIE_BBOX)"
+set CORE_BBOX           "$::env(CORE_BBOX)"
 
 # output files
 set OUTPUT_DEF          "$RESULT_DIR/iFP_result.def"
@@ -64,8 +64,8 @@ set IO_SITE sg13g2_ioSite
 set CORNER_SITE sg13g2_ioSite
 
 init_floorplan \
-   -die_area $DIE_AREA \
-   -core_area $CORE_AREA \
+   -die_area $DIE_BBOX \
+   -core_area $CORE_BBOX \
    -core_site $PLACE_SITE \
    -io_site $IO_SITE \
    -corner_site $CORNER_SITE
@@ -109,13 +109,13 @@ def_save -path $OUTPUT_DEF
 report_db -path $DESIGN_STAT_TEXT
 feature_summary -step floorplan -path $DESIGN_STAT_JSON
 
-#===========================================================
-##   run timing evaluation
-#===========================================================
-source $IEDA_TCL_SCRIPT_DIR/DB_script/db_init_lib.tcl
-source $IEDA_TCL_SCRIPT_DIR/DB_script/db_init_sdc.tcl
+# #===========================================================
+# ##   run timing evaluation
+# #===========================================================
+# source $IEDA_TCL_SCRIPT_DIR/DB_script/db_init_lib.tcl
+# source $IEDA_TCL_SCRIPT_DIR/DB_script/db_init_sdc.tcl
 
-run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
+# run_timing_eval -eval_output_path $::env(DESIGN_TIMING_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
 
 #===========================================================
 ##   Exit 

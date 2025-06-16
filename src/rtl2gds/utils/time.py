@@ -1,8 +1,6 @@
-import json
 import logging
 import os
 from datetime import datetime
-from typing import Callable
 
 from .json_helper import dump_json, load_json
 
@@ -74,9 +72,9 @@ def save_execute_time_data(result_dir: str, chip_name: str) -> str:
     Returns:
         str: Path to the saved JSON file.
     """
-    os.makedirs(result_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     json_file = os.path.join(result_dir, f"evaluation/{chip_name}_execution_time_{timestamp}.json")
+    os.makedirs(os.path.dirname(json_file), exist_ok=True)
     dump_json(json_file=json_file, data=time_data)
     return json_file
 
@@ -121,9 +119,9 @@ def save_merged_metrics(chip: Chip, execute_time_json: str):
     logging.info(f"Merge metrics {execute_time_report_path}")
     exec_time_data = load_json(execute_time_json)
 
-    # Load timing data
-    logging.info(f"Merge metrics {timing_report_path}")
-    timing_data = load_json(timing_report_path)
+    # # Load timing data
+    # logging.info(f"Merge metrics {timing_report_path}")
+    # timing_data = load_json(timing_report_path)
 
     merged_data["summary"] = exec_time_data.get("summary", {})
 
@@ -136,9 +134,9 @@ def save_merged_metrics(chip: Chip, execute_time_json: str):
         # Add execution time data
         merged_data["steps"][step_name]["execution_time"] = step_exec_time
 
-        # Add timing data
-        if step_name in timing_data:
-            merged_data["steps"][step_name]["timing"] = timing_data.get(step_name, {})
+        # # Add timing data
+        # if step_name in timing_data:
+        #     merged_data["steps"][step_name]["timing"] = timing_data.get(step_name, {})
 
     dump_json(merged_report_path, merged_data)
 

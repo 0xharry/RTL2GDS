@@ -38,15 +38,18 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | bin
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | bin
+    | _build
+    | buck-out
+    | build
+    | dist
+    | foundry
+    | demo
+    | docs
 )/
 '''
 

@@ -1,0 +1,294 @@
+# rules for ${variables}:
+# 1. case insensitive for each env key (will be translated into uppercase)
+# 2. scopes for ${variables} start with R2G_ are global
+# 3. scopes for ${variables} start with OUTPUT_ are only for [step_name][output_env][files]
+# 4. every env(input_env/output_env/parameters) can be used as a variable in `cmd_template`
+# 5. default_env and tool_env will be resolved at class init, rest env will be resolved at run time
+# 6. Special reminder for step outputs:
+#    - ${OUTPUT_PREFIX}, ${OUTPUT_STEP_NAME} and ${OUTPUT_TOP_NAME} are only used for output file names including ${dir_template},
+#      will be constructed at `Step.process_output_files()`
+#    - ${RESULT_DIR} will be resolved as ${RESULT_DIR}/${dir_template} at `Step.process_output_files()`
+#    - the point is: ${RESULT_DIR} is the base directory for all step outputs, 
+#      the final output directory for each step will be ${RESULT_DIR}/${dir_template}
+
+# rule for special variables:
+# `__optional__` : optional input file/parameter, skip check if not exist
+
+default_env:
+  FOUNDRY_DIR: ${R2G_PDK_DIR_IHP130}
+  TECH_LEF: ${R2G_PDK_DIR_IHP130}/ihp-sg13g2/libs.ref/sg13g2_stdcell/lef/sg13g2_tech.lef
+  CELL_GDS: ${R2G_PDK_DIR_IHP130}/ihp-sg13g2/libs.ref/sg13g2_stdcell/gds/sg13g2_stdcell.gds
+  CELL_LEFS: ${R2G_PDK_DIR_IHP130}/ihp-sg13g2/libs.ref/sg13g2_stdcell/lef/sg13g2_stdcell.lef
+  RESULT_DIR: ${R2G_BASE_DIR}/rtl2gds_result
+
+tool_env:
+  iEDA:
+    PATH: ${R2G_BIN_DIR}/iEDA
+    LD_LIBRARY_PATH: ${R2G_BIN_DIR}/lib
+    extra_env:
+      IEDA_CONFIG_DIR: ${R2G_TOOL_DIR}/iEDA/iEDA_config
+      IEDA_TCL_SCRIPT_DIR: ${R2G_TOOL_DIR}/iEDA/script
+  magic:
+    extra_env:
+      MAGIC_SCRIPTS_DIR: ${R2G_TOOL_DIR}/magic
+  yosys:
+    PATH: ${R2G_BIN_DIR}/yosys/bin
+    LD_LIBRARY_PATH: ${R2G_BIN_DIR}/lib
+
+sta:
+  tool_name: iEDA
+  cmd_template:
+    - iEDA
+    - ${R2G_TOOL_DIR}/iEDA/script/iSTA_script/run_iSTA.tcl
+  input_env:
+    files:
+      INPUT_DEF: __optional__
+      INPUT_VERILOG: __optional__
+      SDC_FILE: ${R2G_TOOL_DIR}/default.sdc
+    parameters:
+      TOP_NAME: top
+      USE_VERILOG_ONLY: false
+      CLK_PORT_NAME: clk
+      CLK_FREQ_MHZ: 100
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      TOOL_REPORT_DIR: ${OUTPUT_TOP_NAME}_sta
+    metrics:
+      - suggest_freq_mhz
+
+drc:
+  tool_name: magic
+  cmd_template:
+    - magic
+    - -noconsole
+    - -dnull
+    - -rcfile
+    - ${R2G_PDK_DIR_IHP130}/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc
+    - ${R2G_TOOL_DIR}/magic/drc.tcl
+    - ${TOP_NAME}
+    - ${GDS_FILE}
+    - ${DRC_REPORT_JSON}
+  input_env:
+    files:
+      GDS_FILE: top.gds
+    parameters:
+      TOP_NAME: top
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      DRC_REPORT_JSON: ${OUTPUT_TOP_NAME}_drc.json
+    metrics:
+      - num_drc_violations
+
+gds:
+  tool_name: magic
+  cmd_template:
+    - magic
+    - -noconsole
+    - -dnull
+    - -rcfile
+    - ${R2G_PDK_DIR_IHP130}/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc
+    - ${R2G_TOOL_DIR}/magic/gds.tcl
+    - ${TOP_NAME}
+    - ${DIE_BBOX}
+    - ${INPUT_DEF}
+    - ./
+    - ${GDS_FILE}
+  input_env:
+    files:
+      INPUT_DEF: top.def
+    parameters:
+      TOP_NAME: top
+      DIE_BBOX:
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      GDS_FILE: ${OUTPUT_TOP_NAME}.gds
+    metrics:
+      - elapsed_time
+      - peak_memory_mb
+
+synthesis:
+  tool_name: yosys
+  cmd_template:
+    - yosys
+    - ${R2G_TOOL_DIR}/yosys/scripts/yosys_synthesis.tcl
+  input_env:
+    files:
+      RTL_FILE: top.v
+    parameters:
+      TOP_NAME: top
+      CLK_FREQ_MHZ: 100
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      NETLIST_FILE: ${OUTPUT_TOP_NAME}_nl.v
+      SYNTH_STAT_JSON: ${OUTPUT_TOP_NAME}_synth_stat.json
+      SYNTH_CHECK_TXT: ${OUTPUT_TOP_NAME}_synth_check.txt
+    metrics:
+      - num_cells
+      - cell_area
+
+floorplan:
+  tool_name: iEDA
+  cmd_template:
+    - iEDA
+    - ${R2G_TOOL_DIR}/iEDA/script/iFP_script/run_iFP.tcl
+  input_env:
+    files:
+      NETLIST_FILE: top_nl.v
+    parameters:
+      TOP_NAME: top
+      CORE_UTIL: 0.5
+      CELL_AREA: __optional__
+      USE_FIXED_BBOX: true
+      DIE_BBOX: __optional__
+      CORE_BBOX: __optional__
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      OUTPUT_DEF: ${OUTPUT_TOP_NAME}_floorplan.def
+      DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_floorplan_stat.rpt
+      DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_floorplan_stat.json
+    metrics:
+      - die_bbox
+      - core_bbox
+      - core_util
+      - num_cells
+      - cell_area
+
+netlist_opt:
+  tool_name: iEDA
+  cmd_template:
+    - iEDA
+    - ${R2G_TOOL_DIR}/iEDA/script/iNO_script/run_iNO_fix_fanout.tcl
+  input_env:
+    files:
+      INPUT_DEF: top_floorplan.def
+    parameters:
+      TOP_NAME: top
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      OUTPUT_DEF: ${OUTPUT_TOP_NAME}_netlist_opt.def
+      OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_netlist_opt.v
+      DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_netlist_opt_stat.rpt
+      DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_netlist_opt_stat.json
+      TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_netlist_opt_metrics.json
+    metrics:
+      - num_cells
+      - cell_area
+
+placement:
+  tool_name: iEDA
+  cmd_template:
+    - iEDA
+    - ${R2G_TOOL_DIR}/iEDA/script/iPL_script/run_iPL.tcl
+  input_env:
+    files:
+      INPUT_DEF: top_netlist_opt.def
+    parameters:
+      TOP_NAME: top
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      OUTPUT_DEF: ${OUTPUT_TOP_NAME}_placement.def
+      OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_placement.v
+      DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_placement_stat.rpt
+      DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_placement_stat.json
+      TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_placement_metrics.json
+      TOOL_REPORT_DIR: ./
+    metrics:
+      - num_cells
+      - cell_area
+
+cts:
+  tool_name: iEDA
+  cmd_template:
+    - iEDA
+    - ${R2G_TOOL_DIR}/iEDA/script/iCTS_script/run_iCTS.tcl
+  input_env:
+    files:
+      INPUT_DEF: top_placement.def
+    parameters:
+      TOP_NAME: top
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      OUTPUT_DEF: ${OUTPUT_TOP_NAME}_cts.def
+      OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_cts.v
+      DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_cts_stat.rpt
+      DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_cts_stat.json
+      TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_cts_metrics.json
+      TOOL_REPORT_DIR: cts
+    metrics:
+      - num_cells
+      - cell_area
+
+legalization:
+  tool_name: iEDA
+  cmd_template:
+    - iEDA
+    - ${R2G_TOOL_DIR}/iEDA/script/iPL_script/run_iPL_legalization.tcl
+  input_env:
+    files:
+      INPUT_DEF: top_cts.def
+    parameters:
+      TOP_NAME: top
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      OUTPUT_DEF: ${OUTPUT_TOP_NAME}_legalization.def
+      OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_legalization.v
+      DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_legalization_stat.rpt
+      DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_legalization_stat.json
+    metrics:
+      - num_cells
+      - cell_area
+
+routing:
+  tool_name: iEDA
+  cmd_template:
+    - iEDA
+    - ${R2G_TOOL_DIR}/iEDA/script/iRT_script/run_iRT.tcl
+  input_env:
+    files:
+      INPUT_DEF: top_legalization.def
+    parameters:
+      TOP_NAME: top
+      TMP_DIR_NAME: routing_tmp
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      OUTPUT_DEF: ${OUTPUT_TOP_NAME}_routing.def
+      OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_routing.v
+      DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_routing_stat.rpt
+      DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_routing_stat.json
+      TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_routing_metrics.json
+      TOOL_REPORT_DIR: routing
+    metrics:
+      - num_cells
+      - cell_area
+
+filler:
+  tool_name: iEDA
+  cmd_template:
+    - iEDA
+    - ${R2G_TOOL_DIR}/iEDA/script/iPL_script/run_iPL_filler.tcl
+  input_env:
+    files:
+      INPUT_DEF: top_routing.def
+    parameters:
+      TOP_NAME: top
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      OUTPUT_DEF: ${OUTPUT_TOP_NAME}_filler.def
+      OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_filler.v
+      DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_filler_stat.rpt
+      DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_filler_stat.json
+    metrics:
+      - num_cells
+      - cell_area
+

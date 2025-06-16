@@ -1,5 +1,5 @@
 {
-    "use_skew_tree_alg": "ON",
+    "use_skew_tree_alg": "OFF",
     "router_type": "GOCA",
     "delay_type": "elmore",
     "cluster_type": "kmeans",
@@ -26,7 +26,7 @@
     "root_buffer_type": "sg13g2_buf_16",
     "root_buffer_required": "OFF",
     "inherit_root": "OFF",
-    "break_long_wire": "OFF",
+    "break_long_wire": "ON",
     "level_max_length": [
         "400",
         "350"

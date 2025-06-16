@@ -35,7 +35,7 @@ set abc_script [processAbcScript scripts/abc-opt.script]
 source scripts/init_tech.tcl
 
 foreach file $verilog_files {
-    yosys read_verilog $file
+    yosys read_verilog -sv $file
 }
 
 # -----------------------------------------------------------------------------
@@ -44,15 +44,12 @@ foreach file $verilog_files {
 yosys hierarchy -top $top_design
 yosys check
 yosys proc
-yosys tee -q -o "${tmp_dir}/rpt_${top_design}_elaborated.rpt" stat
-yosys write_verilog -norename -noexpr -attr2comment ${tmp_dir}/${top_design}_yosys_elaborated.v
 
 # synth - coarse:
 # similar to yosys synth -run coarse -noalumacc
 yosys opt_expr
 yosys opt -noff
 yosys fsm
-yosys tee -q -o "${tmp_dir}/rpt_${top_design}_initial_opt.rpt" stat
 yosys wreduce 
 yosys peepopt
 yosys opt_clean
@@ -61,8 +58,6 @@ yosys booth
 yosys share
 yosys opt
 yosys memory -nomap
-yosys tee -q -o "${tmp_dir}/rpt_${top_design}_memories.rpt" stat
-yosys write_verilog -norename -noexpr -attr2comment ${tmp_dir}/${top_design}_yosys_memories.v
 yosys memory_map
 yosys opt -fast
 
@@ -71,23 +66,15 @@ yosys share
 yosys opt -full
 yosys clean -purge
 
-yosys write_verilog -norename ${tmp_dir}/${top_design}_yosys_abstract.v
-yosys tee -q -o "${tmp_dir}/rpt_${top_design}_abstract.rpt" stat -tech cmos
-
 yosys techmap
 yosys opt -fast
 yosys clean -purge
 
-
 # -----------------------------------------------------------------------------
-yosys tee -q -o "${tmp_dir}/rpt_${top_design}_generic.rpt" stat -tech cmos
-yosys tee -q -o "${tmp_dir}/rpt_${top_design}_generic.json" stat -json -tech cmos
-
-# flatten all hierarchy except marked modules
-yosys flatten
-
-yosys clean -purge
-
+if {[info exist flatten_design] && $flatten_design} {
+    yosys flatten
+    yosys clean -purge
+}
 
 # -----------------------------------------------------------------------------
 # Preserve flip-flop names as far as possible
@@ -100,11 +87,8 @@ yosys select -write ${tmp_dir}/rpt_${top_design}_registers.rpt t:*DFF*
 yosys autoname t:*DFF* %n
 yosys clean -purge
 
-# print paths to important instances (hierarchy and naming is final here)
-# yosys select -write ${tmp_dir}/rpt_${top_design}_registers.rpt t:*DFF*
-# yosys tee -q -o ${tmp_dir}/rpt_${top_design}_instances.rpt  select -list "t:RM_IHPSG13_*"
-# yosys tee -q -a ${tmp_dir}/rpt_${top_design}_instances.rpt  select -list "t:tc_clk*$*"
-
+yosys tee -q -o "${tmp_dir}/${top_design}_synth_stat_before_techmap.rpt" stat -tech cmos
+yosys tee -q -o "${tmp_dir}/${top_design}_synth_stat_before_techmap.json" stat -json -tech cmos
 
 # -----------------------------------------------------------------------------
 # mapping to technology
@@ -112,7 +96,7 @@ yosys clean -purge
 # set don't use cells
 set dfflibmap_args ""
 foreach cell $dont_use_cells {
-  lappend dfflibmap_args -dont_use $cell
+    lappend dfflibmap_args -dont_use $cell
 }
 # first map flip-flops
 yosys dfflibmap {*}$tech_cells_args {*}$dfflibmap_args
@@ -130,15 +114,14 @@ yosys clean -purge
 # prep for openROAD
 # yosys write_verilog -norename -noexpr -attr2comment ${tmp_dir}/${top_design}_yosys_debug.v
 
-yosys splitnets -ports -format __v
+# yosys splitnets -driver
+yosys splitnets -ports
 yosys setundef -zero
 yosys clean -purge
 # map constants to tie cells
 yosys hilomap -singleton -hicell {*}$tech_cell_tiehi -locell {*}$tech_cell_tielo
 
 # final reports
-# yosys tee -q -o "${tmp_dir}/rpt_${top_design}_area.rpt" stat -top $top_design {*}$liberty_args
-# yosys tee -q -o "${tmp_dir}/rpt_${top_design}_area_logic.rpt" stat -top $top_design {*}$tech_cells_args
 yosys tee -q -o "${synth_stat_json}" stat -json {*}$liberty_args
 yosys tee -q -o "${synth_stat_json}.rpt" stat {*}$liberty_args
 yosys tee -q -o "${synth_check_txt}" check
