@@ -233,7 +233,6 @@ if __name__ == "__main__":
     #     tool="magic",
     # )
 
-
     run(
         top_name="top",
         input_def="/opt/rtl2gds/design_zoo/merge_result/top_macro_fp.def",
