@@ -3,14 +3,12 @@ TOP_NAME: gcd
 
 # path_setting:
 RTL_FILE: ./gcd.v
-NETLIST_FILE: ./gcd_results/gcd_netlist.v
 RESULT_DIR: ./gcd_results
-GDS_FILE: ./gcd_results/gcd.gds
 
 # constrain:
 CLK_PORT_NAME: clk
-CLK_FREQ_MHZ:  200
+CLK_FREQ_MHZ:  500
 CORE_UTIL: 0.7
-# you can set DIE_AREA and CORE_AREA instead of CORE_UTIL
-# DIE_AREA:   0  0 120 120
-# CORE_AREA: 10 10 110 110
+# you can set DIE_BBOX and CORE_BBOX instead of CORE_UTIL
+# DIE_BBOX:   0  0 120 120
+# CORE_BBOX: 10 10 110 110

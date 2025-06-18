@@ -3,13 +3,11 @@ TOP_NAME: picorv32a
 
 # path_setting:
 RTL_FILE: ./picorv32a.v
-NETLIST_FILE: ./pico_results/pico_netlist.v
-RESULT_DIR: ./pico_results
-GDS_FILE: ./pico_results/picorv32a.gds
+RESULT_DIR: ./results
 
 # constrain:
 CLK_PORT_NAME: clk
-CLK_FREQ_MHZ: 100
+CLK_FREQ_MHZ: 200
 CORE_UTIL: 0.7
-# DIE_AREA: 0  0 900 900
-# CORE_AREA: 10 10 890 890
+# DIE_BBOX: 0 0 630 630
+# CORE_BBOX: 10 10 620 620

@@ -11,14 +11,12 @@ RTL_FILE:
 - ./aes_sbox.v
 - ./timescale.v
 
-NETLIST_FILE: ./aes_results/aes_netlist.v
 RESULT_DIR: ./aes_results
-GDS_FILE: ./aes_results/aes.gds
 
 # constrain:
 CLK_PORT_NAME: clk
-CLK_FREQ_MHZ:  100
+CLK_FREQ_MHZ:  200
 CORE_UTIL: 0.6
 
-# DIE_AREA:  0  0  700 700
-# CORE_AREA: 10 10 690 690
+# DIE_BBOX:  0  0  700 700
+# CORE_BBOX: 10 10 690 690

@@ -12,6 +12,7 @@ def main():
     logging.basicConfig(
         format="[%(asctime)s - %(levelname)s - %(name)s]: %(message)s",
         level=logging.INFO,
+        force=True,
     )
 
     aes = Chip("./aes.yaml")

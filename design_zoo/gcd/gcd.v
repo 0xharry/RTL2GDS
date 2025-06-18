@@ -34,7 +34,7 @@ module gcd
   wire   [   0:0] ctrl$a_reg_en;
   wire   [   0:0] ctrl$req_rdy;
 
-  GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e ctrl
+  GcdUnitCtrlRTL ctrl
   (
     .is_b_zero ( ctrl$is_b_zero ),
     .resp_rdy  ( ctrl$resp_rdy ),
@@ -63,7 +63,7 @@ module gcd
   wire   [  15:0] dpath$resp_msg;
   wire   [   0:0] dpath$is_a_lt_b;
 
-  GcdUnitDpathRTL_0x4d0fc71ead8d3d9e dpath
+  GcdUnitDpathRTL dpath
   (
     .a_mux_sel ( dpath$a_mux_sel ),
     .clk       ( dpath$clk ),
@@ -102,11 +102,11 @@ module gcd
 endmodule // GcdUnit
 
 //-----------------------------------------------------------------------------
-// GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e
+// GcdUnitCtrlRTL
 //-----------------------------------------------------------------------------
 // dump-vcd: False
 // verilator-xinit: zeros
-module GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e
+module GcdUnitCtrlRTL
 (
   output reg  [   1:0] a_mux_sel,
   output reg  [   0:0] a_reg_en,
@@ -147,7 +147,7 @@ module GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e
   wire   [   0:0] state$clk;
   wire   [   1:0] state$out;
 
-  RegRst_0x9f365fdf6c8998a state
+  RegRst state
   (
     .reset ( state$reset ),
     .in_   ( state$in_ ),
@@ -317,16 +317,16 @@ module GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e
   end
 
 
-endmodule // GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e
+endmodule // GcdUnitCtrlRTL
 
 //-----------------------------------------------------------------------------
-// RegRst_0x9f365fdf6c8998a
+// RegRst
 //-----------------------------------------------------------------------------
 // dtype: 2
 // reset_value: 0
 // dump-vcd: False
 // verilator-xinit: zeros
-module RegRst_0x9f365fdf6c8998a
+module RegRst
 (
   input  wire [   0:0] clk,
   input  wire [   1:0] in_,
@@ -359,14 +359,14 @@ module RegRst_0x9f365fdf6c8998a
   end
 
 
-endmodule // RegRst_0x9f365fdf6c8998a
+endmodule // RegRst
 
 //-----------------------------------------------------------------------------
-// GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
+// GcdUnitDpathRTL
 //-----------------------------------------------------------------------------
 // dump-vcd: False
 // verilator-xinit: zeros
-module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
+module GcdUnitDpathRTL
 (
   input  wire [   1:0] a_mux_sel,
   input  wire [   0:0] a_reg_en,
@@ -393,7 +393,7 @@ module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
   wire   [   0:0] a_reg$en;
   wire   [  15:0] a_reg$out;
 
-  RegEn_0x68db79c4ec1d6e5b a_reg
+  RegEn a_reg
   (
     .reset ( a_reg$reset ),
     .in_   ( a_reg$in_ ),
@@ -409,7 +409,7 @@ module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
   wire   [  15:0] a_lt_b$in1;
   wire   [   0:0] a_lt_b$out;
 
-  LtComparator_0x422b1f52edd46a85 a_lt_b
+  LtComparator a_lt_b
   (
     .reset ( a_lt_b$reset ),
     .clk   ( a_lt_b$clk ),
@@ -424,7 +424,7 @@ module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
   wire   [   0:0] b_zero$clk;
   wire   [   0:0] b_zero$out;
 
-  ZeroComparator_0x422b1f52edd46a85 b_zero
+  ZeroComparator b_zero
   (
     .reset ( b_zero$reset ),
     .in_   ( b_zero$in_ ),
@@ -441,7 +441,7 @@ module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
   wire   [   1:0] a_mux$sel;
   wire   [  15:0] a_mux$out;
 
-  Mux_0x683fa1a418b072c9 a_mux
+  Mux3 a_mux
   (
     .reset   ( a_mux$reset ),
     .in_$000 ( a_mux$in_$000 ),
@@ -460,7 +460,7 @@ module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
   wire   [   0:0] b_mux$sel;
   wire   [  15:0] b_mux$out;
 
-  Mux_0xdd6473406d1a99a b_mux
+  Mux2 b_mux
   (
     .reset   ( b_mux$reset ),
     .in_$000 ( b_mux$in_$000 ),
@@ -477,7 +477,7 @@ module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
   wire   [  15:0] sub$in1;
   wire   [  15:0] sub$out;
 
-  Subtractor_0x422b1f52edd46a85 sub
+  Subtractor sub
   (
     .reset ( sub$reset ),
     .clk   ( sub$clk ),
@@ -493,7 +493,7 @@ module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
   wire   [   0:0] b_reg$en;
   wire   [  15:0] b_reg$out;
 
-  RegEn_0x68db79c4ec1d6e5b b_reg
+  RegEn b_reg
   (
     .reset ( b_reg$reset ),
     .in_   ( b_reg$in_ ),
@@ -541,15 +541,15 @@ module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
 
 
 
-endmodule // GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
+endmodule // GcdUnitDpathRTL
 
 //-----------------------------------------------------------------------------
-// RegEn_0x68db79c4ec1d6e5b
+// RegEn
 //-----------------------------------------------------------------------------
 // dtype: 16
 // dump-vcd: False
 // verilator-xinit: zeros
-module RegEn_0x68db79c4ec1d6e5b
+module RegEn
 (
   input  wire [   0:0] clk,
   input  wire [   0:0] en,
@@ -577,15 +577,15 @@ module RegEn_0x68db79c4ec1d6e5b
   end
 
 
-endmodule // RegEn_0x68db79c4ec1d6e5b
+endmodule // RegEn
 
 //-----------------------------------------------------------------------------
-// LtComparator_0x422b1f52edd46a85
+// LtComparator
 //-----------------------------------------------------------------------------
 // nbits: 16
 // dump-vcd: False
 // verilator-xinit: zeros
-module LtComparator_0x422b1f52edd46a85
+module LtComparator
 (
   input  wire [   0:0] clk,
   input  wire [  15:0] in0,
@@ -608,15 +608,15 @@ module LtComparator_0x422b1f52edd46a85
   end
 
 
-endmodule // LtComparator_0x422b1f52edd46a85
+endmodule // LtComparator
 
 //-----------------------------------------------------------------------------
-// ZeroComparator_0x422b1f52edd46a85
+// ZeroComparator
 //-----------------------------------------------------------------------------
 // nbits: 16
 // dump-vcd: False
 // verilator-xinit: zeros
-module ZeroComparator_0x422b1f52edd46a85
+module ZeroComparator
 (
   input  wire [   0:0] clk,
   input  wire [  15:0] in_,
@@ -638,16 +638,16 @@ module ZeroComparator_0x422b1f52edd46a85
   end
 
 
-endmodule // ZeroComparator_0x422b1f52edd46a85
+endmodule // ZeroComparator
 
 //-----------------------------------------------------------------------------
-// Mux_0x683fa1a418b072c9
+// Mux3
 //-----------------------------------------------------------------------------
 // dtype: 16
 // nports: 3
 // dump-vcd: False
 // verilator-xinit: zeros
-module Mux_0x683fa1a418b072c9
+module Mux3
 (
   input  wire [   0:0] clk,
   input  wire [  15:0] in_$000,
@@ -681,16 +681,16 @@ module Mux_0x683fa1a418b072c9
   end
 
 
-endmodule // Mux_0x683fa1a418b072c9
+endmodule // Mux3
 
 //-----------------------------------------------------------------------------
-// Mux_0xdd6473406d1a99a
+// Mux2
 //-----------------------------------------------------------------------------
 // dtype: 16
 // nports: 2
 // dump-vcd: False
 // verilator-xinit: zeros
-module Mux_0xdd6473406d1a99a
+module Mux2
 (
   input  wire [   0:0] clk,
   input  wire [  15:0] in_$000,
@@ -722,15 +722,15 @@ module Mux_0xdd6473406d1a99a
   end
 
 
-endmodule // Mux_0xdd6473406d1a99a
+endmodule // Mux2
 
 //-----------------------------------------------------------------------------
-// Subtractor_0x422b1f52edd46a85
+// Subtractor
 //-----------------------------------------------------------------------------
 // nbits: 16
 // dump-vcd: False
 // verilator-xinit: zeros
-module Subtractor_0x422b1f52edd46a85
+module Subtractor
 (
   input  wire [   0:0] clk,
   input  wire [  15:0] in0,
@@ -753,5 +753,5 @@ module Subtractor_0x422b1f52edd46a85
   end
 
 
-endmodule // Subtractor_0x422b1f52edd46a85
+endmodule // Subtractor
 
