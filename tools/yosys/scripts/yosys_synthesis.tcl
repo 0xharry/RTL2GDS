@@ -28,9 +28,6 @@ proc processAbcScript {abc_script} {
     return $abc_out_path
 }
 
-# ABC logic optimization script
-set abc_script [processAbcScript scripts/abc-opt.script]
-
 # read liberty files and prepare some variables
 source scripts/init_tech.tcl
 
@@ -70,6 +67,8 @@ yosys techmap
 yosys opt -fast
 yosys clean -purge
 
+yosys tee -q -o "${generic_stat_json}" stat -json -tech cmos
+# yosys tee -q -o "${generic_stat_json}.rpt" stat -tech cmos
 # -----------------------------------------------------------------------------
 if {[info exist flatten_design] && $flatten_design} {
     yosys flatten
@@ -81,15 +80,19 @@ if {[info exist flatten_design] && $flatten_design} {
 # split internal nets
 yosys splitnets -format __v
 # rename DFFs from the driven signal
-yosys rename -wire -suffix _reg t:*DFF*
-yosys select -write ${tmp_dir}/rpt_${top_design}_registers.rpt t:*DFF*
+yosys rename -wire -suffix _reg_p t:*DFF*_P*
+yosys rename -wire -suffix _reg_n t:*DFF*_N*
 # rename all other cells
 yosys autoname t:*DFF* %n
 yosys clean -purge
 
-yosys tee -q -o "${tmp_dir}/${top_design}_synth_stat_before_techmap.rpt" stat -tech cmos
-yosys tee -q -o "${tmp_dir}/${top_design}_synth_stat_before_techmap.json" stat -json -tech cmos
+yosys select -write ${timing_cell_stat_rpt} t:*DFF*
+yosys tee -q -o ${timing_cell_count_rpt} select -count t:*DFF*_P*
+yosys tee -q -a ${timing_cell_count_rpt} select -count t:*DFF*_N*
+yosys tee -q -a ${timing_cell_count_rpt} select -count */t:*_DLATCH*_ */t:*_SR*_
 
+# yosys tee -q -o "${generic_stat_json}" stat -json -tech cmos
+# yosys tee -q -o "${generic_stat_json}.rpt" stat -tech cmos
 # -----------------------------------------------------------------------------
 # mapping to technology
 
@@ -123,8 +126,8 @@ yosys hilomap -singleton -hicell {*}$tech_cell_tiehi -locell {*}$tech_cell_tielo
 
 # final reports
 yosys tee -q -o "${synth_stat_json}" stat -json {*}$liberty_args
-yosys tee -q -o "${synth_stat_json}.rpt" stat {*}$liberty_args
-yosys tee -q -o "${synth_check_txt}" check
+# yosys tee -q -o "${synth_stat_json}.rpt" stat {*}$liberty_args
+yosys tee -q -o "${synth_check_rpt}" check
 
 # final netlist
 yosys write_verilog -noattr -noexpr -nohex -nodec ${final_netlist_file}

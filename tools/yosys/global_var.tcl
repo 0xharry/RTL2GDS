@@ -5,8 +5,12 @@ set clk_freq_mhz            "$::env(CLK_FREQ_MHZ)"
 set verilog_files           "$::env(RTL_FILE)"
 set pdk_dir                 "$::env(FOUNDRY_DIR)"
 set final_netlist_file      "$::env(NETLIST_FILE)"
+set timing_cell_stat_rpt    "$::env(TIMING_CELL_STAT_RPT)"
+set timing_cell_count_rpt   "$::env(TIMING_CELL_COUNT_RPT)"
+set generic_stat_json       "$::env(GENERIC_STAT_JSON)"
 set synth_stat_json         "$::env(SYNTH_STAT_JSON)"
-set synth_check_txt         "$::env(SYNTH_CHECK_TXT)"
+set synth_check_rpt         "$::env(SYNTH_CHECK_RPT)"
+set flatten_design          "$::env(FLATTEN_DESIGN)"
 
 set tmp_dir        "$::env(RESULT_DIR)/tmp"
 

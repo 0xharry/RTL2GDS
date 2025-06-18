@@ -120,15 +120,22 @@ synthesis:
     parameters:
       TOP_NAME: top
       CLK_FREQ_MHZ: 100
+      FLATTEN_DESIGN: true
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
       NETLIST_FILE: ${OUTPUT_TOP_NAME}_nl.v
+      TIMING_CELL_STAT_RPT: ${OUTPUT_TOP_NAME}_timing_cells.rpt
+      TIMING_CELL_COUNT_RPT: ${OUTPUT_TOP_NAME}_timing_cell_count.rpt
+      GENERIC_STAT_JSON: ${OUTPUT_TOP_NAME}_generic_stat.json
       SYNTH_STAT_JSON: ${OUTPUT_TOP_NAME}_synth_stat.json
-      SYNTH_CHECK_TXT: ${OUTPUT_TOP_NAME}_synth_check.txt
+      SYNTH_CHECK_RPT: ${OUTPUT_TOP_NAME}_synth_check.rpt
     metrics:
       - num_cells
       - cell_area
+      - num_posedge_reg
+      - num_negedge_reg
+      - num_latch
 
 floorplan:
   tool_name: iEDA
