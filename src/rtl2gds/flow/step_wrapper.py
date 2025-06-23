@@ -24,7 +24,6 @@ class StepWrapper:
 
     def __init__(self, chip: Chip):
         self.chip = chip
-        self.step_counter = 1
         self.timing_setup = {
             "SDC_FILE": DEFAULT_SDC_FILE,
             "CLK_PORT_NAME": self.chip.constrain.clk_port_name,
@@ -64,9 +63,9 @@ class StepWrapper:
         }
         _, step_reproducible, _ = synth_step.run(
             parameters=synth_parameters,
-            output_prefix=f"{self.step_counter:02d}",
+            output_prefix=f"{self.chip.num_executed_steps:02d}",
         )
-        self.step_counter += 1
+        self.chip.num_executed_steps += 1
 
         # @TODO: temporarily migrate from synthesis.py, need to be refactored
         stats = parse_synth_stat(step_reproducible["output_files"]["SYNTH_STAT_JSON"])
@@ -120,7 +119,7 @@ class StepWrapper:
         fp_parameters.update(self.timing_setup)
         _, step_reproducible, _ = fp_step.run(
             parameters=fp_parameters,
-            output_prefix=f"{self.step_counter:02d}",
+            output_prefix=f"{self.chip.num_executed_steps:02d}",
         )
         self.step_counter += 1
 
@@ -199,9 +198,9 @@ class StepWrapper:
         step_parameters.update(self.timing_setup)
         _, step_reproducible, _ = step_obj.run(
             parameters=step_parameters,
-            output_prefix=f"{self.step_counter:02d}",
+            output_prefix=f"{self.chip.num_executed_steps:02d}",
         )
-        self.step_counter += 1
+        self.chip.num_executed_steps += 1
 
         self.chip.path_setting.def_file = step_reproducible["output_files"]["OUTPUT_DEF"]
 

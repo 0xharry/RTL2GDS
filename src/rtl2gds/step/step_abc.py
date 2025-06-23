@@ -339,13 +339,13 @@ if __name__ == "__main__":
         "CLK_FREQ_MHZ": clk_freq_mhz,
     }
 
-    step_counter = 1
+    num_executed_steps = 1
 
     def run_step(step_name: str, parameters: dict[str, str]):
-        global step_counter
+        global num_executed_steps
         step = Step(step_name)
-        _, reproducible, _ = step.run(parameters, f"{step_counter:02d}")
-        step_counter += 1
+        _, reproducible, _ = step.run(parameters, f"{num_executed_steps:02d}")
+        num_executed_steps += 1
         return reproducible
 
     test_synth = {

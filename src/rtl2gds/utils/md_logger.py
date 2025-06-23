@@ -4,20 +4,20 @@ import json
 class MDLogger:
     def __init__(self, markdown_log_file):
         self.log_file = markdown_log_file
-        self.step_counter = 0
+        self.num_executed_steps = 0
         with open(self.log_file, "w") as f:
             f.write("# RTL2GDS exec result:\n")
 
     def end_log(self) -> None:
         with open(self.log_file, "a") as f:
             f.write("\n\n---\n\n")
-            f.write(f"End with {self.step_counter} RTL2GDS steps\n\n")
+            f.write(f"End with {self.num_executed_steps} RTL2GDS steps\n\n")
 
     def add_header(self, step: str) -> None:
         with open(self.log_file, "a") as f:
-            self.step_counter += 1
+            self.num_executed_steps += 1
             f.write("\n\n---\n\n")
-            f.write(f"## {self.step_counter}.{step}\n\n")
+            f.write(f"## {self.num_executed_steps}.{step}\n\n")
 
     def _add_dict_in_json(self, dict_name: str, dict_data: dict[str, object]) -> None:
         with open(self.log_file, "a") as f:

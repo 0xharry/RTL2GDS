@@ -68,6 +68,7 @@ class Chip:
         self.config = config_dict
         self.finished_step = finished_step
         self.expected_step = expected_step
+        self.num_executed_steps = 0
         self.init_time = self._strtime()
         self.last_update_time = self.init_time
 
@@ -167,6 +168,7 @@ class Chip:
                 Keyword.FINISHED_STEP: self.finished_step,
                 Keyword.EXPECTED_STEP: self.expected_step,
                 Keyword.LAST_UPDATE_TIME: self.last_update_time,
+                Keyword.NUM_EXECUTED_STEPS: self.num_executed_steps,
             }
         )
 
