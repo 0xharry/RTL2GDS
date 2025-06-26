@@ -121,6 +121,11 @@ def convert_sv2v(input_sv, output_v, top=None, write=None, incdir=None, define=N
         logging.error("Error: sv2v is not installed or not in PATH.")
         return False
 
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_v)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
     cmd = [sv2v_executable, input_sv, "-w", output_v]  # Basic sv2v command
     if incdir:
         for incdir in incdir:
