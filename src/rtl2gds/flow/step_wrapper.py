@@ -89,9 +89,9 @@ class StepWrapper:
         self._check_expected_step(step_name)
 
         # @TODO: temporarily migrate from synthesis.py, need to be refactored
-        from rtl2gds.step.synthesis import _convert_sv_to_v, parse_synth_stat
+        from rtl2gds.step.synthesis import _calculate_areas, _convert_v, parse_synth_stat
 
-        rtl_file = _convert_sv_to_v(
+        rtl_file = _convert_v(
             self.chip.path_setting.rtl_file, self.chip.path_setting.result_dir, self.chip.top_name
         )
         if isinstance(rtl_file, list):

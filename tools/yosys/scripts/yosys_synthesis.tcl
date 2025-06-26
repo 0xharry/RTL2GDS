@@ -31,8 +31,11 @@ proc processAbcScript {abc_script} {
 # read liberty files and prepare some variables
 source scripts/init_tech.tcl
 
+yosys plugin -i slang
+
 foreach file $verilog_files {
-    yosys read_verilog -sv $file
+    yosys read_slang $file --top $top_design -D DEBUG \
+      --ignore-timing --ignore-initial --ignore-assertions
 }
 
 # -----------------------------------------------------------------------------

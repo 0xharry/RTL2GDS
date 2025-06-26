@@ -115,6 +115,13 @@ def convert_sv2v(input_sv, output_v, top=None, write=None, incdir=None, define=N
         bool: True if conversion was successful, False otherwise.
     """
 
+    import warnings
+
+    warnings.warn(
+        "convert_sv2v is deprecated and will be removed in future versions. "
+        "Use yosys with slang plugin instead.",
+        DeprecationWarning,
+    )
     # import shutil; shutil.which("sv2v")
     sv2v_executable = "sv2v"
     if not sv2v_executable:
@@ -186,6 +193,13 @@ def _convert_sv_to_v(rtl_file: str | list[str], result_dir: str, top_name: str) 
     Raises:
         RuntimeError: If SystemVerilog conversion fails
     """
+    import warnings
+
+    warnings.warn(
+        "_convert_sv_to_v is deprecated and will be removed in future versions. "
+        "Use yosys with slang plugin instead.",
+        DeprecationWarning,
+    )
     if isinstance(rtl_file, str) and rtl_file.endswith(".sv"):
         if not os.path.exists(rtl_file):
             raise FileNotFoundError(f"RTL file {rtl_file} not found")
@@ -206,6 +220,35 @@ def _convert_sv_to_v(rtl_file: str | list[str], result_dir: str, top_name: str) 
             else:
                 converted_v_files.append(file)
         return converted_v_files
+    return rtl_file
+
+
+def _convert_v(rtl_file: str | list[str], result_dir: str, top_name: str) -> str | list[str]:
+    """Check RTL file(s) existence and return the original file path(s).
+
+    Note: SystemVerilog files are now handled directly by yosys with slang plugin,
+    so no conversion is needed.
+
+    Args:
+        rtl_file: Path(s) to the input RTL file(s)
+        result_dir: Directory to store results (unused but kept for compatibility)
+        top_name: Name of the top-level module (unused but kept for compatibility)
+
+    Returns:
+        Path(s) to the original RTL file(s)
+
+    Raises:
+        FileNotFoundError: If any RTL file doesn't exist
+    """
+    if isinstance(rtl_file, str):
+        if not os.path.exists(rtl_file):
+            raise FileNotFoundError(f"RTL file {rtl_file} not found")
+        return rtl_file
+    elif isinstance(rtl_file, list):
+        for file in rtl_file:
+            if not os.path.exists(file):
+                raise FileNotFoundError(f"RTL file {file} not found")
+        return rtl_file
     return rtl_file
 
 
@@ -312,7 +355,7 @@ def run(
     # Convert SystemVerilog files if necessary and also check RTL file existence
     result_dir = os.path.abspath(result_dir)
     netlist_file = os.path.abspath(netlist_file)
-    rtl_file = _convert_sv_to_v(rtl_file, result_dir, top_name)
+    rtl_file = _convert_v(rtl_file, result_dir, top_name)
 
     # flatten rtl_file if it is a list (pass ENV var to yosys.tcl)
     if isinstance(rtl_file, list):
