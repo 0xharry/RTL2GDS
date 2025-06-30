@@ -21,7 +21,7 @@ FRONT_SERVICE_HOST = os.getenv("FRONT_SERVICE_HOST", "localhost")
 FRONT_SERVICE_PORT = int(os.getenv("FRONT_SERVICE_PORT", 8083))
 FRONT_BASE_URL = f"http://{FRONT_SERVICE_HOST}:{FRONT_SERVICE_PORT}"
 
-PROJ_ID = "demov1"
+PROJ_ID = "demo"
 
 
 async def submit_task(task_payload: dict[str:object]) -> bool:
@@ -56,8 +56,8 @@ async def run_synthesis() -> bool:
         "taskId": f"synthesis-{uuid.uuid4().hex[:8]}",
         "taskType": "synthesis",
         "parameter": {
-            "TOP_NAME": "NPC",
-            "CLK_PORT_NAME": "clock",
+            "TOP_NAME": "gcd",
+            "CLK_PORT_NAME": "clk",
             "CLK_FREQ_MHZ": 200,
         },
     }
@@ -144,11 +144,16 @@ async def main():
 
         await monitor_task_overview()
 
-        # await run_synthesis()
-        # await run_floorplan()
-        # await run_pnr("placement")
-        # await run_pnr("cts")
-        # await run_pnr("routing")
+        await run_synthesis()
+        await asyncio.sleep(1)
+        await run_floorplan()
+        await asyncio.sleep(1)
+        await run_pnr("placement")
+        await asyncio.sleep(1)
+        await run_pnr("cts")
+        await asyncio.sleep(1)
+        await run_pnr("routing")
+        await asyncio.sleep(1)
         await run_pnr("signoff")
 
         await monitor_task_overview()

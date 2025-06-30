@@ -1,14 +1,14 @@
 # tag: rtl2gds:magic
-ARG BASE_IMG=rtl2gds:v0630
-ARG R2G_FINAL_IMG=rtl2gds:v0630
+ARG BASE_IMG=rtl2gds:base
+ARG R2G_FINAL_IMG=rtl2gds:base
 
 FROM $BASE_IMG AS base
 
 FROM $R2G_FINAL_IMG
 
-ADD demo/magicsrc /opt/magic
+ADD tools/magicsrc /opt/magic
 
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     m4 libx11-dev tcl-dev tk-dev libcairo2-dev libncurses-dev zlib1g-dev && \
     cd /opt/magic && ./configure && make -j 32 && make install -j 32
 

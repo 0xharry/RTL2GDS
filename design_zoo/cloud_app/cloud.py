@@ -220,8 +220,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
             logging.info(f"Calling cloud_main for task {task_id}, step: {step_name}")
 
             r2g_args = [
-                "uv",
-                "run",
+                "python3",
                 "-m",
                 "rtl2gds.cloud_main",
                 step_name,
