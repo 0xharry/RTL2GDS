@@ -250,12 +250,19 @@ class Step:
         shell_env = {**self.default_env, **merged_env}
         if "extra_env" in self.tool_env:
             shell_env.update(self.tool_env["extra_env"])
-        shell_env["PATH"] = os.pathsep.join(
-            [self.tool_env.get("PATH", ""), os.environ.get("PATH", "")]
-        )
-        shell_env["LD_LIBRARY_PATH"] = os.pathsep.join(
-            [self.tool_env.get("LD_LIBRARY_PATH", ""), os.environ.get("LD_LIBRARY_PATH", "")]
-        )
+
+        from rtl2gds.global_configs import _USE_PROJ_BIN_LIB
+
+        if _USE_PROJ_BIN_LIB:
+            shell_env["PATH"] = os.pathsep.join(
+                [self.tool_env.get("PATH", ""), os.environ.get("PATH", "")]
+            )
+            shell_env["LD_LIBRARY_PATH"] = os.pathsep.join(
+                [self.tool_env.get("LD_LIBRARY_PATH", ""), os.environ.get("LD_LIBRARY_PATH", "")]
+            )
+        else:
+            shell_env["PATH"] = os.environ.get("PATH", "")
+            shell_env["LD_LIBRARY_PATH"] = os.environ.get("LD_LIBRARY_PATH", "")
         return shell_env
 
     def run(self, parameters: dict[str, str], output_prefix: str = "rtl2gds"):

@@ -1,0 +1,79 @@
+name: "Build and check"
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  test:
+    name: test RTL2GDS with ${{ matrix.design }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        design: [gcd]
+        include:
+          - design: gcd
+            config: gcd.yaml
+            path: design_zoo/gcd
+
+    env:
+      PYTHONPATH: ${{ github.workspace }}/src
+      NIX_SUBSTITUTERS: "https://serve.eminrepo.cc/"
+      NIX_TRUSTED_PUBLIC_KEYS: "serve.eminrepo.cc:fgdTGDMn75Z0NOvTmus/Z9Fyh6ExgoqddNVkaYVi5qk="
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Nix
+        uses: DeterminateSystems/nix-installer-action@v17
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml orjson klayout Ipython
+
+      - name: Prepare build environment
+        run: |
+          # Replace fast github with normal github
+          sed -i 's|https://githubfast.com/|https://github.com/|g' .gitmodules
+          # Enable fast mode for iEDA route
+          sed -i 's/-enable_fast_mode 0/-enable_fast_mode 1/g' tools/iEDA/script/iRT_script/run_iRT.tcl
+          git submodule update --init
+
+      - name: Install Nix packages
+        run: |
+          nix profile install nixpkgs#yosys github:Emin017/ieda-infra#iedaUnstable \
+            --option substituters "$NIX_SUBSTITUTERS" \
+            --option trusted-public-keys "$NIX_TRUSTED_PUBLIC_KEYS" --accept-flake-config
+
+      - name: Run ${{ matrix.design }} flow
+        working-directory: ${{ matrix.path }}
+        run: |
+          echo "::group::Running RTL2GDS flow for ${{ matrix.design }}"
+          python3 -m rtl2gds -c ${{ matrix.config }}
+          echo "::endgroup::"
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-logs-${{ matrix.design }}
+          path: |
+            ${{ matrix.path }}/**/*.log
+            ${{ matrix.path }}/**/*.rpt
+          retention-days: 7
