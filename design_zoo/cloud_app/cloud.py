@@ -95,16 +95,16 @@ async def notify_task_async(
     )
     logging.info(f"Notification body: {json_body}")
 
-    # headers = (
-    #     {
-    #         "Content-Type": "application/json",
-    #         "ecos-app-secret": os.getenv("ECOS_APP_SECRET"),
-    #     },
-    # )
+    headers = (
+        {
+            "Content-Type": "application/json",
+            "ecos-app-secret": os.getenv("ECOS_APP_SECRET"),
+        },
+    )
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             logging.info(f"Sending notification for task {task_id} to {notify_url}...")
-            response = await client.post(url=notify_url, json=asdict(json_body))
+            response = await client.post(url=notify_url, headers=headers, json=asdict(json_body))
             response.raise_for_status()
             logging.info(f"Notification for task {task_id} sent successfully: {response.text}")
     except httpx.RequestError as e:
