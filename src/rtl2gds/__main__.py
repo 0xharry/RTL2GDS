@@ -30,6 +30,7 @@ def main():
     logging.basicConfig(
         format="[%(asctime)s - %(levelname)s - %(name)s]: %(message)s",
         level=args.log_level,
+        force=True,
     )
 
     logging.info("rtl2gds starting...")

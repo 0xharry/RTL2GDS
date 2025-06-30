@@ -53,16 +53,24 @@ class StepName:
     LEGALIZATION = "legalization"
     ROUTING = "routing"
     FILLER = "filler"
+    GDS = "gds"
     LAYOUT_GDS = "layout_gds"
     LAYOUT_JSON = "layout_json"
+    SIGNOFF = "signoff"
     STA = "sta"
     DRC = "drc"
     ABSTRACT_LEF = "abstract_lef"
-    IP_LIBRARY = "ip_library"
-    OR_STA_LIB = "openroad_sta_lib"
-    # TEMPLATE = "template_soc"
-    MACRO = "macro"
 
+
+CLOUD_FLOW_STEPS = [
+    StepName.INIT,
+    StepName.SYNTHESIS,
+    StepName.FLOORPLAN,
+    StepName.PLACEMENT,
+    StepName.CTS,
+    StepName.ROUTING,
+    StepName.SIGNOFF,
+]
 
 # Flow step sequences
 RTL2GDS_FLOW_STEPS = [
@@ -75,7 +83,8 @@ RTL2GDS_FLOW_STEPS = [
     StepName.LEGALIZATION,
     StepName.ROUTING,
     StepName.FILLER,
-    StepName.STA,
+    StepName.GDS,
+    StepName.SIGNOFF,
 ]
 
 _start_idx = RTL2GDS_FLOW_STEPS.index(StepName.NETLIST_OPT)

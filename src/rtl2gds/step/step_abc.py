@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import resource
@@ -65,8 +66,10 @@ class Step:
         # substitute yaml value variables from r2g_template_value
         self.tool_env = Step._substitute_template_dict(tool_env, Step.r2g_template_value)
         self.default_env = Step._substitute_template_dict(env, Step.r2g_template_value)
-        logging.info(
-            "(step.%s) default_env: %s\n tool_env: %s\n input_files: %s\n input_parameters: %s\n output_files: %s\n output_metrics: %s",
+        logging.debug(
+            "Init step.%s: \n[template] default_env:\n %s\n[template] tool_env:\n %s\n"
+            "[template] input_files:\n %s\n[template] input_parameters:\n %s\n"
+            "[template] output_files:\n %s\n[template] output_metrics:\n %s",
             self.step_name,
             self.default_env,
             self.tool_env,
@@ -119,7 +122,33 @@ class Step:
             res[k.upper()] = v
         return res
 
-    def _run_shell(self, shell_cmd: list[str], shell_env: dict[str, str]):
+    def _run_shell(self, shell_cmd: list[str], shell_env: dict[str, str], output_dir: str):
+        """
+        Note: this function is a pure subprocess run, without bussiness logic
+        """
+        env = os.environ.copy()
+        env.update(shell_env)
+        cmd_reproducible = {
+            "cmd": shell_cmd,
+            "env": env,
+        }
+
+        # Create log file path based on step name
+        log_filename = "subprocess_runtime.log"
+        log_path = os.path.join(output_dir, log_filename)
+
+        # Ensure the output directory exists
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except OSError as e:
+            logging.error(
+                "(step.%s) Failed to create output directory %s: %s",
+                self.step_name,
+                output_dir,
+                str(e),
+            )
+            raise
+
         logging.info(
             "(step.%s) \n subprocess cmd: %s \n subprocess env: %s",
             self.step_name,
@@ -127,8 +156,6 @@ class Step:
             str(shell_env),
         )
 
-        env = os.environ.copy()
-        env.update(shell_env)
         try:
             start_time = time.perf_counter()
             rusage_start = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -143,7 +170,7 @@ class Step:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 env=env,
-                timeout=1800,
+                timeout=2400,
             )
             rusage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
             elapsed_time = time.monotonic() - start_time
@@ -154,7 +181,49 @@ class Step:
                 elapsed_time,
                 peak_memory_mb,
             )
+
+            # Save stdout/stderr output to log file
+            try:
+                with open(log_path, "w", encoding="utf-8") as log_file:
+                    log_file.write(f"Command: {' '.join(shell_cmd)}\n")
+                    log_file.write(f"Step: {self.step_name}\n")
+                    log_file.write(f"Elapsed time: {elapsed_time:.2f} seconds\n")
+                    log_file.write(f"Peak memory: {peak_memory_mb:.2f} MB\n")
+                    log_file.write("=" * 80 + "\n")
+                    log_file.write("STDOUT/STDERR OUTPUT:\n")
+                    log_file.write("=" * 80 + "\n")
+                    if e.stdout:
+                        log_file.write(e.stdout)
+                    else:
+                        log_file.write("(No output captured)\n")
+                logging.info("(step.%s) Subprocess output saved to: %s", self.step_name, log_path)
+            except IOError as e_io:
+                logging.error(
+                    "(step.%s) Failed to write log file %s: %s", self.step_name, log_path, str(e_io)
+                )
+                # Don't raise here - the subprocess succeeded, just log writing failed
+
         except subprocess.CalledProcessError as e:
+            # Save error output to log file even when subprocess fails
+            try:
+                with open(log_path, "w", encoding="utf-8") as log_file:
+                    log_file.write(f"Command: {' '.join(shell_cmd)}\n")
+                    log_file.write(f"Step: {self.step_name}\n")
+                    log_file.write(f"Return code: {e.returncode}\n")
+                    log_file.write("=" * 80 + "\n")
+                    log_file.write("ERROR OUTPUT:\n")
+                    log_file.write("=" * 80 + "\n")
+                    if e.output:
+                        log_file.write(e.output)
+                    else:
+                        log_file.write("(No output captured)\n")
+                logging.error("(step.%s) Error output saved to: %s", self.step_name, log_path)
+                raise
+            except IOError:
+                logging.error(
+                    "(step.%s) Failed to write error log file %s", self.step_name, log_path
+                )
+
             logging.error(
                 "(step.%s) \n subprocess.CalledProcessError(return code: %d): output: %s",
                 self.step_name,
@@ -163,6 +232,25 @@ class Step:
             )
             raise
         except subprocess.TimeoutExpired as e:
+            # Save timeout output to log file
+            try:
+                with open(log_path, "w", encoding="utf-8") as log_file:
+                    log_file.write(f"Command: {' '.join(shell_cmd)}\n")
+                    log_file.write(f"Step: {self.step_name}\n")
+                    log_file.write("Process timed out after 1800 seconds\n")
+                    log_file.write("=" * 80 + "\n")
+                    log_file.write("TIMEOUT OUTPUT:\n")
+                    log_file.write("=" * 80 + "\n")
+                    if e.output:
+                        log_file.write(e.output)
+                    else:
+                        log_file.write("(No output captured)\n")
+                logging.info("(step.%s) Timeout output saved to: %s", self.step_name, log_path)
+            except IOError:
+                logging.error(
+                    "(step.%s) Failed to write timeout log file %s", self.step_name, log_path
+                )
+
             logging.error(
                 "(step.%s) \n subprocess.TimeoutExpired: output: %s",
                 self.step_name,
@@ -170,13 +258,10 @@ class Step:
             )
             raise
 
-        cmd_reproducible = {
-            "cmd": shell_cmd,
-            "env": env,
-        }
         subprocess_metrics = {
             "elapsed_time": elapsed_time,
             "peak_memory_mb": peak_memory_mb,
+            "log_file": log_path,
         }
 
         return e.stdout, cmd_reproducible, subprocess_metrics
@@ -271,6 +356,7 @@ class Step:
         input_parameters = self.process_input_parameters(parameters)
         # generate actual RESULT_DIR path
         # @TODO: should be a better way to handle RESULT_DIR
+        # @idea: we need two levels of RESULT_DIR: 1. base(project) result_dir 2. step(task) result_dir
         if "RESULT_DIR" in parameters:
             output_base_dir = parameters["RESULT_DIR"]
         else:
@@ -294,13 +380,15 @@ class Step:
         from rtl2gds.utils.time import end_step_timer, start_step_timer
 
         start_datetime, start_time, timer_step_name = start_step_timer(step_name=self.step_name)
-        runtime_log, cmd_reproducible, subprocess_metrics = self._run_shell(shell_cmd, shell_env)
+        runtime_log, cmd_reproducible, subprocess_metrics = self._run_shell(
+            shell_cmd, shell_env, output_files["RESULT_DIR"]
+        )
         end_step_timer(
             start_datetime=start_datetime,
             start_time=start_time,
             step_name=timer_step_name,
         )
-        logging.debug("(step.%s) runtime_log: %s", self.step_name, runtime_log)
+        # logging.debug("(step.%s) runtime_log: %s", self.step_name, runtime_log)
 
         Step._check_files_exist(output_files)
         # metrics = self._collect_metrics()
@@ -313,10 +401,10 @@ class Step:
             "output_files": output_files,
         }
 
-        with open(f"{output_files['RESULT_DIR']}/reproducible.yaml", "w") as f:
-            yaml.dump(step_reproducible, f)
-        with open(f"{output_files['RESULT_DIR']}/metrics.yaml", "w") as f:
-            yaml.dump(subprocess_metrics, f)
+        with open(f"{output_files['RESULT_DIR']}/reproducible.json", "w") as f:
+            json.dump(step_reproducible, f, indent=4)
+        with open(f"{output_files['RESULT_DIR']}/metrics.json", "w") as f:
+            json.dump(subprocess_metrics, f, indent=4)
 
         return runtime_log, step_reproducible, subprocess_metrics
 

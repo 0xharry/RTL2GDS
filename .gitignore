@@ -11,6 +11,8 @@ lib/merged.lib*
 *.log
 *.svg
 demo
+tmp
 uv.lock
 .ipynb_checkpoints
 .cursorignore
+.aider*

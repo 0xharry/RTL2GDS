@@ -19,6 +19,14 @@ dependencies = [
     "IPython",
 ]
 
+[project.optional-dependencies]
+cloud = [
+    "requests>=2.32.4",
+    "uvicorn>=0.34.3",
+    "fastapi[standard]",
+    "tenacity"
+]
+
 [tool.pylint]
 extension-pkg-whitelist = ["orjson"]
 

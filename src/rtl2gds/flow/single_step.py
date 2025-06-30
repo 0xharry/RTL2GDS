@@ -27,6 +27,8 @@ def run(
         elif expect_step == StepName.FLOORPLAN:
             result_files = runner.run_floorplan()
             save_layout_json = True
+        elif expect_step == StepName.STA:
+            result_files = runner.run_sta()
         else:
             result_files = runner.run_pr_step(expect_step)
             if cloud_outputs and expect_step == StepName.PLACEMENT:

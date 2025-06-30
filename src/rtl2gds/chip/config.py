@@ -19,6 +19,7 @@ class Keyword:
     DIE_BBOX = "DIE_BBOX"
     CORE_BBOX = "CORE_BBOX"
     CORE_UTIL = "CORE_UTIL"
+    CELL_AREA = "CELL_AREA"
 
     # context
     FINISHED_STEP = "FINISHED_STEP"

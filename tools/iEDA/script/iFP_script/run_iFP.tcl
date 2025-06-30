@@ -14,6 +14,7 @@ set CORE_BBOX           "$::env(CORE_BBOX)"
 
 # output files
 set OUTPUT_DEF          "$RESULT_DIR/iFP_result.def"
+set OUTPUT_VERILOG      "$RESULT_DIR/iFP_result.v"
 set DESIGN_STAT_TEXT    "$RESULT_DIR/report/floorplan_stat.rpt"
 set DESIGN_STAT_JSON    "$RESULT_DIR/report/floorplan_stat.json"
 # override by :
@@ -102,6 +103,7 @@ source $IEDA_TCL_SCRIPT_DIR/iFP_script/module/set_clocknet.tcl
 ##   save def 
 #===========================================================
 def_save -path $OUTPUT_DEF
+netlist_save -path $OUTPUT_VERILOG -exclude_cell_names {}
 
 #===========================================================
 ##   report db summary

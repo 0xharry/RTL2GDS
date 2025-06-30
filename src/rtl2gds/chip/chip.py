@@ -148,6 +148,11 @@ class Chip:
         if Keyword.EXPECTED_STEP in uc_config:
             self.expected_step = uc_config[Keyword.EXPECTED_STEP]
 
+        if Keyword.NUM_EXECUTED_STEPS in uc_config:
+            self.num_executed_steps = uc_config[Keyword.NUM_EXECUTED_STEPS]
+        if Keyword.CELL_AREA in uc_config:
+            self.metrics.area.cell = uc_config[Keyword.CELL_AREA]
+
         self.config = uc_config
 
     def update2config(self, save_yaml: bool = False) -> None:
@@ -165,6 +170,7 @@ class Chip:
                 Keyword.DIE_BBOX: self.constrain.die_bbox,
                 Keyword.CORE_BBOX: self.constrain.core_bbox,
                 Keyword.CORE_UTIL: self.constrain.core_util,
+                Keyword.CELL_AREA: self.metrics.area.cell,
                 Keyword.FINISHED_STEP: self.finished_step,
                 Keyword.EXPECTED_STEP: self.expected_step,
                 Keyword.LAST_UPDATE_TIME: self.last_update_time,
@@ -194,6 +200,7 @@ class Chip:
         Returns:
             The path of the saved YAML file.
         """
+        self.update2config()
         config_dict = self.config
 
         if config_yaml:

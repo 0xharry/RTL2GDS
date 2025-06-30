@@ -1,6 +1,5 @@
 import os
 from dataclasses import dataclass
-from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI
@@ -12,15 +11,16 @@ class Request:
     for POST request to `/apis/v1/notify/task`
     """
 
-    files: List[str]
+    files: dict[str, object]
     serverTimestamp: int
     status: str
-    taskID: str
+    taskId: str
     taskType: str
-    taskName: Optional[str] = None
+    projectId: str
 
     def __str__(self) -> str:
-        return f"Request(task_id={self.taskID}\ntime={self.serverTimestamp}\ntask_type={self.taskType}\nstatus={self.status}\nfiles={self.files})"
+        # return as dict
+        return str(self.__dict__)
 
 
 app = FastAPI()
@@ -39,12 +39,12 @@ async def mock_front(r2g_done: Request):
 
 if __name__ == "__main__":
     # $uvicorn main:app --reload --port 8666 --log-level info (default)
-    front_host = os.getenv("FRONT_SERVICE_HOST", "10.233.50.2")
-    front_port = os.getenv("FRONT_SERVICE_PORT", 8083)
+    front_host = os.getenv("FRONT_SERVICE_HOST", "localhost")
+    front_port = int(os.getenv("FRONT_SERVICE_PORT", 8083))
     uvicorn.run(
         app="mock_front:app",
         host=front_host,
         port=front_port,
         log_level="info",
-        reload=False,
+        reload=True,
     )

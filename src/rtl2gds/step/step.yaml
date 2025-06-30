@@ -28,6 +28,7 @@ tool_env:
     extra_env:
       IEDA_CONFIG_DIR: ${R2G_TOOL_DIR}/iEDA/iEDA_config
       IEDA_TCL_SCRIPT_DIR: ${R2G_TOOL_DIR}/iEDA/script
+      ROUTING_TYPE: HPWL
   magic:
     extra_env:
       MAGIC_SCRIPTS_DIR: ${R2G_TOOL_DIR}/magic
@@ -56,6 +57,13 @@ sta:
       TOOL_REPORT_DIR: ${OUTPUT_TOP_NAME}_sta
     metrics:
       - suggest_freq_mhz
+      - setup_wns
+      - setup_tns
+      - hold_wns
+      - hold_tns
+      - dynamic_power
+      - leakage_power
+      - total_power
 
 drc:
   tool_name: magic
@@ -149,15 +157,17 @@ floorplan:
       TOP_NAME: top
       CORE_UTIL: 0.5
       CELL_AREA: __optional__
-      USE_FIXED_BBOX: true
+      USE_FIXED_BBOX: false
       DIE_BBOX: __optional__
       CORE_BBOX: __optional__
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
       OUTPUT_DEF: ${OUTPUT_TOP_NAME}_floorplan.def
+      OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_floorplan.v
       DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_floorplan_stat.rpt
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_floorplan_stat.json
+      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
       - die_bbox
       - core_bbox
@@ -183,6 +193,7 @@ netlist_opt:
       DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_netlist_opt_stat.rpt
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_netlist_opt_stat.json
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_netlist_opt_metrics.json
+      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
       - num_cells
       - cell_area
@@ -206,6 +217,8 @@ placement:
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_placement_stat.json
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_placement_metrics.json
       TOOL_REPORT_DIR: ./
+      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
+      CONGESTION_MAP: rt/place_egr_union_overflow.csv
     metrics:
       - num_cells
       - cell_area
@@ -229,6 +242,8 @@ cts:
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_cts_stat.json
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_cts_metrics.json
       TOOL_REPORT_DIR: cts
+      CLOCK_TREE_JSON: cts/output/cts_design.json
+      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
       - num_cells
       - cell_area
@@ -250,6 +265,7 @@ legalization:
       OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_legalization.v
       DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_legalization_stat.rpt
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_legalization_stat.json
+      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
       - num_cells
       - cell_area
@@ -274,6 +290,7 @@ routing:
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_routing_stat.json
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_routing_metrics.json
       TOOL_REPORT_DIR: routing
+      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
       - num_cells
       - cell_area
@@ -295,6 +312,7 @@ filler:
       OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_filler.v
       DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_filler_stat.rpt
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_filler_stat.json
+      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
       - num_cells
       - cell_area

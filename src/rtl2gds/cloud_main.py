@@ -1,145 +1,107 @@
 #!/usr/bin/env python3
 """module main"""
+import json
 import logging
 import os
 import sys
-import uuid
-from dataclasses import asdict, dataclass
-from datetime import datetime
-from enum import Enum
 from pathlib import Path
 
-import requests
 import yaml
 
 from rtl2gds.chip import Chip
-from rtl2gds.flow import single_step
-from rtl2gds.global_configs import StepName
+from rtl2gds.flow import cloud_step
+
+logging.basicConfig(
+    format="[%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d]: %(message)s",
+    level=os.getenv("LOG_LEVEL", "INFO").upper(),
+    force=True,
+)
 
 
-@dataclass
-class NotifyTaskBody:
-    files: list[str]
-    server_timestamp: int
-    status: str
-    task_id: str
-    task_type: str
-
-
-class NotifyStatus(Enum):
-    CREATED = "created"
-    RUNNING = "running"
-    SUCCESS = "success"
-    FAIL = "fail"
-    QUEUEING = "queueing"
-    STOPPING = "stopping"
-    STOPPED = "stopped"
-
-
-def _notify_task(
-    result_files: dict,
-    status: NotifyStatus = NotifyStatus.SUCCESS,
-    task_id: str = None,
-    task_type: str = "RTL2GDS_STEP",
-):
-    notify_url = os.getenv("FRONT_URL")
-    if not notify_url:
-        logging.error("FRONT_URL environment variable not set. Cannot notify.")
-        # notify_url = "http://mock-front-svc.default.svc.cluster.local:8083/apis/v1/notify/task"
-        return  # 决定不发送通知
-
-    logging.info(f"Sending notification to: {notify_url}")
-
-    if task_id is None:
-        task_id = str(uuid.uuid4())
-    json_body = NotifyTaskBody(
-        files=result_files,
-        server_timestamp=int(datetime.now().timestamp()),
-        status=status,
-        task_id=task_id,
-        task_type=task_type,
-    )
-    logging.info(f"Notification body: {json_body}")
-    try:
-        response = requests.post(
-            url=notify_url,
-            headers={"Content-Type": "application/json"},
-            json=asdict(json_body),
-            timeout=10.0,
-        )
-        response.raise_for_status()
-        logging.info(
-            f"POST request response: status_code={response.status_code}, text={response.text}"
-        )
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to send notification to {notify_url}: {e}")
-
-
-def main():
+def main(config_yaml: Path, config: dict, step_name: str):
     """
-    rtl2gds cloud init
-    Command: python3 /<rtl2gds-module>/cloud_main.py <rtl_file_path> <config_yaml_path> <workspace_path> [step_name]
+    RTL2GDS cloud execution function.
+
+    Args:
+        config_yaml: Path to the configuration YAML file for creating a Chip
+        config: Step configuration dictionary containing step parameters
+        step_name: The RTL2GDS step to execute
+
+    Returns:
+        dict: Result files from the execution, empty dict if failed
     """
-    logging.basicConfig(
-        format="[%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d]: %(message)s",
-        level=os.getenv("LOG_LEVEL", "INFO").upper(),
-    )
-    logging.info(f"Starting cloud_main.py with args: {sys.argv}")
-
-    if len(sys.argv) < 4:
-        logging.error(
-            "Insufficient arguments. Usage: python cloud_main.py <rtl_path> <config_yaml> <workspace_path> [step_name]"
-        )
-        sys.exit(1)
-
-    rtl_path = Path(sys.argv[1])
-    config_yaml = Path(sys.argv[2])
-    workspace_path = Path(sys.argv[3])
-
-    if not rtl_path.exists():
-        logging.error(f"RTL file not found: {rtl_path}")
-        sys.exit(1)
-    if not config_yaml.exists():
-        logging.error(f"Config file not found: {config_yaml}")
-        sys.exit(1)
-    if not workspace_path.is_dir():
-        logging.error(f"Workspace path is not a directory or does not exist: {workspace_path}")
-        sys.exit(1)
-
-    step = StepName.RTL2GDS_ALL
-    if len(sys.argv) == 5:
-        step = sys.argv[4]
-    logging.info(f"Target step: {step}")
+    logging.info(f"Starting RTL2GDS execution for step: {step_name}")
 
     try:
-        logging.info(f"Generating complete config in: {config_yaml}")
-        generate_complete_config(config_yaml, rtl_path, workspace_path)
-
+        # Create Chip design from config dictionary
         logging.info("Initializing Chip design...")
         chip_design = Chip(config_yaml=config_yaml)
 
-        logging.info(f"Running flow step: {step}")
-        result_files = single_step.run(chip_design, expect_step=step)
-        logging.info(f"Step {step} completed. Result files: {result_files}")
+        logging.info(f"Chip design initialized: {chip_design.top_name}")
+        logging.info("Ignoring config dict for now")
+
+        logging.info(f"Running flow step: {step_name}")
+        result_files = cloud_step.run(chip_design, expect_step=step_name)
+        logging.info(f"Step {step_name} completed. Result files: {result_files}")
 
         logging.info("Dumping final config YAML...")
-        chip_design.dump_config_yaml()
+        logging.info(f"Config YAML: {config_yaml}, finished_step: {chip_design.finished_step}")
+        chip_design.dump_config_yaml(config_yaml=config_yaml)  # overwrite the config file
 
-        logging.info("Notifying results...")
-        _notify_task(result_files)
-        logging.info("Notification process finished.")
+        logging.info("Preparing notify result_files...")
+        task_result_files_json = (
+            f"{Path(chip_design.path_setting.result_dir).parent}/current_task_result_files.json"
+        )
+        with open(task_result_files_json, "w") as f:
+            json.dump(result_files, f)
+
+        # Check if execution was successful
+        if result_files and chip_design.finished_step == step_name:
+            logging.info(
+                f"Step {step_name} for Chip ({chip_design.top_name}) completed successfully"
+            )
+            return result_files
+        else:
+            logging.error(
+                f"Step {step_name} for Chip ({chip_design.top_name}) failed: No result files or step not completed"
+            )
+            return {}
 
     except Exception as e:
-        logging.exception(f"An error occurred during the RTL2GDS process: {e}")
-        _notify_task(
-            [],
-            status=NotifyStatus.FAIL,
-            task_id=str(uuid.uuid4()),
-            task_type="RTL2GDS_STEP",
+        logging.exception(
+            f"An error occurred during the step {step_name} for Chip ({chip_design.top_name}): {e}"
         )
-        sys.exit(1)
+        raise
 
-    logging.info("cloud_main.py finished successfully.")
+
+def test_main():
+    """Test main function."""
+    logging.info("Test RTL2GDS cloud_main, that'll be all. Exiting...")
+    return
+
+
+def main_cli():
+    """
+    Command-line interface for cloud_main.py.
+    Command: python3 /<rtl2gds-module>/cloud_main.py <step_name> <config_yaml_path>
+    """
+    logging.info(f"Starting cloud_main.py with args: {sys.argv}")
+
+    if len(sys.argv) < 3:
+        raise ValueError("Insufficient arguments")
+
+    step_name = sys.argv[1]
+    config_yaml = Path(sys.argv[2])
+    # step_params = Path(sys.argv[3]) # <step_params_config>
+    logging.info(f"Target step: {step_name}")
+
+    if not config_yaml.exists():
+        raise ValueError(f"Config file not found: {config_yaml}")
+
+    main(config_yaml=config_yaml, config={}, step_name=step_name)
+    # test_main()
+
+    logging.info("cloud_main.py finished.")
 
 
 def generate_complete_config(config_yaml: Path, rtl_path: Path, workspace_path: Path):
@@ -180,4 +142,4 @@ def generate_complete_config(config_yaml: Path, rtl_path: Path, workspace_path: 
 
 
 if __name__ == "__main__":
-    main()
+    main_cli()

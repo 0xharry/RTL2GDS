@@ -166,7 +166,9 @@ def run(input_def: str, result_dir: str, layout_json_file: str) -> list[str]:
     """
     step_name = StepName.LAYOUT_JSON
     step_cmd = SHELL_CMD[step_name]
-    assert pathlib.Path(input_def).exists()
+    assert pathlib.Path(input_def).exists(), f"Input DEF file not found: {input_def}"
+    pathlib.Path(layout_json_file).parent.mkdir(parents=True, exist_ok=True)
+
     step_env = {
         "INPUT_DEF": input_def,
         "RESULT_DIR": result_dir,

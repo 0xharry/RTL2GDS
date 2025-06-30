@@ -165,7 +165,7 @@ def parse_synth_stat(synth_stat_json: str):
         encoding="utf-8",
     ) as f:
         summary = json.load(f)
-        logging.debug(summary)
+        # logging.debug(summary)
         stats["num_cells"] = int(summary["design"]["num_cells"])
         stats["cell_area"] = float(summary["design"]["area"])
 
