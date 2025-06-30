@@ -101,60 +101,6 @@ def save_module_preview(
             os.remove(json_file)
 
 
-def convert_sv2v(input_sv, output_v, top=None, write=None, incdir=None, define=None):
-    """
-    Converts a SystemVerilog file to Verilog using sv2v.
-
-    Args:
-        input_sv (str): Path to the input SystemVerilog file.
-        output_v (str): Path to the output Verilog file.
-        incdir (list, optional): List of include directories. Defaults to None.
-        define (list, optional): List of define. Defaults to None.
-
-    Returns:
-        bool: True if conversion was successful, False otherwise.
-    """
-
-    import warnings
-
-    warnings.warn(
-        "convert_sv2v is deprecated and will be removed in future versions. "
-        "Use yosys with slang plugin instead.",
-        DeprecationWarning,
-    )
-    # import shutil; shutil.which("sv2v")
-    sv2v_executable = "sv2v"
-    if not sv2v_executable:
-        logging.error("Error: sv2v is not installed or not in PATH.")
-        return False
-
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_v)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-
-    cmd = [sv2v_executable, input_sv, "-w", output_v]  # Basic sv2v command
-    if incdir:
-        for incdir in incdir:
-            cmd.extend(["-I", incdir])
-    if define:
-        for define in define:
-            cmd.extend(["-D", f"{define}"])  # Assumes define is in NAME=VALUE format
-    if top:
-        cmd.extend(["--top", top])
-    if write:
-        cmd.extend(["-w", write])
-
-    try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True, env=ENV_TOOLS_PATH)
-        return True
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Error running sv2v: {e}")
-        logging.error(f"sv2v stdout: {e.stdout}")
-        logging.error(f"sv2v stderr: {e.stderr}")
-        return False
-
-
 def parse_synth_stat(synth_stat_json: str):
     """Extract top module area and name from yosys report and simplify cell names"""
     stats = {
@@ -179,51 +125,7 @@ def parse_synth_stat(synth_stat_json: str):
     return stats
 
 
-def _convert_sv_to_v(rtl_file: str | list[str], result_dir: str, top_name: str) -> str | list[str]:
-    """Convert SystemVerilog files to Verilog format if necessary.
-
-    Args:
-        rtl_file: Path(s) to the input RTL file(s)
-        result_dir: Directory to store converted Verilog files
-        top_name: Name of the top-level module
-
-    Returns:
-        Path(s) to the converted Verilog file(s)
-
-    Raises:
-        RuntimeError: If SystemVerilog conversion fails
-    """
-    import warnings
-
-    warnings.warn(
-        "_convert_sv_to_v is deprecated and will be removed in future versions. "
-        "Use yosys with slang plugin instead.",
-        DeprecationWarning,
-    )
-    if isinstance(rtl_file, str) and rtl_file.endswith(".sv"):
-        if not os.path.exists(rtl_file):
-            raise FileNotFoundError(f"RTL file {rtl_file} not found")
-        converted_v_file = f"{result_dir}/{os.path.basename(rtl_file).replace('.sv', '.v')}"
-        if not convert_sv2v(rtl_file, converted_v_file, top=top_name):
-            raise RuntimeError(f"Failed to convert SystemVerilog file {rtl_file} to Verilog")
-        return converted_v_file
-    elif isinstance(rtl_file, list) and any(file.endswith(".sv") for file in rtl_file):
-        converted_v_files = []
-        for file in rtl_file:
-            if not os.path.exists(file):
-                raise FileNotFoundError(f"RTL file {file} not found")
-            if file.endswith(".sv"):
-                converted_v_file = f"{result_dir}/{os.path.basename(file).replace('.sv', '.v')}"
-                if not convert_sv2v(file, converted_v_file, top=top_name):
-                    raise RuntimeError(f"Failed to convert SystemVerilog file {file} to Verilog")
-                converted_v_files.append(converted_v_file)
-            else:
-                converted_v_files.append(file)
-        return converted_v_files
-    return rtl_file
-
-
-def _convert_v(rtl_file: str | list[str], result_dir: str, top_name: str) -> str | list[str]:
+def _check_v(rtl_file: str | list[str], result_dir: str, top_name: str) -> str | list[str]:
     """Check RTL file(s) existence and return the original file path(s).
 
     Note: SystemVerilog files are now handled directly by yosys with slang plugin,
@@ -355,7 +257,7 @@ def run(
     # Convert SystemVerilog files if necessary and also check RTL file existence
     result_dir = os.path.abspath(result_dir)
     netlist_file = os.path.abspath(netlist_file)
-    rtl_file = _convert_v(rtl_file, result_dir, top_name)
+    rtl_file = _check_v(rtl_file, result_dir, top_name)
 
     # flatten rtl_file if it is a list (pass ENV var to yosys.tcl)
     if isinstance(rtl_file, list):
