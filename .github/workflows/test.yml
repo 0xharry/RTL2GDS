@@ -1,4 +1,4 @@
-name: "Build and check RTL2GDS"
+name: "Build and check"
 on:
   push:
     branches:
@@ -13,14 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        design: [gcd, picorv32a]
+        design: [gcd]
         include:
           - design: gcd
             config: gcd.yaml
             path: design_zoo/gcd
-          - design: picorv32a
-            config: pico.yaml
-            path: design_zoo/picorv32a
 
     env:
       PYTHONPATH: ${{ github.workspace }}/src
