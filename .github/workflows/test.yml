@@ -28,12 +28,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Nix
         uses: DeterminateSystems/nix-installer-action@v17
+      - name: Cache Nix dependencies
+        uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: "pip"
 
       - name: Cache Python dependencies
         uses: actions/cache@v4
@@ -57,7 +59,8 @@ jobs:
 
       - name: Install Nix packages
         run: |
-          nix profile install nixpkgs#yosys github:Emin017/ieda-infra#iedaUnstable \
+          nix profile install nixpkgs#yosys github:Emin017/ieda-infra#magic-vlsi \
+            github:Emin017/ieda-infra#iedaUnstable \
             --option substituters "$NIX_SUBSTITUTERS" \
             --option trusted-public-keys "$NIX_TRUSTED_PUBLIC_KEYS" --accept-flake-config
 
