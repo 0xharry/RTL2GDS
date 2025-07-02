@@ -3,6 +3,7 @@ import logging
 from rtl2gds import Chip, flow
 from rtl2gds.global_configs import R2G_BASE_DIR
 
+
 def main():
     logging.basicConfig(
         format="[%(asctime)s - %(levelname)s - %(name)s]: %(message)s",
