@@ -36,13 +36,12 @@ app = FastAPI()
 # Notification classes and functions
 @dataclass
 class NotifyTaskBody:
-    # files: list[str]
-    files: dict[str, str | list[str] | dict[str, str]]
+    files: dict[str, str | list[str]]
     serverTimestamp: int
     status: str
-    taskId: str
+    taskId: int
     taskType: str
-    projectId: str
+    projectId: int
 
 
 class TaskStatus(Enum):
@@ -71,14 +70,14 @@ class TaskType(Enum):
 async def notify_task_async(
     result_files: dict[str, object],
     task_type: str,
-    task_id: str,
+    task_id: int,
     status: TaskStatus,
-    project_id: str,
+    project_id: int,
 ):
     """Asynchronously send notification to front-end service about task completion."""
     notify_host = os.getenv("FRONT_SERVICE_HOST", "localhost")
-    notify_port = int(os.getenv("FRONT_SERVICE_PORT", 8083))
-    notify_url = f"http://{notify_host}:{notify_port}/apis/v1/notify/task"
+    notify_port = int(os.getenv("FRONT_SERVICE_PORT", 9443))
+    notify_url = f"http://{notify_host}:{notify_port}/console-srv/v1/notify/task"
     if not notify_url:
         logging.exception("FRONT_SERVICE_HOST env variable not set. Cannot notify.")
         return
@@ -95,16 +94,17 @@ async def notify_task_async(
     )
     logging.info(f"Notification body: {json_body}")
 
-    headers = (
-        {
-            "Content-Type": "application/json",
-            "ecos-app-secret": os.getenv("ECOS_APP_SECRET"),
-        },
-    )
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             logging.info(f"Sending notification for task {task_id} to {notify_url}...")
-            response = await client.post(url=notify_url, headers=headers, json=asdict(json_body))
+            response = await client.post(
+                url=notify_url,
+                headers={
+                    "Content-Type": "application/json",
+                    "ecos-app-secret": os.getenv("ECOS_APP_SECRET"),
+                },
+                json=asdict(json_body),
+            )
             response.raise_for_status()
             logging.info(f"Notification for task {task_id} sent successfully: {response.text}")
     except httpx.RequestError as e:
@@ -240,7 +240,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
                 logging.info(f"Task {task_id} completed successfully.")
                 result_files = {}
                 task_res_files_json = os.path.join(
-                    MOUNT_POINT, f"project_{project_id}", "current_task_result_files.json"
+                    MOUNT_POINT, f"project_{project_id}", "result_files.json"
                 )
                 with open(task_res_files_json, "r") as f:
                     result_files = json.load(f)
@@ -248,9 +248,9 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
                 await notify_task_async(
                     result_files=result_files,
                     status=TaskStatus.SUCCESS,
-                    task_id=task_id,
+                    task_id=int(task_id),
                     task_type=step_name,
-                    project_id=project_id,
+                    project_id=int(project_id),
                 )
             else:
                 error_output = stderr.decode().strip()
@@ -263,9 +263,9 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
             await notify_task_async(
                 result_files={},
                 status=TaskStatus.FAILED,
-                task_id=task_id,
+                task_id=int(task_id),
                 task_type=step_name,
-                project_id=project_id,
+                project_id=int(project_id),
             )
         except Exception as notify_exc:
             logging.error(
@@ -301,8 +301,6 @@ def get_expected_step(finished_step: str) -> str | None:
         return CLOUD_FLOW_STEPS[index + 1]
     except ValueError:
         return None
-
-    return
 
 
 @app.post("/apis/v1/ieda/stdin", response_model=ResponseModel)

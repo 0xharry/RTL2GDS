@@ -47,13 +47,20 @@ def main(config_yaml: Path, config: dict, step_name: str):
         logging.info("Dumping final config YAML...")
         logging.info(f"Config YAML: {config_yaml}, finished_step: {chip_design.finished_step}")
         chip_design.dump_config_yaml(config_yaml=config_yaml)  # overwrite the config file
+        task_workspace = chip_design.path_setting.result_dir
 
         logging.info("Preparing notify result_files...")
-        task_result_files_json = (
-            f"{Path(chip_design.path_setting.result_dir).parent}/current_task_result_files.json"
-        )
+        task_result_files_json = f"{Path(task_workspace).parent}/result_files.json"
+        with open(f"{task_workspace}/result_files.json", "w") as f:
+            json.dump(result_files, f)  # inside task
         with open(task_result_files_json, "w") as f:
-            json.dump(result_files, f)
+            # filter `result_dir` from folder name
+            for k, v in result_files.items():
+                if isinstance(v, str):
+                    result_files[k] = v.replace(f"{task_workspace}/", "")
+                elif isinstance(v, list):
+                    result_files[k] = [x.replace(f"{task_workspace}/", "") for x in v]
+            json.dump(result_files, f)  # inside project
 
         # Check if execution was successful
         if result_files and chip_design.finished_step == step_name:
@@ -72,12 +79,6 @@ def main(config_yaml: Path, config: dict, step_name: str):
             f"An error occurred during the step {step_name} for Chip ({chip_design.top_name}): {e}"
         )
         raise
-
-
-def test_main():
-    """Test main function."""
-    logging.info("Test RTL2GDS cloud_main, that'll be all. Exiting...")
-    return
 
 
 def main_cli():
@@ -99,46 +100,8 @@ def main_cli():
         raise ValueError(f"Config file not found: {config_yaml}")
 
     main(config_yaml=config_yaml, config={}, step_name=step_name)
-    # test_main()
 
     logging.info("cloud_main.py finished.")
-
-
-def generate_complete_config(config_yaml: Path, rtl_path: Path, workspace_path: Path):
-    """Loads, completes, and saves the configuration YAML."""
-    logging.info(f"Loading config from {config_yaml}")
-    with open(config_yaml, "r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-        if config is None:
-            config = {}
-            logging.warning(f"Config file {config_yaml} was empty.")
-
-    config["RTL_FILE"] = str(rtl_path.resolve())
-    workspace_abs_path = str(workspace_path.resolve())
-
-    required_keys = ["TOP_NAME", "CLK_PORT_NAME"]
-    missing_keys = [key for key in required_keys if key not in config]
-    if missing_keys:
-        error_msg = f"Missing required keys in config.yaml: {', '.join(missing_keys)}"
-        logging.error(error_msg)
-        raise ValueError(error_msg)
-
-    top_name = config["TOP_NAME"]
-    default_configs = {
-        "RESULT_DIR": workspace_abs_path,
-        "NETLIST_FILE": f"{workspace_abs_path}/{top_name}.v",
-        "GDS_FILE": f"{workspace_abs_path}/{top_name}.gds",
-        "CLK_FREQ_MHZ": 50,
-        "CORE_UTIL": 0.5,
-    }
-
-    for key, value in default_configs.items():
-        if key not in config:
-            config[key] = value
-
-    logging.info(f"Saving updated config to {config_yaml}")
-    with open(config_yaml, "w", encoding="utf-8") as f:
-        yaml.dump(config, f, default_flow_style=False)
 
 
 if __name__ == "__main__":
