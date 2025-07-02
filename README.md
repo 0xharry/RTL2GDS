@@ -21,7 +21,10 @@ A tool to compile your RTL files into GDSII layouts.
 
 ### 0. Setup Runtime Environment
 
-`rtl2gds` depends on [iEDA](https://gitee.com/oscc-project/iEDA) and [yosys](https://github.com/YosysHQ/yosys). A prebuilt yosys binary is presented at `/rtl2gds/bin/yosys`
+`rtl2gds` depends on [iEDA](https://gitee.com/oscc-project/iEDA), [yosys](https://github.com/YosysHQ/yosys) and [magic-vlsi](http://opencircuitdesign.com/magic/).
+
+A prebuilt yosys binary is presented at `/rtl2gds/bin/yosys`, but we recommend you to install yosys from [oss-cad-suite-build](https://github.com/YosysHQ/oss-cad-suite-build/releases/),
+which is a prebuilt binary package for yosys and other EDA tools (We will use the yosys-slang plugin in the project).
 
 Build iEDA from source code, [here](https://gitee.com/oscc-project/iEDA/blob/master/README.md#method-2--install-dependencies-and-compile) is how you do it:
 
