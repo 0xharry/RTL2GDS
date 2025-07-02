@@ -59,7 +59,8 @@ jobs:
 
       - name: Install Nix packages
         run: |
-          nix profile install nixpkgs#yosys github:Emin017/ieda-infra#magic-vlsi \
+          nix profile install github:Emin017/ieda-infra#yosysWithSlang \
+            github:Emin017/ieda-infra#magic-vlsi \
             github:Emin017/ieda-infra#iedaUnstable \
             --option substituters "$NIX_SUBSTITUTERS" \
             --option trusted-public-keys "$NIX_TRUSTED_PUBLIC_KEYS" --accept-flake-config
