@@ -208,6 +208,8 @@ placement:
       INPUT_DEF: top_netlist_opt.def
     parameters:
       TOP_NAME: top
+      DENSITY_GRID_SIZE: 8
+      DESIGN_EVAL_REPORT: ${RESULT_DIR}/evaluation/placement
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
@@ -259,7 +261,6 @@ legalization:
     parameters:
       TOP_NAME: top
       DESIGN_EVAL_REPORT: ${RESULT_DIR}/evaluation/legalization
-      DENSITY_GRID_SIZE: 2000
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
