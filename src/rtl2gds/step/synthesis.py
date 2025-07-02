@@ -125,7 +125,7 @@ def parse_synth_stat(synth_stat_json: str):
     return stats
 
 
-def _check_v(rtl_file: str | list[str], result_dir: str, top_name: str) -> str | list[str]:
+def _check_v(rtl_file: str | list[str]) -> str | list[str]:
     """Check RTL file(s) existence and return the original file path(s).
 
     Note: SystemVerilog files are now handled directly by yosys with slang plugin,
@@ -133,8 +133,6 @@ def _check_v(rtl_file: str | list[str], result_dir: str, top_name: str) -> str |
 
     Args:
         rtl_file: Path(s) to the input RTL file(s)
-        result_dir: Directory to store results (unused but kept for compatibility)
-        top_name: Name of the top-level module (unused but kept for compatibility)
 
     Returns:
         Path(s) to the original RTL file(s)
@@ -257,7 +255,7 @@ def run(
     # Convert SystemVerilog files if necessary and also check RTL file existence
     result_dir = os.path.abspath(result_dir)
     netlist_file = os.path.abspath(netlist_file)
-    rtl_file = _check_v(rtl_file, result_dir, top_name)
+    rtl_file = _check_v(rtl_file)
 
     # flatten rtl_file if it is a list (pass ENV var to yosys.tcl)
     if isinstance(rtl_file, list):

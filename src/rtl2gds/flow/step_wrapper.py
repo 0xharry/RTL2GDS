@@ -89,11 +89,9 @@ class StepWrapper:
         self._check_expected_step(step_name)
 
         # @TODO: temporarily migrate from synthesis.py, need to be refactored
-        from rtl2gds.step.synthesis import _calculate_areas, _check_v, parse_synth_stat
+        from rtl2gds.step.synthesis import _check_v, parse_synth_stat
 
-        rtl_file = _check_v(
-            self.chip.path_setting.rtl_file, self.chip.path_setting.result_dir, self.chip.top_name
-        )
+        rtl_file = _check_v(self.chip.path_setting.rtl_file)
         if isinstance(rtl_file, list):
             # check if all files exist
             for rtl in rtl_file:
