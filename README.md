@@ -1,5 +1,13 @@
 # RTL to GDSII Flow
 
+<div align="left">
+
+![GitHub workflows](https://img.shields.io/github/actions/workflow/status/0xharry/RTL2GDS/test.yml)
+![GitHub issues](https://img.shields.io/github/issues/0xharry/RTL2GDS)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/0xharry/RTL2GDS)
+
+</div>
+
 A tool to compile your RTL files into GDSII layouts.
 
 ## Table of Contents
