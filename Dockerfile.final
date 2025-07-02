@@ -1,5 +1,5 @@
 ARG BASE_IMG=rtl2gds:cloudbase
-ARG IEDA_IMG=ieda:latest
+ARG IEDA_IMG=docker.cnb.cool/ecoslab/rtl2gds/ieda:latest
 
 FROM $IEDA_IMG AS ieda
 FROM $BASE_IMG AS base

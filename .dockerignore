@@ -1,4 +1,5 @@
 *
+!bin/yosys/share/yosys/plugins/slang.so
 !design_zoo
 !src
 !foundry
