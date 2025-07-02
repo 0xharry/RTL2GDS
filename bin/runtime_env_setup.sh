@@ -1,2 +1,0 @@
-export PATH="${BINARY_PATH}/yosys/bin:${BINARY_PATH}/iEDA:$PATH"
-export LD_LIBRARY_PATH="${BINARY_PATH}/lib:$LD_LIBRARY_PATH"

@@ -6,10 +6,9 @@ ENV TZ=Asia/Shanghai
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime && \
-    sed -i 's@//.*archive.ubuntu.com@//mirrors.tuna.tsinghua.edu.cn@g' /etc/apt/sources.list && \
     apt-get update && apt-get install -y python3-pip && \
-    apt-get install -y libunwind8 libtcl8.6 libtk8.6 && \
-    pip3 install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple pyyaml orjson klayout requests fastapi[standard] tenacity && \
+    apt-get install -y libunwind8 libgomp1 libtcl8.6 libtk8.6 && \
+    pip3 install -i http://mirrors.cloud.aliyuncs.com/pypi/simple/ pyyaml orjson klayout requests fastapi[standard] tenacity && \
     apt-get autoremove -y && apt-get clean -y
 
 ARG R2G_REPO=.

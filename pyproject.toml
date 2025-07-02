@@ -79,4 +79,4 @@ ensure_newline_before_comments = true
 skip_gitignore = true
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 known_first_party = ["rtl2gds"]
-skip = ["venv", "bin", "build", "dist", "third_party"]
+skip = ["venv", "bin", "build", "dist", "foundry", "third_party"]
