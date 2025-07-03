@@ -1,6 +1,6 @@
 import logging
 
-from rtl2gds import Chip, flow
+from rtl2gds import Chip
 from rtl2gds.flow import cloud_step
 from rtl2gds.global_configs import R2G_BASE_DIR, StepName
 
@@ -12,14 +12,14 @@ def main():
         force=True,
     )
     logging.info("Start test")
-    top_name = "NPC"
-    rtl_file = f"{R2G_BASE_DIR}/demo/minirv.sv"
+    top_name = "gcd"
+    rtl_file = f"{R2G_BASE_DIR}/design_zoo/gcd/gcd.v"
     init_config = {
         "RTL_FILE": rtl_file,
         "CORE_UTIL": 0.5,
         "TOP_NAME": top_name,
         "CLK_FREQ_MHZ": 200,
-        "CLK_PORT_NAME": "clock",
+        "CLK_PORT_NAME": "clk",
         "RESULT_DIR": f"{R2G_BASE_DIR}/tmp/test_cloud_step_{top_name}",
     }
     test_design = Chip(config_dict=init_config)

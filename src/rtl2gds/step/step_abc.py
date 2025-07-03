@@ -225,10 +225,9 @@ class Step:
                 )
 
             logging.error(
-                "(step.%s) \n subprocess.CalledProcessError(return code: %d): output: %s",
+                "(step.%s) \n subprocess.CalledProcessError(return code: %d)",
                 self.step_name,
                 e.returncode,
-                e.output,
             )
             raise
         except subprocess.TimeoutExpired as e:
@@ -252,9 +251,8 @@ class Step:
                 )
 
             logging.error(
-                "(step.%s) \n subprocess.TimeoutExpired: output: %s",
+                "(step.%s) \n subprocess.TimeoutExpired",
                 self.step_name,
-                e.output,
             )
             raise
 

@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import os
-import uuid
+import random
 
 import httpx
 
@@ -18,10 +18,10 @@ EDA_SERVICE_PORT = int(os.getenv("EDA_SERVICE_PORT", 9444))
 EDA_BASE_URL = f"http://{EDA_SERVICE_HOST}:{EDA_SERVICE_PORT}"
 
 FRONT_SERVICE_HOST = os.getenv("FRONT_SERVICE_HOST", "localhost")
-FRONT_SERVICE_PORT = int(os.getenv("FRONT_SERVICE_PORT", 8083))
+FRONT_SERVICE_PORT = int(os.getenv("FRONT_SERVICE_PORT", 9443))
 FRONT_BASE_URL = f"http://{FRONT_SERVICE_HOST}:{FRONT_SERVICE_PORT}"
 
-PROJ_ID = "demo"
+PROJ_ID = "1"
 
 
 async def submit_task(task_payload: dict[str:object]) -> bool:
@@ -53,7 +53,7 @@ async def run_synthesis() -> bool:
 
     task_payload = {
         "projectId": PROJ_ID,
-        "taskId": f"synthesis-{uuid.uuid4().hex[:8]}",
+        "taskId": str(random.randint(1, 10000)),
         "taskType": "synthesis",
         "parameter": {
             "TOP_NAME": "gcd",
@@ -73,7 +73,7 @@ async def run_floorplan() -> bool:
 
     task_payload = {
         "projectId": PROJ_ID,
-        "taskId": f"floorplan-{uuid.uuid4().hex[:8]}",
+        "taskId": str(random.randint(1, 10000)),
         "taskType": "floorplan",
         "parameter": {
             "CORE_UTIL": 0.6,
@@ -91,7 +91,7 @@ async def run_pnr(step_name: str) -> bool:
 
     task_payload = {
         "projectId": PROJ_ID,
-        "taskId": f"{step_name}-{uuid.uuid4().hex[:8]}",
+        "taskId": str(random.randint(1, 10000)),
         "taskType": step_name,
         "parameter": {
             "WHATEVER": 1,
@@ -121,8 +121,10 @@ async def check_server_health() -> bool:
     """Check if server is running and healthy."""
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            response_eda = await client.get(f"{EDA_BASE_URL}/hello")
             response_front = await client.get(f"{FRONT_BASE_URL}/hello")
+            logger.info(f"Front response: {response_front.status_code}")
+            response_eda = await client.get(f"{EDA_BASE_URL}/hello")
+            logger.info(f"EDA response: {response_eda.status_code}")
             if response_eda.status_code == 200 and response_front.status_code == 200:
                 logger.info("✓ Server is healthy")
                 return True
@@ -132,7 +134,7 @@ async def check_server_health() -> bool:
                 )
                 return False
     except Exception as e:
-        logger.error(f"Cannot connect to server: {e}")
+        logger.error(f"check_server_health: Cannot connect to server: {e}")
         return False
 
 
@@ -144,17 +146,17 @@ async def main():
 
         await monitor_task_overview()
 
-        await run_synthesis()
-        await asyncio.sleep(1)
-        await run_floorplan()
-        await asyncio.sleep(1)
+        # await run_synthesis()
+        # await asyncio.sleep(1)
+        # await run_floorplan()
+        # await asyncio.sleep(1)
         await run_pnr("placement")
-        await asyncio.sleep(1)
-        await run_pnr("cts")
-        await asyncio.sleep(1)
-        await run_pnr("routing")
-        await asyncio.sleep(1)
-        await run_pnr("signoff")
+        # await asyncio.sleep(1)
+        # await run_pnr("cts")
+        # await asyncio.sleep(1)
+        # await run_pnr("routing")
+        # await asyncio.sleep(1)
+        # await run_pnr("signoff")
 
         await monitor_task_overview()
 

@@ -8,15 +8,15 @@ from fastapi import FastAPI
 @dataclass
 class Request:
     """
-    for POST request to `/apis/v1/notify/task`
+    for POST request to `/console-srv/v1/notify/task`
     """
 
     files: dict[str, object]
     serverTimestamp: int
     status: str
-    taskId: str
+    taskId: int
     taskType: str
-    projectId: str
+    projectId: int
 
     def __str__(self) -> str:
         # return as dict
@@ -32,7 +32,7 @@ def get_hello():
 
 
 # test front-end server
-@app.post("/apis/v1/notify/task")
+@app.post("/console-srv/v1/notify/task")
 async def mock_front(r2g_done: Request):
     print(str(r2g_done))
 
@@ -40,7 +40,7 @@ async def mock_front(r2g_done: Request):
 if __name__ == "__main__":
     # $uvicorn main:app --reload --port 8666 --log-level info (default)
     front_host = os.getenv("FRONT_SERVICE_HOST", "localhost")
-    front_port = int(os.getenv("FRONT_SERVICE_PORT", 8083))
+    front_port = int(os.getenv("FRONT_SERVICE_PORT", 9443))
     uvicorn.run(
         app="mock_front:app",
         host=front_host,
