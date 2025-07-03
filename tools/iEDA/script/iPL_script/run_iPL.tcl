@@ -83,11 +83,6 @@ feature_tool -path $TOOL_METRICS_JSON -step place
 feature_cong_map -dir $TOOL_REPORT_DIR -step place
 
 #===========================================================
-##   run timing evaluation
-#===========================================================
-# run_timing_eval -eval_output_path $::env(DESIGN_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
-
-#===========================================================
 ##   run density evaluation
 #===========================================================
 run_density_eval -eval_output_path $::env(DESIGN_EVAL_REPORT) -grid_size $::env(DENSITY_GRID_SIZE) -stage "legalization"

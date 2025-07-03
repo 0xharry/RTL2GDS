@@ -78,11 +78,6 @@ report_db -path $DESIGN_STAT_TEXT
 feature_summary -path $DESIGN_STAT_JSON -step legalization
 
 #===========================================================
-##   run timing evaluation
-#===========================================================
-# run_timing_eval -eval_output_path $::env(DESIGN_EVAL_REPORT) -routing_type $::env(ROUTING_TYPE)
-
-#===========================================================
 ##   Exit 
 #===========================================================
 flow_exit
