@@ -89,11 +89,12 @@ class StepWrapper:
         self._check_expected_step(step_name)
 
         # @TODO: temporarily migrate from synthesis.py, need to be refactored
-        from rtl2gds.step.synthesis import _check_v, parse_synth_stat
-
-        rtl_file = _check_v(self.chip.path_setting.rtl_file)
-        if isinstance(rtl_file, list):
-            # check if all files exist
+        rtl_file = self.chip.path_setting.rtl_file
+        # @TODO: convert_sv_to_filelist(rtl_file, f"{self.chip.path_setting.result_dir}/filelist.fl")
+        if isinstance(rtl_file, str):
+            if not Path(rtl_file).exists():
+                raise FileNotFoundError(f"File {rtl_file} does not exist")
+        elif isinstance(rtl_file, list):
             for rtl in rtl_file:
                 if not Path(rtl).exists():
                     raise FileNotFoundError(f"File {rtl} does not exist")
@@ -114,6 +115,8 @@ class StepWrapper:
         self.chip.num_executed_steps += 1
 
         # @TODO: temporarily migrate from synthesis.py, need to be refactored
+        from rtl2gds.step.synthesis import parse_synth_stat
+
         stats = parse_synth_stat(step_reproducible["output_files"]["SYNTH_STAT_JSON"])
         cell_area = stats["cell_area"]
         assert 0 < cell_area

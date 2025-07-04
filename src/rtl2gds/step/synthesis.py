@@ -15,6 +15,45 @@ from rtl2gds.step.configs import SHELL_CMD
 MAX_CELL_AREA = 1_000_000
 
 
+def generate_filelist(
+    sv_files: list[str], output_file: str, incdirs: list[str] = None, defines: list[str] = None
+):
+    """
+    Generate a filelist for a Verilog toolchain.
+
+    Args:
+        sv_files (list[str]): List of SystemVerilog source file paths.
+        output_file (str): Path to the output filelist.
+        incdirs (list[str], optional): List of include directories.
+        defines (list[str], optional): List of Verilog defines ("NAME" or "NAME=VALUE").
+    """
+    incdirs = incdirs or []
+    defines = defines or []
+    with open(output_file, "w", encoding="utf-8") as f:
+        for incdir in incdirs:
+            f.write(f"+incdir+{incdir}\n")
+        for define in defines:
+            if "=" in define:
+                name, value = define.split("=", 1)
+                f.write(f"+define+{name}={value}\n")
+            else:
+                f.write(f"+define+{define}\n")
+        for sv_file in sv_files:
+            f.write(f"{sv_file}\n")
+
+
+def convert_sv_to_filelist(sv_files: str | list[str], output_filelist: str):
+    """
+    Convert a list of SystemVerilog files to a filelist for Yosys-slang.
+    """
+    if isinstance(sv_files, str) and sv_files.endswith(".sv"):
+        sv_files = [sv_files]
+    elif isinstance(sv_files, list) and not any(sv_file.endswith(".sv") for sv_file in sv_files):
+        return
+
+    generate_filelist(sv_files, output_filelist)
+
+
 def save_module_preview(
     verilog_file,
     output_svg=None,
@@ -123,68 +162,6 @@ def parse_synth_stat(synth_stat_json: str):
         stats["cell_area"] = float(summary["design"]["area"])
 
     return stats
-
-
-def _check_v(rtl_file: str | list[str]) -> str | list[str]:
-    """Check RTL file(s) existence and return the original file path(s).
-
-    Note: SystemVerilog files are now handled directly by yosys with slang plugin,
-    so no conversion is needed.
-
-    Args:
-        rtl_file: Path(s) to the input RTL file(s)
-
-    Returns:
-        Path(s) to the original RTL file(s)
-
-    Raises:
-        FileNotFoundError: If any RTL file doesn't exist
-    """
-    if isinstance(rtl_file, str):
-        if not os.path.exists(rtl_file):
-            raise FileNotFoundError(f"RTL file {rtl_file} not found")
-        return rtl_file
-    elif isinstance(rtl_file, list):
-        for file in rtl_file:
-            if not os.path.exists(file):
-                raise FileNotFoundError(f"RTL file {file} not found")
-        return rtl_file
-    return rtl_file
-
-
-def _setup_step_env(
-    top_name,
-    rtl_file,
-    netlist_file,
-    synth_stat_json,
-    synth_check_txt,
-    clk_freq_mhz,
-    result_dir,
-):
-    """Setup environment variables for Yosys synthesis.
-
-    Args:
-        top_name (str): Name of the top-level module
-        rtl_file (str): Path to the input RTL file
-        netlist_file (str): Path to the output netlist file
-        yosys_report_dir (str): Directory for Yosys reports
-        clk_freq_mhz (str): Clock frequency in MHz
-
-    Returns:
-        dict: Environment variables for synthesis
-    """
-    step_env = {
-        "TOP_NAME": str(top_name),
-        "RTL_FILE": str(rtl_file),
-        "NETLIST_FILE": str(netlist_file),
-        "SYNTH_STAT_JSON": str(synth_stat_json),
-        "SYNTH_CHECK_TXT": str(synth_check_txt),
-        "CLK_FREQ_MHZ": str(clk_freq_mhz),
-        "RESULT_DIR": str(result_dir),
-    }
-
-    step_env.update(ENV_TOOLS_PATH)
-    return step_env
 
 
 def _calculate_areas(cell_area, core_util, die_bbox=None, core_bbox=None):

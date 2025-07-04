@@ -31,10 +31,16 @@ proc processAbcScript {abc_script} {
 # read liberty files and prepare some variables
 source scripts/init_tech.tcl
 
-yosys plugin -i slang
-yosys read_slang $verilog_files --top $top_design \
+if { [info exists ::env(FILELIST)] } {
+    yosys plugin -i slang
+    yosys read_slang -F $file_list --top $top_design \
         --compat-mode --keep-hierarchy \
         --allow-use-before-declare --ignore-unknown-modules
+} else {
+    foreach file $verilog_files {
+        yosys read_verilog $file
+    }
+}
 
 # -----------------------------------------------------------------------------
 # this section heavily borrows from the yosys synth command:
