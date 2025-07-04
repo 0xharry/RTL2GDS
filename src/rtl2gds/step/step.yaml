@@ -40,7 +40,7 @@ sta:
   tool_name: iEDA
   cmd_template:
   - iEDA
-  - ${R2G_TOOL_DIR}/iEDA/script/iSTA_script/run_iSTA.tcl
+  - ${R2G_TOOL_DIR}/iEDA/script/iSTA_script/report_timing_power.tcl
   input_env:
     files:
       INPUT_DEF: __optional__
@@ -48,21 +48,26 @@ sta:
       SDC_FILE: ${R2G_TOOL_DIR}/default.sdc
     parameters:
       TOP_NAME: top
-      USE_VERILOG_ONLY: false
+      USE_VERILOG: false
       CLK_PORT_NAME: clk
       CLK_FREQ_MHZ: 100
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
       TOOL_REPORT_DIR: ${OUTPUT_TOP_NAME}_sta
+      STA_SUMMARY_JSON: ${OUTPUT_TOP_NAME}_sta/${OUTPUT_TOP_NAME}.rpt.json
+      POWER_SUMMARY_JSON: ${OUTPUT_TOP_NAME}_sta/${OUTPUT_TOP_NAME}.pwr.json
+      POWER_INSTANCE_CSV: ${OUTPUT_TOP_NAME}_sta/${OUTPUT_TOP_NAME}_instance.csv
     metrics:
     - suggest_freq_mhz
     - setup_wns
     - setup_tns
     - hold_wns
     - hold_tns
-    - dynamic_power
+    - internal_power
     - leakage_power
+    - combinational_power
+    - sequential_power
     - total_power
 
 drc:
@@ -125,10 +130,11 @@ synthesis:
   input_env:
     files:
       RTL_FILE: top.v
+      FILELIST: __optional__
     parameters:
       TOP_NAME: top
       CLK_FREQ_MHZ: 100
-      FLATTEN_DESIGN: true
+      KEEP_HIERARCHY: false
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
@@ -167,7 +173,6 @@ floorplan:
       OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_floorplan.v
       DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_floorplan_stat.rpt
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_floorplan_stat.json
-      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
     - die_bbox
     - core_bbox
@@ -193,7 +198,6 @@ netlist_opt:
       DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_netlist_opt_stat.rpt
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_netlist_opt_stat.json
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_netlist_opt_metrics.json
-      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
     - num_cells
     - cell_area
@@ -208,8 +212,7 @@ placement:
       INPUT_DEF: top_netlist_opt.def
     parameters:
       TOP_NAME: top
-      DENSITY_GRID_SIZE: 8
-      DESIGN_EVAL_REPORT: ${RESULT_DIR}/evaluation/placement
+      DENSITY_GRID_SIZE: 1
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
@@ -221,6 +224,7 @@ placement:
       TOOL_REPORT_DIR: ./
       DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
       CONGESTION_MAP: rt/place_egr_union_overflow.csv
+      INSTANCE_PLOTS: pl/plot
     metrics:
     - num_cells
     - cell_area
@@ -245,7 +249,7 @@ cts:
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_cts_metrics.json
       TOOL_REPORT_DIR: cts
       CLOCK_TREE_JSON: cts/output/cts_design.json
-      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
+      SKEW_MAP_JSON: cts/output/core_clock_skewmap.json
     metrics:
     - num_cells
     - cell_area
@@ -282,7 +286,7 @@ routing:
       INPUT_DEF: top_legalization.def
     parameters:
       TOP_NAME: top
-      TMP_DIR_NAME: routing_tmp
+      FAST_ROUTE: true
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
@@ -292,7 +296,6 @@ routing:
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_routing_stat.json
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_routing_metrics.json
       TOOL_REPORT_DIR: routing
-      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
     - num_cells
     - cell_area
@@ -314,7 +317,6 @@ filler:
       OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_filler.v
       DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_filler_stat.rpt
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_filler_stat.json
-      # DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
     metrics:
     - num_cells
     - cell_area

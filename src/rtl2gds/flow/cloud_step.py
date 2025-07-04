@@ -20,7 +20,7 @@ CLOUD_STEP_IO = {
     StepName.SYNTHESIS: {
         "input": [
             "RTL_FILE",
-            "FLATTEN_DESIGN",
+            "KEEP_HIERARCHY",
         ],
         "output": [
             "TIMING_CELL_STAT_RPT",
@@ -35,54 +35,58 @@ CLOUD_STEP_IO = {
             "NETLIST_FILE",
             "CORE_UTIL",
             "CELL_AREA",
-            # "USE_FIXED_BBOX",
-            # "DIE_BBOX",
-            # "CORE_BBOX",
+            "USE_FIXED_BBOX",
+            "DIE_BBOX",
+            "CORE_BBOX",
         ],
         "output": [
             "DESIGN_STAT_JSON",  # no
-            # "DESIGN_EVAL_REPORT",  # no
         ],
     },
     StepName.PLACEMENT: {
         "input": [
             "DEF_FILE",
+            "TARGET_DENSITY",
+            "TARGET_OVERFLOW",
+            "MAX_ITERATIVE",
         ],
         "output": [
             "CONGESTION_MAP",
             "DESIGN_STAT_JSON",
-            # "DESIGN_EVAL_REPORT",
+            "TOOL_METRICS_JSON",
         ],
     },
     StepName.CTS: {
         "input": [
             "DEF_FILE",
+            "MAX_FANOUT",
         ],
         "output": [
             "CLOCK_TREE_JSON",
+            "SKEW_MAP_JSON",
             "TOOL_METRICS_JSON",
             "DESIGN_STAT_JSON",  # lg
-            # "DESIGN_EVAL_REPORT",  # lg
         ],
     },
     StepName.ROUTING: {
         "input": [
             "DEF_FILE",
+            "FAST_ROUTE",
         ],
         "output": [
             "DESIGN_STAT_JSON",
-            # "DESIGN_EVAL_REPORT",
+            # "TOOL_METRICS_JSON",
         ],
     },
     StepName.SIGNOFF: {
         "input": [
             "INPUT_DEF",
             "DIE_BBOX",
+            "FAST_SIGNOFF",
         ],
         "output": [
             "DRC_REPORT_JSON",
             "DESIGN_STAT_JSON",  # filler
-            # "DESIGN_EVAL_REPORT",  # filler
         ],
     },
     StepName.STA: {
@@ -92,8 +96,9 @@ CLOUD_STEP_IO = {
             "INPUT_DEF",
         ],
         "output": [
-            # "POWER_REPORT_JSON",
-            # "TIMING_REPORT_JSON",
+            "STA_SUMMARY_JSON",
+            "POWER_SUMMARY_JSON",
+            "POWER_INSTANCE_CSV",
         ],
     },
 }

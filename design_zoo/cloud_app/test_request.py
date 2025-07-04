@@ -146,17 +146,17 @@ async def main():
 
         await monitor_task_overview()
 
-        # await run_synthesis()
-        # await asyncio.sleep(1)
-        # await run_floorplan()
-        # await asyncio.sleep(1)
+        await run_synthesis()
+        await asyncio.sleep(1)
+        await run_floorplan()
+        await asyncio.sleep(1)
         await run_pnr("placement")
-        # await asyncio.sleep(1)
-        # await run_pnr("cts")
-        # await asyncio.sleep(1)
-        # await run_pnr("routing")
-        # await asyncio.sleep(1)
-        # await run_pnr("signoff")
+        await asyncio.sleep(1)
+        await run_pnr("cts")
+        await asyncio.sleep(1)
+        await run_pnr("routing")
+        await asyncio.sleep(1)
+        await run_pnr("signoff")
 
         await monitor_task_overview()
 

@@ -10,7 +10,7 @@ set timing_cell_count_rpt   "$::env(TIMING_CELL_COUNT_RPT)"
 set generic_stat_json       "$::env(GENERIC_STAT_JSON)"
 set synth_stat_json         "$::env(SYNTH_STAT_JSON)"
 set synth_check_rpt         "$::env(SYNTH_CHECK_RPT)"
-set flatten_design          "$::env(FLATTEN_DESIGN)"
+set keep_hierarchy          [string tolower "$::env(KEEP_HIERARCHY)"]
 
 set tmp_dir        "$::env(RESULT_DIR)/tmp"
 

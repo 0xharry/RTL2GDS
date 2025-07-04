@@ -442,7 +442,7 @@ if __name__ == "__main__":
     reproducible = run_step("synthesis", test_synth)
 
     test_sta = {
-        "USE_VERILOG_ONLY": "true",
+        "USE_VERILOG": "true",
         "INPUT_VERILOG": reproducible["output_files"]["NETLIST_FILE"],
         "TOP_NAME": top_name,
     }

@@ -2,12 +2,12 @@
 set RESULT_DIR          "./ieda_results"
 
 # input variables
-if { [info exists ::env(USE_VERILOG_ONLY)] && [string tolower $::env(USE_VERILOG_ONLY)] == "true" } {
-    set USE_VERILOG_ONLY    true
+if { [info exists ::env(USE_VERILOG)] && [string tolower $::env(USE_VERILOG)] == "true" } {
+    set USE_VERILOG         true
     set TOP_NAME            "$::env(TOP_NAME)"
     set INPUT_VERILOG       "$::env(INPUT_VERILOG)"
 } else {
-    set USE_VERILOG_ONLY    false
+    set USE_VERILOG         false
 }
 
 # output files
@@ -55,7 +55,7 @@ source $IEDA_TCL_SCRIPT_DIR/DB_script/db_init_lef.tcl
 #===========================================================
 ##   read verilog/def
 #===========================================================
-if { $USE_VERILOG_ONLY } {
+if { $USE_VERILOG } {
     verilog_init -path $INPUT_VERILOG -top $TOP_NAME
 } else {
     def_init -path $INPUT_DEF

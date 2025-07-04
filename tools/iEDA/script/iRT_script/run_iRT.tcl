@@ -6,6 +6,10 @@ set RESULT_DIR          "./ieda_results"
 # inputs
 set INPUT_DEF           "$RESULT_DIR/iPL_lg_result.def"
 set NUM_THREADS         64
+set FAST_ROUTE          0
+if { [info exists ::env(FAST_ROUTE)] && [string tolower $::env(FAST_ROUTE)] == "true" } {
+    set FAST_ROUTE 1
+}
 
 # output files
 set OUTPUT_DEF          "$RESULT_DIR/iRT_result.def"
@@ -68,7 +72,7 @@ init_rt -temp_directory_path $TOOL_REPORT_DIR \
         -thread_number $NUM_THREADS \
         -output_inter_result 0 \
         -enable_timing 0 \
-        -enable_fast_mode 1
+        -enable_fast_mode $FAST_ROUTE
 
 run_rt
 

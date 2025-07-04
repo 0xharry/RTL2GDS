@@ -315,7 +315,23 @@ async def call_rtl2gds(stdin: StdinEDA, background_tasks: BackgroundTasks) -> Re
         await check_stdin(stdin)
     except Exception as e:
         logging.error(f"Invalid request: {e}")
-        raise HTTPException(status_code=400, detail=f"Invalid request: {e}")
+        try:
+            await notify_task_async(
+                result_files={},
+                status=TaskStatus.FAILED,
+                task_id=int(stdin.taskId),
+                task_type=stdin.taskType,
+                project_id=int(stdin.projectId),
+            )
+        except Exception as notify_exc:
+            logging.error(
+                f"Failed to send FAILED notification for task {stdin.taskId}: {notify_exc}"
+            )
+        return ResponseModel(
+            code=400,
+            message=f"Invalid request: {e}",
+            data=ResponseData(code="INVALID_REQUEST"),
+        )
 
     # Add task to queue
     async with task_lock:

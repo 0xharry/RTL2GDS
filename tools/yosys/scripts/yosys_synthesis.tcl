@@ -32,11 +32,9 @@ proc processAbcScript {abc_script} {
 source scripts/init_tech.tcl
 
 yosys plugin -i slang
-
-foreach file $verilog_files {
-    yosys read_slang $file --top $top_design -D DEBUG \
-      --ignore-timing --ignore-initial --ignore-assertions
-}
+yosys read_slang $verilog_files --top $top_design \
+        --compat-mode --keep-hierarchy \
+        --allow-use-before-declare --ignore-unknown-modules
 
 # -----------------------------------------------------------------------------
 # this section heavily borrows from the yosys synth command:
@@ -73,7 +71,7 @@ yosys clean -purge
 yosys tee -q -o "${generic_stat_json}" stat -json -tech cmos
 # yosys tee -q -o "${generic_stat_json}.rpt" stat -tech cmos
 # -----------------------------------------------------------------------------
-if {[info exist flatten_design] && $flatten_design} {
+if {$keep_hierarchy == "false"} {
     yosys flatten
     yosys clean -purge
 }
