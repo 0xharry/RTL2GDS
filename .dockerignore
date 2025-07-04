@@ -2,7 +2,7 @@
 !bin/yosys/share/yosys/plugins/slang.so
 !design_zoo
 !src
-!foundry
+!foundry/ihp130
 !tools
 !pyproject.toml
 __pycache__

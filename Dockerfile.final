@@ -16,10 +16,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget unzip git\
     build-essential clang lld bison flex gawk tcl-dev libffi-dev git graphviz \
     xdot pkg-config python3 libboost-system-dev libboost-python-dev libboost-filesystem-dev
 
-RUN wget -q https://githubfast.com/RTimothyEdwards/magic/archive/refs/tags/${MAGIC_VERSION}.zip -O /tmp/magic.zip && \
+RUN wget --no-check-certificate https://githubfast.com/RTimothyEdwards/magic/archive/refs/tags/${MAGIC_VERSION}.zip -O /tmp/magic.zip && \
     unzip -q /tmp/magic.zip -d /tmp && cd /tmp/magic-${MAGIC_VERSION} && ./configure && make -j ${NPROC} && make install -j ${NPROC}
 
-RUN wget -q https://githubfast.com/YosysHQ/yosys/releases/download/v${YOSYS_VERSION}/yosys.tar.gz -O /tmp/yosys.tar.gz && \
+RUN wget --no-check-certificate https://githubfast.com/YosysHQ/yosys/releases/download/v${YOSYS_VERSION}/yosys.tar.gz -O /tmp/yosys.tar.gz && \
     mkdir /tmp/yosys && tar -xzf /tmp/yosys.tar.gz -C /tmp/yosys && cd /tmp/yosys && make -j ${NPROC} && make install -j ${NPROC}
 
 ADD ./bin/yosys/share/yosys/plugins/slang.so /usr/local/share/yosys/plugins/slang.so
