@@ -54,10 +54,10 @@ def cmd_run(shell_cmd: list, shell_env: dict, period_name: str, log_path: str):
                 logging.error("(%s) \n stderr: %s", period_name, stderr_content)
                 raise subprocess.CalledProcessError(ret_code, shell_cmd)
 
-        logging.info(f"The output of the command has been saved to: {timing_output_path}")
+        logging.info("The output of the command has been saved to: %s", timing_output_path)
 
     except Exception as e:
-        logging.error(f"Error command: {shell_cmd}, Error: {e}")
+        logging.error("Error command: %s, Error: %s", shell_cmd, e)
         raise
 
 
@@ -91,13 +91,13 @@ def merge_timing_reports(result_dir: str, log_path: str, output_file: str = None
                     step_data = json.load(f)
                 merged_data[step_name] = step_data
             except json.JSONDecodeError:
-                logging.warning(f"Warning: {report_path} file format is invalid")
+                logging.warning("Warning: %s file format is invalid", report_path)
             except Exception as e:
-                logging.error(f"Error occurred while reading {report_path}: {e}")
+                logging.error("Error occurred while reading %s: %s", report_path, e)
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(merged_data, f, indent=2, ensure_ascii=False)
 
-    logging.info(f"Has been merged all timing reports to: {output_file}")
+    logging.info("Has been merged all timing reports to: %s", output_file)
     return merged_data

@@ -34,7 +34,7 @@ class StepWrapper:
     def _check_expected_step(self, step_name: str) -> None:
         expected_step = get_expected_step(self.chip.finished_step)
         if expected_step != step_name:
-            logging.warning(f"Expected step: {expected_step}, but got: {step_name}")
+            logging.warning("Expected step: %s, but got: %s", expected_step, step_name)
             # raise ValueError(f"Expected step: {expected_step}, but got: {step_name}")
 
     def run_sta(self) -> dict:

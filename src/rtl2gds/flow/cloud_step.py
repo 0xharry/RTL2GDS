@@ -210,7 +210,7 @@ def run(
             raise ValueError(f"Invalid step: {expect_step}")
 
     if expect_step != StepName.SYNTHESIS:
-        logging.info(f"Saving layout json for step {expect_step}")
+        logging.info("Saving layout json for step %s", expect_step)
         layout_files = runner.run_save_layout_json(expect_step)
         result_files.update({"layout_files": layout_files})
 

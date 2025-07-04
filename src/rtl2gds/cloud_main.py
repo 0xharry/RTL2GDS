@@ -30,22 +30,22 @@ def main(config_yaml: Path, config: dict, step_name: str):
     Returns:
         dict: Result files from the execution, empty dict if failed
     """
-    logging.info(f"Starting RTL2GDS execution for step: {step_name}")
+    logging.info("Starting RTL2GDS execution for step: %s", step_name)
 
     try:
         # Create Chip design from config dictionary
         logging.info("Initializing Chip design...")
         chip_design = Chip(config_yaml=config_yaml)
 
-        logging.info(f"Chip design initialized: {chip_design.top_name}")
+        logging.info("Chip design initialized: %s", chip_design.top_name)
         logging.info("Ignoring config dict for now")
 
-        logging.info(f"Running flow step: {step_name}")
+        logging.info("Running flow step: %s", step_name)
         result_files = cloud_step.run(chip_design, expect_step=step_name)
-        logging.info(f"Step {step_name} completed. Result files: {result_files}")
+        logging.info("Step %s completed. Result files: %s", step_name, result_files)
 
         logging.info("Dumping final config YAML...")
-        logging.info(f"Config YAML: {config_yaml}, finished_step: {chip_design.finished_step}")
+        logging.info("Config YAML: %s, finished_step: %s", config_yaml, chip_design.finished_step)
         chip_design.dump_config_yaml(config_yaml=config_yaml)  # overwrite the config file
         task_workspace = chip_design.path_setting.result_dir
 
@@ -65,18 +65,23 @@ def main(config_yaml: Path, config: dict, step_name: str):
         # Check if execution was successful
         if result_files and chip_design.finished_step == step_name:
             logging.info(
-                f"Step {step_name} for Chip ({chip_design.top_name}) completed successfully"
+                "Step %s for Chip (%s) completed successfully", step_name, chip_design.top_name
             )
             return result_files
         else:
             logging.error(
-                f"Step {step_name} for Chip ({chip_design.top_name}) failed: No result files or step not completed"
+                "Step %s for Chip (%s) failed: No result files or step not completed",
+                step_name,
+                chip_design.top_name,
             )
             return {}
 
     except Exception as e:
         logging.exception(
-            f"An error occurred during the step {step_name} for Chip ({chip_design.top_name}): {e}"
+            "An error occurred during the step %s for Chip (%s): %s",
+            step_name,
+            chip_design.top_name,
+            e,
         )
         raise
 
@@ -86,7 +91,7 @@ def main_cli():
     Command-line interface for cloud_main.py.
     Command: python3 /<rtl2gds-module>/cloud_main.py <step_name> <config_yaml_path>
     """
-    logging.info(f"Starting cloud_main.py with args: {sys.argv}")
+    logging.info("Starting cloud_main.py with args: %s", sys.argv)
 
     if len(sys.argv) < 3:
         raise ValueError("Insufficient arguments")
@@ -94,7 +99,7 @@ def main_cli():
     step_name = sys.argv[1]
     config_yaml = Path(sys.argv[2])
     # step_params = Path(sys.argv[3]) # <step_params_config>
-    logging.info(f"Target step: {step_name}")
+    logging.info("Target step: %s", step_name)
 
     if not config_yaml.exists():
         raise ValueError(f"Config file not found: {config_yaml}")

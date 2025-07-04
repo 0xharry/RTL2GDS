@@ -100,7 +100,7 @@ def drc_klayout(
     Returns:
         tuple: Metrics and artifacts from the DRC run.
     """
-    logging.info(f"Running klayout IHP130({drc_rule_set}) on {top_name}")
+    logging.info("Running klayout IHP130(%s) on %s", drc_rule_set, top_name)
 
     artifacts = {
         "klayout_report_db": f"{result_dir}/drc_klayout_{drc_rule_set}_{top_name}.lyrdb",
