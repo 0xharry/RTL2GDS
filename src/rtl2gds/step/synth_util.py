@@ -168,7 +168,7 @@ class SynthStatParser:
         pending_line = None  # Holds the next line if not processed after area line
 
         try:
-            with open(self.file_path, "r") as f:
+            with open(self.file_path, "r", encoding="utf-8") as f:
                 # Use an iterator for easier handling of lookahead/pending lines
                 line_iter = iter(f)
 

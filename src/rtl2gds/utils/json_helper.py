@@ -12,7 +12,7 @@ def check_json_exists(json_file: str) -> bool:
         bool: True if the file exists and is not empty, False otherwise.
     """
     try:
-        with open(json_file, "r") as f:
+        with open(json_file, "r", encoding="utf-8") as f:
             data = json.load(f)
             return bool(data)
     except (FileNotFoundError, json.JSONDecodeError):
@@ -31,7 +31,7 @@ def load_json(json_file: str) -> dict:
     """
     if check_json_exists(json_file):
         try:
-            with open(json_file, "r") as f:
+            with open(json_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             return data
         except json.JSONDecodeError:
@@ -53,7 +53,7 @@ def dump_json(json_file: str, data: dict) -> str:
     """
 
     try:
-        with open(json_file, "w") as f:
+        with open(json_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
         return json_file
     except Exception as e:

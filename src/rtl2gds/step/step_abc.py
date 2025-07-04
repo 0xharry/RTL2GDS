@@ -42,7 +42,7 @@ class Step:
         self._init_from_step_yaml()
 
     def _init_from_step_yaml(self):
-        with open(STEP_CONFIG, "r") as f:
+        with open(STEP_CONFIG, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
             step_config = config[self.step_name]
             # self.raw_config = step_config

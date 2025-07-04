@@ -51,9 +51,9 @@ def main(config_yaml: Path, config: dict, step_name: str):
 
         logging.info("Preparing notify result_files...")
         task_result_files_json = f"{Path(task_workspace).parent}/result_files.json"
-        with open(f"{task_workspace}/result_files.json", "w") as f:
+        with open(f"{task_workspace}/result_files.json", "w", encoding="utf-8") as f:
             json.dump(result_files, f)  # inside task
-        with open(task_result_files_json, "w") as f:
+        with open(task_result_files_json, "w", encoding="utf-8") as f:
             # filter `result_dir` from folder name
             for k, v in result_files.items():
                 if isinstance(v, str):
