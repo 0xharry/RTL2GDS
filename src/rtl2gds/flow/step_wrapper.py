@@ -44,14 +44,14 @@ class StepWrapper:
 
         if self.chip.finished_step == StepName.SYNTHESIS:
             sta_params = {
-                "USE_VERILOG_ONLY": "true",
+                "USE_VERILOG": "true",
                 "INPUT_VERILOG": self.chip.path_setting.netlist_file,
                 "RESULT_DIR": self.chip.path_setting.result_dir,
                 "TOP_NAME": self.chip.top_name,
             }
         else:
             sta_params = {
-                "USE_VERILOG_ONLY": "false",
+                "USE_VERILOG": "false",
                 "INPUT_DEF": self.chip.path_setting.def_file,
                 "RESULT_DIR": self.chip.path_setting.result_dir,
                 "TOP_NAME": self.chip.top_name,
