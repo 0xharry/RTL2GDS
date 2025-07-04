@@ -70,13 +70,18 @@ def main(config_yaml: Path, config: dict, step_name: str):
             return result_files
         else:
             logging.error(
-                "Step %s for Chip (%s) failed: No result files or step not completed", step_name, chip_design.top_name
+                "Step %s for Chip (%s) failed: No result files or step not completed",
+                step_name,
+                chip_design.top_name,
             )
             return {}
 
     except Exception as e:
         logging.exception(
-            "An error occurred during the step %s for Chip (%s): %s", step_name, chip_design.top_name, e
+            "An error occurred during the step %s for Chip (%s): %s",
+            step_name,
+            chip_design.top_name,
+            e,
         )
         raise
 

@@ -110,7 +110,9 @@ async def notify_task_async(
     except httpx.RequestError as e:
         # catches non-retryable httpx errors or the final error after retries are exhausted.
         logging.error(
-            "Failed to send notification for task %s after all attempts. Final error: %s", task_id, e
+            "Failed to send notification for task %s after all attempts. Final error: %s",
+            task_id,
+            e,
         )
         raise
 
@@ -268,7 +270,9 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
             )
         except Exception as notify_exc:
             logging.error(
-                "Additionally, failed to send FAILED notification for task %s: %s", task_id, notify_exc
+                "Additionally, failed to send FAILED notification for task %s: %s",
+                task_id,
+                notify_exc,
             )
     finally:
         async with task_lock:
