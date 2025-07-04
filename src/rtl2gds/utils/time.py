@@ -116,11 +116,11 @@ def save_merged_metrics(chip: Chip, execute_time_json: str):
     }
 
     # Load execution time data
-    logging.info(f"Merge metrics {execute_time_report_path}")
+    logging.info("Merge metrics %s", execute_time_report_path)
     exec_time_data = load_json(execute_time_json)
 
     # # Load timing data
-    # logging.info(f"Merge metrics {timing_report_path}")
+    # logging.info("Merge metrics %s", timing_report_path)
     # timing_data = load_json(timing_report_path)
 
     merged_data["summary"] = exec_time_data.get("summary", {})
@@ -129,7 +129,7 @@ def save_merged_metrics(chip: Chip, execute_time_json: str):
     for step_name, step_exec_time in exec_time_data.get("steps", {}).items():
         if step_name not in merged_data["steps"]:
             merged_data["steps"][step_name] = {}
-            logging.info(f"Step {step_name} not found in merged data, adding it.")
+            logging.info("Step %s not found in merged data, adding it.", step_name)
 
         # Add execution time data
         merged_data["steps"][step_name]["execution_time"] = step_exec_time
@@ -140,5 +140,5 @@ def save_merged_metrics(chip: Chip, execute_time_json: str):
 
     dump_json(merged_report_path, merged_data)
 
-    logging.info(f"Merged metrics saved to: {merged_report_path}")
+    logging.info("Merged metrics saved to: %s", merged_report_path)
     return merged_report_path

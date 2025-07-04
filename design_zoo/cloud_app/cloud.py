@@ -82,7 +82,7 @@ async def notify_task_async(
         logging.exception("FRONT_SERVICE_HOST env variable not set. Cannot notify.")
         return
 
-    logging.info(f"Sending notification to: {notify_url}")
+    logging.info("Sending notification to: %s", notify_url)
 
     json_body = NotifyTaskBody(
         files=result_files,
@@ -92,11 +92,11 @@ async def notify_task_async(
         taskType=task_type,
         projectId=project_id,
     )
-    logging.info(f"Notification body: {json_body}")
+    logging.info("Notification body: %s", json_body)
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            logging.info(f"Sending notification for task {task_id} to {notify_url}...")
+            logging.info("Sending notification for task %s to %s...", task_id, notify_url)
             response = await client.post(
                 url=notify_url,
                 headers={
@@ -106,11 +106,11 @@ async def notify_task_async(
                 json=asdict(json_body),
             )
             response.raise_for_status()
-            logging.info(f"Notification for task {task_id} sent successfully: {response.text}")
+            logging.info("Notification for task %s sent successfully: %s", task_id, response.text)
     except httpx.RequestError as e:
         # catches non-retryable httpx errors or the final error after retries are exhausted.
         logging.error(
-            f"Failed to send notification for task {task_id} after all attempts. Final error: {e}"
+            "Failed to send notification for task %s after all attempts. Final error: %s", task_id, e
         )
         raise
 
@@ -169,7 +169,7 @@ async def prepare_rtl2gds_task(
             # @TODO: support rtl from parameter, sv and multiple rtl files
             tmp_rtl_file = proj_workspace / "top.v"
             config["RTL_FILE"] = str(tmp_rtl_file.resolve())
-            logging.info(f"Creating config.yaml at {config_yaml}")
+            logging.info("Creating config.yaml at %s", config_yaml)
             with open(config_yaml, "w") as f:
                 yaml.dump(config, f)
         # else:
@@ -186,7 +186,7 @@ async def prepare_rtl2gds_task(
     previous_config.update(config)
     with open(config_yaml, "w") as f:
         yaml.dump(previous_config, f)
-    logging.debug(f"update RESULT_DIR in config.yaml to {task_workspace_abs_path}")
+    logging.debug("update RESULT_DIR in config.yaml to %s", task_workspace_abs_path)
 
     return config, config_yaml, task_workspace_abs_path
 
@@ -202,13 +202,13 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
     project_id = stdin.projectId
     step_name = stdin.taskType
     logging.info(
-        f"Task {task_id} of project {project_id} is waiting for an available execution slot..."
+        "Task %s of project %s is waiting for an available execution slot...", task_id, project_id
     )
 
     try:
         async with semaphore:
             logging.info(
-                f"Semaphore acquired. Executing RTL2GDS task {task_id} for project {project_id}"
+                "Semaphore acquired. Executing RTL2GDS task %s for project %s", task_id, project_id
             )
             async with task_lock:
                 ACTIVE_TASKS[task_id]["status"] = TaskStatus.RUNNING.value
@@ -217,7 +217,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
                 project_id, task_id, step_name, stdin.parameter
             )
 
-            logging.info(f"Calling cloud_main for task {task_id}, step: {step_name}")
+            logging.info("Calling cloud_main for task %s, step: %s", task_id, step_name)
 
             r2g_args = [
                 "python3",
@@ -233,11 +233,11 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
             )
 
             stdout, stderr = await proc.communicate()
-            logging.debug(f"STDOUT: {stdout.decode()}")
-            logging.debug(f"STDERR: {stderr.decode()}")
+            logging.debug("STDOUT: %s", stdout.decode())
+            logging.debug("STDERR: %s", stderr.decode())
 
             if proc.returncode == 0:
-                logging.info(f"Task {task_id} completed successfully.")
+                logging.info("Task %s completed successfully.", task_id)
                 result_files = {}
                 task_res_files_json = os.path.join(
                     MOUNT_POINT, f"project_{project_id}", "result_files.json"
@@ -257,8 +257,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
                 raise RuntimeError(f"RTL2GDS execution failed: {error_output}")
 
     except Exception as e:
-        error_msg = f"Unexpected error in RTL2GDS task {task_id}: {e}"
-        logging.exception(error_msg)
+        logging.exception("Unexpected error in RTL2GDS task %s: %s", task_id, e)
         try:
             await notify_task_async(
                 result_files={},
@@ -269,7 +268,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
             )
         except Exception as notify_exc:
             logging.error(
-                f"Additionally, failed to send FAILED notification for task {task_id}: {notify_exc}"
+                "Additionally, failed to send FAILED notification for task %s: %s", task_id, notify_exc
             )
     finally:
         async with task_lock:
@@ -277,7 +276,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
                 del ACTIVE_TASKS[task_id]
             else:
                 assert False, f"Task {task_id} not found in ACTIVE_TASKS"
-        logging.info(f"Semaphore released for task {task_id}")
+        logging.info("Semaphore released for task %s", task_id)
 
 
 async def check_stdin(stdin: StdinEDA) -> None:
@@ -308,13 +307,13 @@ async def call_rtl2gds(stdin: StdinEDA, background_tasks: BackgroundTasks) -> Re
     """
     Handles requests to trigger RTL2GDS cloud flow steps with task queue management.
     """
-    logging.info(f"Received request: {stdin}")
+    logging.info("Received request: %s", stdin)
 
     # Check if the Request stdin is valid
     try:
         await check_stdin(stdin)
     except Exception as e:
-        logging.error(f"Invalid request: {e}")
+        logging.error("Invalid request: %s", e)
         try:
             await notify_task_async(
                 result_files={},
@@ -325,7 +324,7 @@ async def call_rtl2gds(stdin: StdinEDA, background_tasks: BackgroundTasks) -> Re
             )
         except Exception as notify_exc:
             logging.error(
-                f"Failed to send FAILED notification for task {stdin.taskId}: {notify_exc}"
+                "Failed to send FAILED notification for task %s: %s", stdin.taskId, notify_exc
             )
         return ResponseModel(
             code=400,
@@ -384,7 +383,7 @@ from fastapi import Request
 @app.post("/apis/v1/test/echo")
 async def test_echo(request: Request):
     body = await request.body()
-    logging.info(f"--- /test/echo endpoint was called successfully with {len(body)} bytes. ---")
+    logging.info("--- /test/echo endpoint was called successfully with %s bytes. ---", len(body))
     return {
         "status": "ok",
         "message": "If you see this, the server is not globally frozen.",
@@ -396,7 +395,7 @@ if __name__ == "__main__":
     eda_service_host = os.getenv("EDA_SERVICE_HOST", "localhost")
     eda_service_port = int(os.getenv("EDA_SERVICE_PORT", 9444))
     log_level = os.getenv("LOG_LEVEL", "info").lower()
-    logging.info(f"Starting RTL2GDS API server on {eda_service_host}:{eda_service_port}")
+    logging.info("Starting RTL2GDS API server on %s:%s", eda_service_host, eda_service_port)
     uvicorn.run(
         app="cloud:app",
         host=eda_service_host,

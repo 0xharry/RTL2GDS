@@ -79,7 +79,7 @@ def save_module_preview(
         # yosys -p "prep -top my_top_module; write_json output.json" input.v
         # yosys -p "prep -top my_top_module -flatten; write_json output.json" input.v
         # yosys -p "prep -top my_top_module; aigmap; write_json output.json" input.v
-        logging.info(f"Running Yosys: {' '.join(yosys_cmd)}")
+        logging.info("Running Yosys: %s", ' '.join(yosys_cmd))
         subprocess.run(yosys_cmd, check=True, env=ENV_TOOLS_PATH)
 
         # Construct netlistsvg command
@@ -89,10 +89,10 @@ def save_module_preview(
 
         # Run netlistsvg
         # netlistsvg input_json_file [-o output_svg_file] [--skin skin_file]
-        logging.info(f"Running netlistsvg: {' '.join(netlistsvg_cmd)}")
+        logging.info("Running netlistsvg: %s", ' '.join(netlistsvg_cmd))
         subprocess.run(netlistsvg_cmd, check=True)
 
-        logging.info(f"SVG diagram generated successfully: {output_svg}")
+        logging.info("SVG diagram generated successfully: %s", output_svg)
         return output_svg
 
     finally:
