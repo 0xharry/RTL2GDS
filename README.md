@@ -38,13 +38,15 @@ Build iEDA from source code, [here](https://gitee.com/oscc-project/iEDA/blob/mas
 
 ```shell
 # git clone https://atomgit.com/harrywh/rtl2gds.git && cd rtl2gds
-# only works for ubuntu 20.04
+# works for ubuntu 20.04 and 22.04
 git clone --recursive https://gitee.com/oscc-project/iEDA.git iEDA && cd iEDA
 sudo bash build.sh -i apt
 bash build.sh
 # succeed if prints "Hello iEDA!"
 ./bin/iEDA -script scripts/hello.tcl
 mv ./bin/iEDA ../bin/iEDA/iEDA
+export RTL2GDS_USE_PROJ_BIN_LIB=1
+# install klayout, yosys and magic, see Dockerfile
 ```
 
 ### 1. Prepare File Inputs
@@ -59,16 +61,14 @@ Prepare your RTL design (Verilog files), and configuration (yaml file).
 
 ### 2. Run RTL2GDS flow
 
-`rtl2gds` has been tested on the following Docker images: `ubuntu:20.04`, `ubuntu:22.04`, `debian:11`, and `debian:12`.
+Using the [official RTL2GDS image](docker.cnb.cool/ecoslab/rtl2gds)
 
 To compile your design, use the following commands:
 
 ```shell
 $ cd RTL2GDS # make sure you are in the root directory of RTL2GDS
-$ docker run --rm -it -v $(pwd):/rtl2gds -e PYTHONPATH="/rtl2gds/src" ubuntu:22.04 bash
-# After entering the container, you can run the following commands
-$ cd /rtl2gds && apt update && apt install -y python3 python3-pip libcurl4-openssl-dev libexpat1-dev libpng-dev && pip3 install pyyaml orjson klayout
-# Then enter the design directory, e.g., /rtl2gds/design_zoo/gcd
+$ docker run --rm -it -v $(pwd):/opt/rtl2gds docker.cnb.cool/ecoslab/rtl2gds:latest bash
+# Enter the design directory, e.g., cd /opt/rtl2gds/design_zoo/gcd
 $ python3 -m rtl2gds -c <your-design-config>.yaml
 ```
 
