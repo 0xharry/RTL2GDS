@@ -1,4 +1,4 @@
-ARG BASE_IMG=rtl2gds:cloudbase
+ARG BASE_IMG=rtl2gds:base
 ARG IEDA_IMG=docker.cnb.cool/ecoslab/rtl2gds/ieda:latest
 
 FROM $IEDA_IMG AS ieda
@@ -17,7 +17,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget unzip git\
     xdot pkg-config python3 libboost-system-dev libboost-python-dev libboost-filesystem-dev
 
 RUN wget --no-check-certificate https://githubfast.com/RTimothyEdwards/magic/archive/refs/tags/${MAGIC_VERSION}.zip -O /tmp/magic.zip && \
-    unzip -q /tmp/magic.zip -d /tmp && cd /tmp/magic-${MAGIC_VERSION} && ./configure && make -j ${NPROC} && make install -j ${NPROC}
+    unzip -q /tmp/magic.zip -d /tmp && cd /tmp/magic-${MAGIC_VERSION} && ./configure && make -j ${NPROC} && make install -j ${NPROC} && \
+    if [ ! -f /usr/local/lib/magic/sys/minimum.tech ]; then \
+      echo "ERROR: /usr/local/lib/magic/sys/minimum.tech not found after magic install!" >&2; \
+      exit 1; \
+    fi
 
 RUN wget --no-check-certificate https://githubfast.com/YosysHQ/yosys/releases/download/v${YOSYS_VERSION}/yosys.tar.gz -O /tmp/yosys.tar.gz && \
     mkdir /tmp/yosys && tar -xzf /tmp/yosys.tar.gz -C /tmp/yosys && cd /tmp/yosys && make -j ${NPROC} && make install -j ${NPROC}
