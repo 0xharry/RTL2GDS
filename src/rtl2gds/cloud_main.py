@@ -48,18 +48,19 @@ def main(config_yaml: Path, config: dict, step_name: str):
         logging.info("Config YAML: %s, finished_step: %s", config_yaml, chip_design.finished_step)
         chip_design.dump_config_yaml(config_yaml=config_yaml)  # overwrite the config file
         task_workspace = chip_design.path_setting.result_dir
+        project_workspace = Path(task_workspace).parent
 
         logging.info("Preparing notify result_files...")
-        task_result_files_json = f"{Path(task_workspace).parent}/result_files.json"
+        task_result_files_json = f"{project_workspace}/result_files.json"
         with open(f"{task_workspace}/result_files.json", "w", encoding="utf-8") as f:
             json.dump(result_files, f)  # inside task
         with open(task_result_files_json, "w", encoding="utf-8") as f:
             # filter `result_dir` from folder name
             for k, v in result_files.items():
                 if isinstance(v, str):
-                    result_files[k] = v.replace(f"{task_workspace}/", "")
+                    result_files[k] = v.replace(f"{project_workspace}/", "")
                 elif isinstance(v, list):
-                    result_files[k] = [x.replace(f"{task_workspace}/", "") for x in v]
+                    result_files[k] = [x.replace(f"{project_workspace}/", "") for x in v]
             json.dump(result_files, f)  # inside project
 
         # Check if execution was successful
