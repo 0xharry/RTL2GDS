@@ -249,7 +249,6 @@ cts:
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_cts_metrics.json
       TOOL_REPORT_DIR: cts
       CLOCK_TREE_JSON: cts/output/cts_design.json
-      SKEW_MAP_JSON: cts/output/core_clock_skewmap.json
     metrics:
     - num_cells
     - cell_area

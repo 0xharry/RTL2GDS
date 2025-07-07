@@ -115,7 +115,7 @@ def _split_data_into_chunks(data: list[object], max_file_size: int) -> list[list
 
 def _split_layout_json(filename: str, max_file_size=DEFAULT_MAX_FILE_SIZE) -> list[str]:
     """
-    Split a Layout JSON file into smaller chunks and save them along with their headers.
+    Split a Layout JSON file into smaller chunks, delete the original file, and save them along with their headers.
 
     This function reads a Layout JSON file, extracts the header and data parts,
     and splits the data into multiple smaller chunks based on the maximum file size limit.
@@ -150,6 +150,8 @@ def _split_layout_json(filename: str, max_file_size=DEFAULT_MAX_FILE_SIZE) -> li
         ]
         for future in futures:
             file_names.append(future.result())
+
+    os.remove(filename)
 
     return file_names
 

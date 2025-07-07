@@ -76,7 +76,7 @@ async def notify_task_async(
 ):
     """Asynchronously send notification to front-end service about task completion."""
     notify_host = os.getenv("FRONT_SERVICE_HOST", "localhost")
-    notify_port = int(os.getenv("FRONT_SERVICE_PORT", 9443))
+    notify_port = int(os.getenv("FRONT_SERVICE_PORT", "9443"))
     notify_url = f"http://{notify_host}:{notify_port}/console-srv/v1/notify/task"
     if not notify_url:
         logging.exception("FRONT_SERVICE_HOST env variable not set. Cannot notify.")
@@ -155,11 +155,13 @@ async def _upper_dict_key(dict_str: dict[str, object]) -> dict[str, object]:
 async def prepare_rtl2gds_task(
     project_id: str, task_id: str, step_name: StepName, task_params: dict
 ):
+    # implicit project workspace rule:
     proj_workspace = MOUNT_POINT / f"project_{project_id}"
     config_yaml = proj_workspace / "config.yaml"
     # Prepare configuration dictionary
     config = await _upper_dict_key(task_params)
 
+    # implicit task workspace rule:
     task_workspace = proj_workspace / f"task_{task_id}"
     task_workspace.mkdir(parents=True, exist_ok=True)
     task_workspace_abs_path = str(task_workspace.resolve())
@@ -172,7 +174,7 @@ async def prepare_rtl2gds_task(
             tmp_rtl_file = proj_workspace / "top.v"
             config["RTL_FILE"] = str(tmp_rtl_file.resolve())
             logging.info("Creating config.yaml at %s", config_yaml)
-            with open(config_yaml, "w") as f:
+            with open(config_yaml, "w", encoding="utf-8") as f:
                 yaml.dump(config, f)
         # else:
         #     assert False, f"Config file {config_yaml} already exists before synthesis."
@@ -183,10 +185,10 @@ async def prepare_rtl2gds_task(
             )
 
     # update RESULT_DIR back to config yaml
-    with open(config_yaml, "r") as f:
+    with open(config_yaml, "r", encoding="utf-8") as f:
         previous_config = yaml.safe_load(f)
     previous_config.update(config)
-    with open(config_yaml, "w") as f:
+    with open(config_yaml, "w", encoding="utf-8") as f:
         yaml.dump(previous_config, f)
     logging.debug("update RESULT_DIR in config.yaml to %s", task_workspace_abs_path)
 
@@ -244,7 +246,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
                 task_res_files_json = os.path.join(
                     MOUNT_POINT, f"project_{project_id}", "result_files.json"
                 )
-                with open(task_res_files_json, "r") as f:
+                with open(task_res_files_json, "r", encoding="utf-8") as f:
                     result_files = json.load(f)
 
                 await notify_task_async(
@@ -350,7 +352,7 @@ async def call_rtl2gds(stdin: StdinEDA, background_tasks: BackgroundTasks) -> Re
 
     return ResponseModel(
         code=0,
-        message=f"Task queued successfully.",
+        message="Task queued successfully.",
         data=ResponseData(code="TASK_QUEUED"),
     )
 

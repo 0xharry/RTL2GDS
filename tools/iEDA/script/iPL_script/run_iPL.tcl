@@ -61,7 +61,7 @@ def_init -path $INPUT_DEF
 #===========================================================
 ##   run Placer
 #===========================================================
-run_placer -config $IEDA_CONFIG_DIR/pl_default_config.json -json
+run_placer -config $IEDA_CONFIG_DIR/pl_default_config.json
 
 #===========================================================
 ##   save def 

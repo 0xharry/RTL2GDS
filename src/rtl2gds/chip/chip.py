@@ -90,7 +90,7 @@ class Chip:
     def _strtime(self) -> str:
         return time.strftime("%Y%m%d_%H%M%S")
 
-    def _init_from_config(self, config: dict[str, object]) -> None:
+    def _init_from_config(self, raw_config: dict[str, object]) -> None:
         """
         Init a `top_name`, `path_setting` and `constrain` from a config dict
 
@@ -105,7 +105,7 @@ class Chip:
             - `core_util` (`float`) or `die_bbox`+`core_bbox` (both `str`)
         """
 
-        uc_config = {key.upper(): value for key, value in config.items()}
+        uc_config = {key.upper(): value for key, value in raw_config.items()}
 
         if Keyword.TOP_NAME in uc_config:
             self.top_name = uc_config[Keyword.TOP_NAME]
