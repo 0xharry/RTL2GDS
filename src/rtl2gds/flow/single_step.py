@@ -1,8 +1,8 @@
-from rtl2gds import step
 from rtl2gds.chip import Chip
 from rtl2gds.flow import rtl2gds_flow
 from rtl2gds.flow.step_wrapper import StepWrapper
 from rtl2gds.global_configs import StepName
+from rtl2gds.step import layout_json
 
 
 def run(
@@ -52,7 +52,7 @@ def run(
 
     # Dump and return json files
     if cloud_outputs and save_layout_json:
-        json_files = step.layout_json.run(
+        json_files = layout_json.run(
             input_def=chip.path_setting.def_file,
             result_dir=chip.path_setting.result_dir,
             layout_json_file=f"{chip.path_setting.result_dir}/{chip.top_name}_{chip.finished_step}.json",

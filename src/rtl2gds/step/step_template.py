@@ -399,9 +399,9 @@ class Step:
             "output_files": output_files,
         }
 
-        with open(f"{output_files['RESULT_DIR']}/reproducible.json", "w") as f:
+        with open(f"{output_files['RESULT_DIR']}/reproducible.json", "w", encoding="utf-8") as f:
             json.dump(step_reproducible, f, indent=4)
-        with open(f"{output_files['RESULT_DIR']}/metrics.json", "w") as f:
+        with open(f"{output_files['RESULT_DIR']}/metrics.json", "w", encoding="utf-8") as f:
             json.dump(subprocess_metrics, f, indent=4)
 
         return runtime_log, step_reproducible, subprocess_metrics

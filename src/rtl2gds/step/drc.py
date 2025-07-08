@@ -4,8 +4,6 @@ import os
 import subprocess
 import time
 
-import klayout.rdb
-
 from rtl2gds.global_configs import R2G_PDK_DIR_IHP130, R2G_TOOL_DIR, StepName
 
 
@@ -142,7 +140,9 @@ def drc_klayout(
     if ret_code != 0:
         raise subprocess.CalledProcessError(ret_code, shell_cmd)
 
-    klayout_rdb = klayout.rdb.ReportDatabase("DRC")
+    from klayout.rdb import ReportDatabase
+
+    klayout_rdb = ReportDatabase("DRC")
     klayout_rdb.load(artifacts["klayout_report_db"])
 
     drc_categories = {}

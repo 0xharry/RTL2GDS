@@ -2,4 +2,4 @@
 
 for example to add synthesis step using yosys:
 
-see `configs.py:6` and `synthesis.py`
+see `step.yaml:125` and `step.py`

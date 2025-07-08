@@ -2,10 +2,10 @@ import json
 import logging
 from pathlib import Path
 
-from rtl2gds import step
 from rtl2gds.chip import Chip
 from rtl2gds.global_configs import DEFAULT_SDC_FILE, RTL2GDS_FLOW_STEPS, StepName
-from rtl2gds.step import step_abc
+from rtl2gds.step import layout_gds, layout_json, step_template
+from rtl2gds.step.synth_util import calculate_areas, check_v, parse_synth_stat
 from rtl2gds.utils import process
 from rtl2gds.utils.time import save_execute_time_data
 
@@ -40,7 +40,7 @@ class StepWrapper:
     def run_sta(self) -> dict:
         """Run sta step"""
         step_name = StepName.STA
-        sta_step = step_abc.Step(step_name)
+        sta_step = step_template.Step(step_name)
 
         if self.chip.finished_step == StepName.SYNTHESIS:
             sta_params = {
@@ -68,7 +68,7 @@ class StepWrapper:
     def run_drc(self) -> dict:
         """Run drc step"""
         step_name = StepName.DRC
-        drc_step = step_abc.Step(step_name)
+        drc_step = step_template.Step(step_name)
 
         drc_params = {
             "GDS_FILE": self.chip.path_setting.gds_file,
@@ -89,9 +89,7 @@ class StepWrapper:
         self._check_expected_step(step_name)
 
         # @TODO: temporarily migrate from synthesis.py, need to be refactored
-        from rtl2gds.step.synthesis import _check_v, parse_synth_stat
-
-        rtl_file = _check_v(self.chip.path_setting.rtl_file)
+        rtl_file = check_v(self.chip.path_setting.rtl_file)
         if isinstance(rtl_file, list):
             # check if all files exist
             for rtl in rtl_file:
@@ -100,7 +98,7 @@ class StepWrapper:
             rtl_file = " \n ".join(rtl_file)
         #############################################
 
-        synth_step = step_abc.Step(step_name)
+        synth_step = step_template.Step(step_name)
         synth_parameters = {
             "RTL_FILE": rtl_file,
             "RESULT_DIR": self.chip.path_setting.result_dir,
@@ -163,12 +161,11 @@ class StepWrapper:
         self._check_expected_step(step_name)
 
         #############################################
-        from rtl2gds.step.synthesis import _calculate_areas
 
         assert (
             0 < self.chip.constrain.core_util < 1
         ), f"Core utilization ({self.chip.constrain.core_util}) out of range (0, 1)"
-        die_bbox, core_bbox, core_util = _calculate_areas(
+        die_bbox, core_bbox, core_util = calculate_areas(
             self.chip.metrics.area.cell,
             self.chip.constrain.core_util,
             self.chip.constrain.die_bbox,
@@ -180,7 +177,7 @@ class StepWrapper:
         self.chip.metrics.area.core_util = core_util
         #############################################
 
-        fp_step = step_abc.Step(step_name)
+        fp_step = step_template.Step(step_name)
         fp_parameters = {
             "NETLIST_FILE": self.chip.path_setting.netlist_file,
             "TOP_NAME": self.chip.top_name,
@@ -246,12 +243,12 @@ class StepWrapper:
         return step_reproducible["output_files"]
 
     pr_step_map = {
-        StepName.NETLIST_OPT: step_abc.Step(StepName.NETLIST_OPT),
-        StepName.PLACEMENT: step_abc.Step(StepName.PLACEMENT),
-        StepName.CTS: step_abc.Step(StepName.CTS),
-        StepName.LEGALIZATION: step_abc.Step(StepName.LEGALIZATION),
-        StepName.ROUTING: step_abc.Step(StepName.ROUTING),
-        StepName.FILLER: step_abc.Step(StepName.FILLER),
+        StepName.NETLIST_OPT: step_template.Step(StepName.NETLIST_OPT),
+        StepName.PLACEMENT: step_template.Step(StepName.PLACEMENT),
+        StepName.CTS: step_template.Step(StepName.CTS),
+        StepName.LEGALIZATION: step_template.Step(StepName.LEGALIZATION),
+        StepName.ROUTING: step_template.Step(StepName.ROUTING),
+        StepName.FILLER: step_template.Step(StepName.FILLER),
     }
 
     def run_pr_step(self, step_name: str) -> dict:
@@ -302,7 +299,7 @@ class StepWrapper:
 
     def run_gds(self):
         step_name = StepName.GDS
-        gds_step = step_abc.Step(step_name)
+        gds_step = step_template.Step(step_name)
         _, step_reproducible, _ = gds_step.run(
             parameters={
                 "INPUT_DEF": self.chip.path_setting.def_file,
@@ -324,7 +321,7 @@ class StepWrapper:
         json_name = (
             f"{self.chip.path_setting.result_dir}/gds_json/{self.chip.top_name}_{step_name}.json"
         )
-        json_files = step.layout_json.run(
+        json_files = layout_json.run(
             input_def=self.chip.path_setting.def_file,
             result_dir=self.chip.path_setting.result_dir,
             layout_json_file=json_name,
@@ -336,7 +333,7 @@ class StepWrapper:
         gds_file = f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}.gds"
         snapshot_file = f"{self.chip.path_setting.result_dir}/{self.chip.top_name}_{step_name}.png"
 
-        step.layout_gds.run(
+        layout_gds.run(
             top_name=self.chip.top_name,
             input_def=self.chip.path_setting.def_file,
             die_bbox=self.chip.constrain.die_bbox,

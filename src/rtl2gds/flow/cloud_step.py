@@ -63,7 +63,6 @@ CLOUD_STEP_IO = {
         ],
         "output": [
             "CLOCK_TREE_JSON",
-            "SKEW_MAP_JSON",
             "TOOL_METRICS_JSON",
             "DESIGN_STAT_JSON",  # lg
         ],

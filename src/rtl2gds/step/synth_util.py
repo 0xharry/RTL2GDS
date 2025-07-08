@@ -1,6 +1,177 @@
 import json
+import logging
+import math
 import os  # Added for file operations if needed
 import re
+import subprocess
+import tempfile
+
+from rtl2gds.global_configs import ENV_TOOLS_PATH
+
+
+def save_module_preview(
+    verilog_file,
+    output_svg=None,
+    module_name=None,
+    flatten=False,
+    aig=False,
+    skin_file=None,
+):
+    """
+    Export a Verilog to an SVG diagram preview using **Yosys** and **netlistsvg**.
+
+    Args:
+        verilog_file (str): Path to the input Verilog file
+        output_svg (str, optional): Path to the output SVG file. Defaults to input filename or module_name with .svg extension.
+        module_name (str, optional): Name of the top module. If None, Yosys will auto-detect.
+        flatten (bool, optional): If True, flatten the design to basic logic gates. Defaults to False.
+        aig (bool, optional): If True, convert to AND-inverter graph representation. Defaults to False.
+        skin_file (str, optional): Path to a custom skin file for netlistsvg. Defaults to None.
+
+    Returns:
+        str: Path to the generated SVG file
+
+    Raises:
+        FileNotFoundError: If the input Verilog file doesn't exist
+        subprocess.CalledProcessError: If Yosys or netlistsvg commands fail
+    """
+    # Check if input file exists
+    if not os.path.isfile(verilog_file):
+        raise FileNotFoundError(f"Input Verilog file not found: {verilog_file}")
+
+    # Set default output SVG filename if not provided
+    if output_svg is None:
+        base_name = os.path.splitext(verilog_file)[0] if module_name is None else module_name
+        output_svg = f"{base_name}.svg"
+
+    # Create a temporary JSON file
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as temp_json:
+        json_file = temp_json.name
+
+    try:
+        # Construct Yosys command
+        yosys_cmd = ["yosys", "-p"]
+
+        # Build the prep command
+        prep_cmd = "prep"
+        if module_name:
+            prep_cmd += f" -top {module_name}"
+        if flatten:
+            prep_cmd += " -flatten"
+
+        # Complete Yosys command
+        if aig:
+            yosys_cmd_str = f"{prep_cmd}; aigmap; write_json {json_file}"
+        else:
+            yosys_cmd_str = f"{prep_cmd}; write_json {json_file}"
+
+        yosys_cmd.append(yosys_cmd_str)
+        yosys_cmd.append(verilog_file)
+
+        # Run Yosys
+        # https://github.com/nturley/netlistsvg/blob/master/README.md#generating-input_json_file-with-yosys
+        # yosys -p "prep -top my_top_module; write_json output.json" input.v
+        # yosys -p "prep -top my_top_module -flatten; write_json output.json" input.v
+        # yosys -p "prep -top my_top_module; aigmap; write_json output.json" input.v
+        logging.info("Running Yosys: %s", " ".join(yosys_cmd))
+        subprocess.run(yosys_cmd, check=True, env=ENV_TOOLS_PATH)
+
+        # Construct netlistsvg command
+        netlistsvg_cmd = ["netlistsvg", json_file, "-o", output_svg]
+        if skin_file:
+            netlistsvg_cmd.extend(["--skin", skin_file])
+
+        # Run netlistsvg
+        # netlistsvg input_json_file [-o output_svg_file] [--skin skin_file]
+        logging.info("Running netlistsvg: %s", " ".join(netlistsvg_cmd))
+        subprocess.run(netlistsvg_cmd, check=True)
+
+        logging.info("SVG diagram generated successfully: %s", output_svg)
+        return output_svg
+
+    finally:
+        # Clean up temporary JSON file
+        if os.path.exists(json_file):
+            os.remove(json_file)
+
+
+def parse_synth_stat(synth_stat_json: str):
+    """Extract top module area and name from yosys report and simplify cell names"""
+    stats = {
+        "num_cells": 0,
+        "cell_area": 0.0,
+        "sequential_ratio": 0.0,
+        "cell_types": {},
+    }
+    # cell_prefix = "sg13g2_"
+    # cell_prefix_match_pattern = f"     {cell_prefix}"
+
+    with open(
+        synth_stat_json,
+        "r",
+        encoding="utf-8",
+    ) as f:
+        summary = json.load(f)
+        # logging.debug(summary)
+        stats["num_cells"] = int(summary["design"]["num_cells"])
+        stats["cell_area"] = float(summary["design"]["area"])
+
+    return stats
+
+
+def check_v(rtl_file: str | list[str]) -> str | list[str]:
+    """Check RTL file(s) existence and return the original file path(s).
+
+    Note: SystemVerilog files are now handled directly by yosys with slang plugin,
+    so no conversion is needed.
+
+    Args:
+        rtl_file: Path(s) to the input RTL file(s)
+
+    Returns:
+        Path(s) to the original RTL file(s)
+
+    Raises:
+        FileNotFoundError: If any RTL file doesn't exist
+    """
+    if isinstance(rtl_file, str):
+        if not os.path.exists(rtl_file):
+            raise FileNotFoundError(f"RTL file {rtl_file} not found")
+        return rtl_file
+    elif isinstance(rtl_file, list):
+        for file in rtl_file:
+            if not os.path.exists(file):
+                raise FileNotFoundError(f"RTL file {file} not found")
+        return rtl_file
+
+
+def calculate_areas(cell_area, core_util, die_bbox=None, core_bbox=None):
+    """Calculate die and core areas based on synthesis statistics.
+
+    Args:
+        stats (dict): Synthesis statistics from Yosys
+        core_util (float): Core utilization percentage
+        die_bbox (str, optional): Die area coordinates. Defaults to None
+        core_bbox (str, optional): Core area coordinates. Defaults to None
+
+    Returns:
+        tuple: (die_bbox, core_bbox, core_util)
+    """
+    if not (die_bbox and core_bbox):
+        core_length = math.sqrt(cell_area / core_util)
+        io_margin = 10
+        die_bbox = f"0 0 {core_length+io_margin*2} {core_length+io_margin*2}"
+        core_bbox = f"{io_margin} {io_margin} {core_length+io_margin} {core_length+io_margin}"
+
+    elif not core_util:
+        core = core_bbox.split(" ")
+        core_len_x = float(core[2]) - float(core[0])
+        core_len_y = float(core[3]) - float(core[1])
+        core_area = core_len_x * core_len_y
+        core_util = cell_area / core_area
+        assert 0 < core_util < 1, "Core utilization out of range"
+
+    return die_bbox, core_bbox, core_util
 
 
 class HierarchyNode:
