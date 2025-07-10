@@ -70,8 +70,8 @@ init_rt -temp_directory_path $TOOL_REPORT_DIR \
         -bottom_routing_layer "Metal2" \
         -top_routing_layer "Metal5" \
         -thread_number $NUM_THREADS \
-        -output_inter_result 1 \
-        -enable_timing 1 \
+        -output_inter_result 0 \
+        -enable_notification 1 \
         -enable_fast_mode $FAST_ROUTE
 
 run_rt

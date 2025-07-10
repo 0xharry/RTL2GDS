@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 EDA_SERVICE_HOST = os.getenv("EDA_SERVICE_HOST", "localhost")
-EDA_SERVICE_PORT = int(os.getenv("EDA_SERVICE_PORT", 9444))
+EDA_SERVICE_PORT = int(os.getenv("EDA_SERVICE_PORT", "9444"))
 EDA_BASE_URL = f"http://{EDA_SERVICE_HOST}:{EDA_SERVICE_PORT}"
 
 FRONT_SERVICE_HOST = os.getenv("FRONT_SERVICE_HOST", "localhost")
-FRONT_SERVICE_PORT = int(os.getenv("FRONT_SERVICE_PORT", 9443))
+FRONT_SERVICE_PORT = int(os.getenv("FRONT_SERVICE_PORT", "9443"))
 FRONT_BASE_URL = f"http://{FRONT_SERVICE_HOST}:{FRONT_SERVICE_PORT}"
 
 PROJ_ID = "1"
@@ -28,26 +28,26 @@ async def submit_task(task_payload: dict[str:object]) -> bool:
     """Submit a task to the server."""
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
-            logger.info(f"Submitting {task_payload['taskType']} task {task_payload['taskId']}")
-            logger.info(f"Task payload: {json.dumps(task_payload, indent=2)}")
+            logger.info("Submitting %s task %s", task_payload["taskType"], task_payload["taskId"])
+            logger.info("Task payload: %s", json.dumps(task_payload, indent=2))
 
             response = await client.post(f"{EDA_BASE_URL}/apis/v1/ieda/stdin", json=task_payload)
 
             if response.status_code == 200:
                 result = response.json()
-                logger.info(f"✓ Task submitted successfully: {result}")
+                logger.info("✓ Task submitted successfully: %s", result)
                 return True
             else:
-                logger.error(f"Task submission failed: {response.status_code}")
-                logger.error(f"Response: {response.text}")
+                logger.error("Task submission failed: %s", response.status_code)
+                logger.error("Response: %s", response.text)
                 return False
 
     except Exception as e:
-        logger.error(f"Error submitting task: {e}")
+        logger.error("Error submitting task: %s", e)
         return False
 
 
-async def run_synthesis() -> bool:
+async def run_synthesis(top_name: str, clk_port_name: str) -> bool:
     """Run synthesis task test."""
     logger.info("=== Running Synthesis Task Test ===")
 
@@ -56,8 +56,8 @@ async def run_synthesis() -> bool:
         "taskId": str(random.randint(1, 10000)),
         "taskType": "synthesis",
         "parameter": {
-            "TOP_NAME": "gcd",
-            "CLK_PORT_NAME": "clk",
+            "TOP_NAME": top_name,
+            "CLK_PORT_NAME": clk_port_name,
             "CLK_FREQ_MHZ": 200,
         },
     }
@@ -109,11 +109,11 @@ async def monitor_task_overview():
             response = await client.get(f"{EDA_BASE_URL}/apis/v1/ieda/tasks_overview")
             if response.status_code == 200:
                 data = response.json()
-                logger.info(f"✓ Task overview: {data}")
+                logger.info("✓ Task overview: %s", data)
             else:
-                logger.error(f"Task overview failed: {response.status_code}")
+                logger.error("Task overview failed: %s", response.status_code)
     except Exception as e:
-        logger.error(f"Error monitoring task overview: {e}")
+        logger.error("Error monitoring task overview: %s", e)
         return {}
 
 
@@ -122,19 +122,21 @@ async def check_server_health() -> bool:
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response_front = await client.get(f"{FRONT_BASE_URL}/hello")
-            logger.info(f"Front response: {response_front.status_code}")
+            logger.info("Front response: %s", response_front.status_code)
             response_eda = await client.get(f"{EDA_BASE_URL}/hello")
-            logger.info(f"EDA response: {response_eda.status_code}")
+            logger.info("EDA response: %s", response_eda.status_code)
             if response_eda.status_code == 200 and response_front.status_code == 200:
                 logger.info("✓ Server is healthy")
                 return True
             else:
                 logger.error(
-                    f"Server health check failed: {response_eda.status_code}, {response_front.status_code}"
+                    "Server health check failed: %s, %s",
+                    response_eda.status_code,
+                    response_front.status_code,
                 )
                 return False
     except Exception as e:
-        logger.error(f"check_server_health: Cannot connect to server: {e}")
+        logger.error("check_server_health: Cannot connect to server: %s", e)
         return False
 
 
@@ -146,7 +148,7 @@ async def main():
 
         await monitor_task_overview()
 
-        await run_synthesis()
+        await run_synthesis("gcd", "clk")
         await asyncio.sleep(1)
         await run_floorplan()
         await asyncio.sleep(1)
@@ -161,7 +163,7 @@ async def main():
         await monitor_task_overview()
 
     except Exception as e:
-        logger.error(f"Error running tests: {e}")
+        logger.error("Error running tests: %s", e)
 
 
 if __name__ == "__main__":

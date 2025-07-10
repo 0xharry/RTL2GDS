@@ -87,6 +87,8 @@ class Chip:
             self.config_yaml.touch()
             self.dump_config_yaml(override=True)
 
+        self.step_parameters = {self.expected_step: self.config}
+
     def _strtime(self) -> str:
         return time.strftime("%Y%m%d_%H%M%S")
 

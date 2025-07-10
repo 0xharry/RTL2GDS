@@ -28,8 +28,8 @@ tool_env:
     extra_env:
       IEDA_CONFIG_DIR: ${R2G_TOOL_DIR}/iEDA/iEDA_config
       IEDA_TCL_SCRIPT_DIR: ${R2G_TOOL_DIR}/iEDA/script
-      ROUTING_TYPE: HPWL
   magic:
+    # use system path for magic
     extra_env:
       MAGIC_SCRIPTS_DIR: ${R2G_TOOL_DIR}/magic
   yosys:
@@ -286,6 +286,11 @@ routing:
     parameters:
       TOP_NAME: top
       FAST_ROUTE: true
+      # IEDA_ECOS_NOTIFICATION_URL: "@TODO"
+      # IEDA_ECOS_NOTIFICATION_SECRET: "@TODO"
+      # ECOS_TASK_ID: "@TODO"
+      # ECOS_PROJECT_ID: "@TODO"
+      # ECOS_TASK_TYPE: "@TODO"
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:

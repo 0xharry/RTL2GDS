@@ -346,9 +346,18 @@ class Step:
         else:
             shell_env["PATH"] = os.environ.get("PATH", "")
             shell_env["LD_LIBRARY_PATH"] = os.environ.get("LD_LIBRARY_PATH", "")
+        # check: all value should be string
+        for k, v in shell_env.items():
+            if not isinstance(v, str):
+                logging.warning(
+                    "(step.%s) shell_env[%s] = %s is not string", self.step_name, k, str(v)
+                )
+                shell_env[k] = str(v)
+
         return shell_env
 
     def run(self, parameters: dict[str, str], output_prefix: str = "rtl2gds"):
+        logging.debug("[step_template] (step.%s) parameters: %s", self.step_name, parameters)
         input_files = self.process_input_files(parameters)
         Step._check_files_exist(input_files)
         input_parameters = self.process_input_parameters(parameters)
@@ -372,6 +381,7 @@ class Step:
             **input_parameters,
             **output_files,
         }
+        logging.debug("(step.%s) merged_env: %s", self.step_name, merged_env)
         shell_cmd = self.process_shell_cmd(merged_env)
         shell_env = self.process_shell_env(merged_env)
 

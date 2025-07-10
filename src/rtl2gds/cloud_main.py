@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 
 
-def main(config_yaml: Path, config: dict, step_name: str):
+def main(config_yaml: Path, step_name: str):
     """
     RTL2GDS cloud execution function.
 
@@ -105,7 +105,7 @@ def main_cli():
     if not config_yaml.exists():
         raise ValueError(f"Config file not found: {config_yaml}")
 
-    main(config_yaml=config_yaml, config={}, step_name=step_name)
+    main(config_yaml=config_yaml, step_name=step_name)
 
     logging.info("cloud_main.py finished.")
 
