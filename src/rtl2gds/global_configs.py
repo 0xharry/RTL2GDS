@@ -8,6 +8,7 @@ R2G_PDK_DIR = os.path.abspath(R2G_BASE_DIR + "/foundry")
 R2G_PDK_DIR_SKY130 = os.path.abspath(R2G_PDK_DIR + "/sky130")
 R2G_PDK_DIR_IHP130 = os.path.abspath(R2G_PDK_DIR + "/ihp130")
 R2G_TOOL_DIR = os.path.abspath(R2G_BASE_DIR + "/tools")
+YSYX_HOME = os.path.abspath(R2G_TOOL_DIR + "/ysyx-workbench")
 
 _BIN_ENV = os.environ["PATH"] if "PATH" in os.environ else ""
 _LIB_ENV = os.environ["LD_LIBRARY_PATH"] if "LD_LIBRARY_PATH" in os.environ else ""
@@ -45,6 +46,7 @@ class StepName:
 
     RTL2GDS_ALL = "rtl2gds_all"
     INIT = "init"
+    BENCHMARK = "benchmark"
     SYNTHESIS = "synthesis"
     FLOORPLAN = "floorplan"
     NETLIST_OPT = "netlist_opt"

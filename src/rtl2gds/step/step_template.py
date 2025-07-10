@@ -9,7 +9,7 @@ from string import Template
 
 import yaml
 
-from rtl2gds.global_configs import R2G_BASE_DIR, R2G_BIN_DIR, R2G_PDK_DIR_IHP130, R2G_TOOL_DIR
+from rtl2gds.global_configs import R2G_BASE_DIR, R2G_BIN_DIR, R2G_PDK_DIR_IHP130, R2G_TOOL_DIR, YSYX_HOME
 
 STEP_CONFIG = os.path.dirname(os.path.abspath(__file__)) + "/step.yaml"
 
@@ -21,6 +21,7 @@ class Step:
         "R2G_BIN_DIR": R2G_BIN_DIR,
         "R2G_TOOL_DIR": R2G_TOOL_DIR,
         "R2G_BASE_DIR": R2G_BASE_DIR,
+        "YSYX_HOME": YSYX_HOME,
     }
 
     def __init__(self, step_name: str):
@@ -50,10 +51,14 @@ class Step:
             self.cmd_template = step_config["cmd_template"]  # substitute at run time
             self.output_metrics = step_config["output_env"]["metrics"]
             self.output_dir_template = step_config["output_env"]["dir_template"]
-            tool_env = config["tool_env"][self.tool_name]
-            input_files = step_config["input_env"]["files"]
-            input_parameters = step_config["input_env"]["parameters"]
-            output_files = step_config["output_env"]["files"]
+            tool_env = None
+            if "tool_env" in config and self.tool_name in config["tool_env"]:
+                tool_env = config["tool_env"][self.tool_name]
+            else:
+                tool_env = {}
+            input_files = step_config["input_env"].get("files", {})
+            input_parameters = step_config["input_env"].get("parameters", {})
+            output_files = step_config["output_env"].get("files", {})
             env = {**config["default_env"]}
 
         # make env upper case
@@ -386,11 +391,8 @@ class Step:
             start_time=start_time,
             step_name=timer_step_name,
         )
-        # logging.debug("(step.%s) runtime_log: %s", self.step_name, runtime_log)
 
         Step._check_files_exist(output_files)
-        # metrics = self._collect_metrics()
-        # subprocess_metrics.update(metrics)
 
         step_reproducible = {
             "shell": cmd_reproducible,
@@ -413,7 +415,7 @@ if __name__ == "__main__":
 
     # inputs
     rtl_file = f"{R2G_BASE_DIR}/demo/minirv.sv"
-    top_name = "NPC"
+    top_name = "minirv"
     clk_port_name = "clock"
     clk_freq_mhz = "100"
     netlist_file = "minirv_nl.v"
@@ -433,6 +435,16 @@ if __name__ == "__main__":
         _, reproducible, _ = step.run(parameters, f"{num_executed_steps:02d}")
         num_executed_steps += 1
         return reproducible
+
+    test_benchmark = {
+        "TOP_NAME": top_name,
+        "STAGE": "D",
+        "ARCH": "minirv-minirv",
+        "MAX_SIMULATE_TIME": "1000000000",
+        "TESTS": "all",  # or "coremark", "dhrystone", "cpu-tests", "all"
+        "MICROBENCH_ARGS": "test",  # or "train"
+    }
+    run_step("benchmark", test_benchmark)
 
     test_synth = {
         "RTL_FILE": rtl_file,

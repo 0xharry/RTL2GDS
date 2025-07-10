@@ -35,6 +35,44 @@ tool_env:
   yosys:
     PATH: ${R2G_BIN_DIR}/yosys/bin
     LD_LIBRARY_PATH: ${R2G_BIN_DIR}/lib
+  verilator:
+    PATH: /verilator/bin
+    extra_env:
+      YSYX_HOME: ${YSYX_HOME}
+      NPC_HOME: ${YSYX_HOME}/npc
+      AM_KERNELS_HOME: ${YSYX_HOME}/am-kernels
+      AM_HOME: ${YSYX_HOME}/abstract-machine 
+      SOC_HOME: ${YSYX_HOME}/ysyxSoC
+      CROSS_COMPILE: riscv64-linux-gnu-
+
+benchmark:
+  tool_name: verilator
+  cmd_template:
+    - python3
+    - ${YSYX_HOME}/scripts/__main__.py
+    - --tests 
+    - ${TESTS}
+    - --mainargs=${MICROBENCH_ARGS}
+  input_env:
+    parameters:
+      MAX_SIMULATE_TIME: 1000000000
+      TOP_NAME: top
+      STAGE: B
+      ARCH: riscv32e-ysyxsoc
+      TESTS: all
+      MICROBENCH_ARGS: test
+  output_env:
+    dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
+    files:
+      CPU_TEST_LOG: ${OUTPUT_TOP_NAME}_cpu_test.json
+      BENCHMARK_RESULT_JSON: ${OUTPUT_TOP_NAME}_benchmark.json
+      # COREMARK_LOG: ${OUTPUT_TOP_NAME}_coremark.log
+      # DHRYSTONE_LOG: ${OUTPUT_TOP_NAME}_dhrystone.log
+      # MICROBENCH_LOG: ${OUTPUT_TOP_NAME}_microbench.log
+    metrics:
+      - test_pass
+      - test_fail
+      - simulate_time
 
 sta:
   tool_name: iEDA
