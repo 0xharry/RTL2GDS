@@ -487,18 +487,17 @@ async def receive_ieda_runtime_notification(
 
         # Prepare result files metadata from notification payload
         result_files = {
-            "tool_name": payload.tool_name,
-            "timestamp": payload.timestamp,
-            "metadata": payload.metadata,
+            "stage": payload.metadata["stage"],
+            "json_path": payload.metadata["json_path"],
         }
 
         # Call the existing notify_task_async function
         await notify_task_async(
             result_files=result_files,
-            task_type=context.task_type,
-            task_id=context.task_id,
             status=task_status,
-            project_id=context.project_id,
+            task_id=int(context.task_id),
+            task_type=context.task_type,
+            project_id=int(context.project_id),
         )
 
         return EdaNotificationResponse(

@@ -76,10 +76,10 @@ init_rt -temp_directory_path $TOOL_REPORT_DIR \
 
 run_rt
 
+destroy_rt
+
 # report_timing -stage "dr"
 feature_tool -path $TOOL_METRICS_JSON -step route
-
-destroy_rt
 
 #===========================================================
 ##   save def & netlist
