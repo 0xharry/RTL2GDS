@@ -49,7 +49,7 @@ sta:
     parameters:
       TOP_NAME: top
       USE_VERILOG: false
-      CLK_PORT_NAME: clk
+      CLK_PORT_NAME: clock
       CLK_FREQ_MHZ: 100
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
@@ -134,7 +134,7 @@ synthesis:
     parameters:
       TOP_NAME: top
       CLK_FREQ_MHZ: 100
-      KEEP_HIERARCHY: false
+      KEEP_HIERARCHY: true
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
@@ -144,6 +144,7 @@ synthesis:
       GENERIC_STAT_JSON: ${OUTPUT_TOP_NAME}_generic_stat.json
       SYNTH_STAT_JSON: ${OUTPUT_TOP_NAME}_synth_stat.json
       SYNTH_CHECK_RPT: ${OUTPUT_TOP_NAME}_synth_check.rpt
+      RUNTIME_LOG: subprocess_runtime.log
     metrics:
     - num_cells
     - cell_area
@@ -173,6 +174,7 @@ floorplan:
       OUTPUT_VERILOG: ${OUTPUT_TOP_NAME}_floorplan.v
       DESIGN_STAT_TEXT: ${OUTPUT_TOP_NAME}_floorplan_stat.rpt
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_floorplan_stat.json
+      RUNTIME_LOG: subprocess_runtime.log
     metrics:
     - die_bbox
     - core_bbox
@@ -224,7 +226,10 @@ placement:
       TOOL_REPORT_DIR: ./
       DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
       CONGESTION_MAP: rt/place_egr_union_overflow.csv
-      INSTANCE_PLOTS: pl/plot
+      DENSITY_MAP_CELL: density_map/legalization_allcell_density.csv
+      DENSITY_MAP_PIN: density_map/legalization_allcell_pin_density.csv
+      DENSITY_MAP_NET: density_map/legalization_allnet_density.csv
+      RUNTIME_LOG: subprocess_runtime.log
     metrics:
     - num_cells
     - cell_area
@@ -249,6 +254,7 @@ cts:
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_cts_metrics.json
       TOOL_REPORT_DIR: cts
       CLOCK_TREE_JSON: cts/output/cts_design.json
+      RUNTIME_LOG: subprocess_runtime.log
     metrics:
     - num_cells
     - cell_area
@@ -285,7 +291,7 @@ routing:
       INPUT_DEF: top_legalization.def
     parameters:
       TOP_NAME: top
-      FAST_ROUTE: true
+      FAST_ROUTE: false
       # IEDA_ECOS_NOTIFICATION_URL: "@TODO"
       # IEDA_ECOS_NOTIFICATION_SECRET: "@TODO"
       # ECOS_TASK_ID: "@TODO"
@@ -300,6 +306,7 @@ routing:
       DESIGN_STAT_JSON: ${OUTPUT_TOP_NAME}_routing_stat.json
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_routing_metrics.json
       TOOL_REPORT_DIR: routing
+      RUNTIME_LOG: subprocess_runtime.log
     metrics:
     - num_cells
     - cell_area

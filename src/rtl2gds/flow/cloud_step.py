@@ -208,7 +208,7 @@ def run(
         case _:
             raise ValueError(f"Invalid step: {expect_step}")
 
-    if expect_step in [StepName.FLOORPLAN, StepName.PLACEMENT, StepName.CTS, StepName.SIGNOFF]:
+    if expect_step == StepName.FLOORPLAN or expect_step == StepName.PLACEMENT or expect_step == StepName.CTS or expect_step == StepName.SIGNOFF:
         logging.info("Saving layout json for step %s", expect_step)
         layout_files = runner.run_save_layout_json(expect_step)
         result_files.update({"layout_files": layout_files})

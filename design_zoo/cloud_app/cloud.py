@@ -78,10 +78,10 @@ class TaskType(Enum):
     reraise=True,
 )
 async def notify_task_async(
-    result_files: dict[str, object],
+    result_files: dict[str, str | list[str]],
     task_type: str,
     task_id: int,
-    status: TaskStatus,
+    status: str,  # TaskStatus.value
     project_id: int,
 ):
     """Asynchronously send notification to front-end service about task completion."""
@@ -97,7 +97,7 @@ async def notify_task_async(
     json_body = NotifyTaskBody(
         files=result_files,
         serverTimestamp=int(datetime.now().timestamp()),
-        status=status.value,
+        status=status,
         taskId=task_id,
         taskType=task_type,
         projectId=project_id,
@@ -276,7 +276,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
 
                 await notify_task_async(
                     result_files=result_files,
-                    status=TaskStatus.SUCCESS,
+                    status=TaskStatus.SUCCESS.value,
                     task_id=int(task_id),
                     task_type=step_name,
                     project_id=int(project_id),
@@ -290,7 +290,7 @@ async def run_rtl2gds_task(stdin: StdinEDA) -> None:
         try:
             await notify_task_async(
                 result_files={},
-                status=TaskStatus.FAILED,
+                status=TaskStatus.FAILED.value,
                 task_id=int(task_id),
                 task_type=step_name,
                 project_id=int(project_id),
@@ -338,7 +338,7 @@ async def call_rtl2gds(stdin: StdinEDA, background_tasks: BackgroundTasks) -> Re
         try:
             await notify_task_async(
                 result_files={},
-                status=TaskStatus.FAILED,
+                status=TaskStatus.FAILED.value,
                 task_id=int(stdin.taskId),
                 task_type=stdin.taskType,
                 project_id=int(stdin.projectId),
@@ -402,7 +402,7 @@ class EdaNotificationResponse(BaseModel):
 class NotificationPayload(BaseModel):
     tool_name: str = Field(..., description="Name of the iEDA tool")
     timestamp: str = Field(..., description="ISO 8601 timestamp")
-    metadata: dict[str, str] = Field(default_factory=dict, description="Metadata")
+    metadata: dict = Field(default_factory=dict, description="Metadata")
 
 
 class TaskContext(BaseModel):
@@ -412,7 +412,7 @@ class TaskContext(BaseModel):
 
     task_id: str = Field(..., description="Unique task identifier")
     project_id: str = Field(..., description="Project identifier")
-    task_type: str | None = Field(None, description="Type of task")
+    task_type: str = Field(..., description="Type of task")
 
 
 def extract_task_context(
@@ -486,15 +486,22 @@ async def receive_ieda_runtime_notification(
         task_status = TaskStatus.RUNNING
 
         # Prepare result files metadata from notification payload
+        if "iter" in payload.metadata:
+            iteration = payload.metadata["iter"]
+        else:
+            iteration = -1
+            logging.warning("No iteration found in notification payload, using default -1")
+
         result_files = {
             "stage": payload.metadata["stage"],
-            "json_path": payload.metadata["json_path"],
+            "iteration": iteration,
+            "iteration_info": payload.metadata["json_path_map"],
         }
 
         # Call the existing notify_task_async function
         await notify_task_async(
             result_files=result_files,
-            status=task_status,
+            status=task_status.value,
             task_id=int(context.task_id),
             task_type=context.task_type,
             project_id=int(context.project_id),

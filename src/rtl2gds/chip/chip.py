@@ -1,5 +1,6 @@
 import os
 import time
+import logging
 from pathlib import Path
 
 import yaml
@@ -88,6 +89,7 @@ class Chip:
             self.dump_config_yaml(override=True)
 
         self.step_parameters = {self.expected_step: self.config}
+        logging.info("Chip %s initialized with %s.", self.top_name, self.step_parameters)
 
     def _strtime(self) -> str:
         return time.strftime("%Y%m%d_%H%M%S")
