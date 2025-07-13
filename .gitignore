@@ -10,7 +10,6 @@ lib/merged.lib*
 *_result
 *.log
 *.svg
-demo
 tmp
 uv.lock
 .ipynb_checkpoints
