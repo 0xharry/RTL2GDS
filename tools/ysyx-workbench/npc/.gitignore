@@ -16,5 +16,6 @@
 !*.cpp
 !.gitignore
 !README.md
+!/vsrc/*
 # 忽略build下的所有文件
 build/

@@ -117,7 +117,7 @@ module psram(
                 logic [31:0] cur_addr = waddr + {30'b0, counter[2:1]};
                 logic [7:0]  cur_data = {wdata[3:0], dio};
                 if (cur_addr == 32'h00000000 && cur_data == 8'haa) begin
-                    $display("Write magic world: %h to address: %h", {wdata[3:0], dio} , waddr + {30'b0, counter[2:1]} + 32'h80000000);
+                    //$display("Write magic world: %h to address: %h", {wdata[3:0], dio} , waddr + {30'b0, counter[2:1]} + 32'h80000000);
                     psram_trap();
                 end
             end
