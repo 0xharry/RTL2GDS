@@ -15,5 +15,7 @@
 _*
 *~
 build/
+!am/build/
+!klib/build/
 !.gitignore
 .vscode

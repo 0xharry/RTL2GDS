@@ -9,6 +9,7 @@ RUN_THREADS ?= 2						# define the number of threads for running NPC
 #TOP层名字: 根据工程实时更改
 #===============================================
 TOP_NAME = ysyxSoCFull
+RTL_FILE ?= 
 #===============================================
 # 设置makeflag为静默执行
 #===============================================
@@ -17,7 +18,7 @@ TOP_NAME = ysyxSoCFull
 #===============================================
 # 创建目标文件夹
 #===============================================
-BUILD_DIR   = $(SOC_HOME)/build
+BUILD_DIR   = $(RESULT_DIR)/Vbuild
 ## ysyxSoC目录: 用于介入SoC
 ysyxSOC_DIR = $(SOC_HOME)
 LOG_DIR = $(RESULT_DIR)
@@ -33,9 +34,15 @@ VERILATOR = verilator
 
 ## 1.添加源文件
 CXXSRC = $(wildcard $(shell find ./csrc -name  *.cpp))
-VSRC = $(wildcard $(shell find ./vsrc -name *.v -or -name *.vh -or -name *.sv -or -name *.svh))
+# VSRC = $(wildcard $(shell find ./vsrc -name *.v -or -name *.vh -or -name *.sv -or -name *.svh))
 VSRC += $(wildcard $(shell find $(ysyxSOC_DIR)/perip -name *.v -or -name *.vh -or -name *.sv -or -name *.svh))
-# VSRC += $(ysyxSOC_DIR)/build/ysyxSoCFull.v
+VSRC += $()
+
+ifneq ($(RTL_FILE),)
+    VSRC += $(RTL_FILE)
+endif
+
+VSRC += $(ysyxSOC_DIR)/ysyxSoCFull.v
 
 ## 2. 添加头文件路径
 C_INCPATH += $(NPC_HOME)/include $(INC_PATH) \

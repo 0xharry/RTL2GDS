@@ -1462,7 +1462,7 @@ module CPU(	// home/yu/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:33:9
   input         auto_master_out_rlast	// home/yu/Desktop/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
 );
 
-  ysyx_00000000 cpu (	// home/yu/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:21
+  minirv_top cpu (	// home/yu/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:21
     .clock                   (clock),
     .reset                   (reset),
     .io_interrupt            (1'h0),	// home/yu/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:35:23, :36:19, :38:21

@@ -38,7 +38,6 @@ tool_env:
   verilator:
     PATH: /verilator/bin
     extra_env:
-      YSYX_HOME: ${YSYX_HOME}
       NPC_HOME: ${YSYX_HOME}/npc
       AM_KERNELS_HOME: ${YSYX_HOME}/am-kernels
       AM_HOME: ${YSYX_HOME}/abstract-machine 
@@ -53,13 +52,17 @@ benchmark:
     - --tests 
     - ${TESTS}
     - --mainargs=${MICROBENCH_ARGS}
+    - --rtl_file
+    - ${RTL_FILE}
   input_env:
+    files:
+      RTL_FILE: top.v
     parameters:
       MAX_SIMULATE_TIME: 1000000000
-      TOP_NAME: top
-      STAGE: B
-      ARCH: riscv32e-ysyxsoc
-      TESTS: all
+      TOP_NAME: minirv_top
+      STAGE: D
+      ARCH: minirv-minirv
+      TESTS: cpu-tests
       MICROBENCH_ARGS: test
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
