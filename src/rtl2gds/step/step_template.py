@@ -414,7 +414,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     # inputs
-    rtl_file = f"{R2G_BASE_DIR}/minirv.sv"
+    rtl_file = f"{R2G_BASE_DIR}/demo/top.sv"
     top_name = "rv_top"   # ysyx_22050499
     clk_port_name = "clock"
     clk_freq_mhz = "100"

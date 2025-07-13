@@ -59,7 +59,7 @@ benchmark:
       RTL_FILE: top.v
     parameters:
       MAX_SIMULATE_TIME: 1000000000
-      TOP_NAME: minirv_top
+      TOP_NAME: rv_top
       STAGE: D
       ARCH: minirv-minirv
       TESTS: cpu-tests
@@ -67,7 +67,7 @@ benchmark:
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
-      CPU_TEST_LOG: ${OUTPUT_TOP_NAME}_cpu_test.json
+      CPU_TEST_JSON: ${OUTPUT_TOP_NAME}_cpu_test.json
       BENCHMARK_RESULT_JSON: ${OUTPUT_TOP_NAME}_benchmark.json
     metrics:
       - test_pass
