@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     sed -i 's@//.*archive.ubuntu.com@//mirrors.tuna.tsinghua.edu.cn@g' /etc/apt/sources.list && \
-    apt-get update && apt-get install -y python3-pip && \
+    apt-get update && apt-get install -y python3-pip bc && \
     apt-get install -y libunwind8 libgomp1 libtcl8.6 libtk8.6 libcairo2 g++-riscv64-linux-gnu \
     binutils-riscv64-linux-gnu ccache libreadline-dev libsdl2-dev && \
     pip3 install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple \
