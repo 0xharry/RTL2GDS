@@ -175,7 +175,7 @@ class Step:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 env=env,
-                timeout=2400,
+                timeout=3600,
             )
             rusage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
             elapsed_time = time.monotonic() - start_time
@@ -415,7 +415,7 @@ if __name__ == "__main__":
 
     # inputs
     rtl_file = f"{R2G_BASE_DIR}/demo/minirv.sv"
-    top_name = "minirv"   # ysyx_22050499
+    top_name = "ysyx_22050499"   # ysyx_22050499
     clk_port_name = "clock"
     clk_freq_mhz = "100"
     netlist_file = "minirv_nl.v"
@@ -438,10 +438,10 @@ if __name__ == "__main__":
 
     test_benchmark = {
         "TOP_NAME": top_name,
-        "STAGE": "D",
-        "ARCH": "minirv-minirv",
+        "STAGE": "B",
+        "ARCH": "riscv32e-ysyxsoc",
         "MAX_SIMULATE_TIME": "1000000000",
-        "TESTS": "cpu-tests",  # or "coremark", "dhrystone", "cpu-tests", "all"
+        "TESTS": "all",  # or "coremark", "dhrystone", "cpu-tests", "all"
         "MICROBENCH_ARGS": "test",  # or "train"
     }
     run_step("benchmark", test_benchmark)

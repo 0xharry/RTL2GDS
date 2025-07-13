@@ -1,0 +1,6 @@
+./core_sdram_axi4/sdram_axi_core.v
+./core_sdram_axi4/sdram_axi_pmem.v
+./core_sdram_axi4/sdram_axi.v
+./sdram_top_apb.v
+./sdram_top_axi.v
+./sdram.v
