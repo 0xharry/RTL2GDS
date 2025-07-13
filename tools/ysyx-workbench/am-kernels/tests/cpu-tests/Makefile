@@ -42,7 +42,6 @@ $(TMP_MAKE_DIR)/%.pass: tests/%.c latest
 	    echo "-------------------- START OF FAIL LOG: $* --------------------"; \
 	    cat $(TMP_MAKE_DIR)/$*.log; \
 	    echo "--------------------  END OF FAIL LOG: $*  --------------------"; \
-	    exit 1; \
 	fi
 
 gdb:

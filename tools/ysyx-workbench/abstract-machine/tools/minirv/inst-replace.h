@@ -1,3 +1,6 @@
+.ifndef __INST_REPLACE_H__
+.equ __INST_REPLACE_H__, 1
+
 #if 0
 Base instructions:
 * add, addi, lui, lw, lbu, sw, sb, jalr
@@ -731,3 +734,5 @@ def_itype(xori, xor)
 #undef concat
 #undef PUSH
 #undef POP
+
+.endif /* __INST_REPLACE_H__ */

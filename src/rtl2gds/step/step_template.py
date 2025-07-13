@@ -415,7 +415,7 @@ if __name__ == "__main__":
 
     # inputs
     rtl_file = f"{R2G_BASE_DIR}/demo/minirv.sv"
-    top_name = "ysyx_22050499"   # ysyx_22050499
+    top_name = "minirv"   # ysyx_22050499
     clk_port_name = "clock"
     clk_freq_mhz = "100"
     netlist_file = "minirv_nl.v"
@@ -438,10 +438,10 @@ if __name__ == "__main__":
 
     test_benchmark = {
         "TOP_NAME": top_name,
-        "STAGE": "B",
-        "ARCH": "riscv32e-ysyxsoc",
+        "STAGE": "D",
+        "ARCH": "minirv-minirv",
         "MAX_SIMULATE_TIME": "1000000000",
-        "TESTS": "all",  # or "coremark", "dhrystone", "cpu-tests", "all"
+        "TESTS": "cpu-tests",  # or "coremark", "dhrystone", "cpu-tests", "all"
         "MICROBENCH_ARGS": "test",  # or "train"
     }
     run_step("benchmark", test_benchmark)

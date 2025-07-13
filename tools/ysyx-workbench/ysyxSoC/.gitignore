@@ -1,7 +1,5 @@
 *
 !perip/
 !perip/**
-!build/
-!build/**
 !*.v
 !.gitignore
