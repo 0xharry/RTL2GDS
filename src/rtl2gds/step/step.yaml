@@ -66,9 +66,6 @@ benchmark:
     files:
       CPU_TEST_LOG: ${OUTPUT_TOP_NAME}_cpu_test.json
       BENCHMARK_RESULT_JSON: ${OUTPUT_TOP_NAME}_benchmark.json
-      # COREMARK_LOG: ${OUTPUT_TOP_NAME}_coremark.log
-      # DHRYSTONE_LOG: ${OUTPUT_TOP_NAME}_dhrystone.log
-      # MICROBENCH_LOG: ${OUTPUT_TOP_NAME}_microbench.log
     metrics:
       - test_pass
       - test_fail

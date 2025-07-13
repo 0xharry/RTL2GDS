@@ -45,15 +45,18 @@ endif
 
 ## 2. General Compilation Targets
 
-### Create the destination directory (`build/$ARCH`)
+### Create the destination directory. Allow overriding via BUILD_DIR.
 WORK_DIR  = $(shell pwd)
-DST_DIR   = $(WORK_DIR)/build/$(ARCH)
+# Use BUILD_DIR if defined, otherwise default to 'build'. This is the key fix for parallelism.
+BUILD_DIR ?= $(WORK_DIR)/build
+DST_DIR   = $(BUILD_DIR)/$(ARCH)
 $(shell mkdir -p $(DST_DIR))
 
 ### Compilation targets (a binary image or archive)
-IMAGE_REL = build/$(NAME)-$(ARCH)
+# Use BUILD_DIR to ensure unique output paths
+IMAGE_REL = $(BUILD_DIR)/$(NAME)-$(ARCH)
 IMAGE     = $(abspath $(IMAGE_REL))
-ARCHIVE   = $(WORK_DIR)/build/$(NAME)-$(ARCH).a
+ARCHIVE   = $(BUILD_DIR)/$(NAME)-$(ARCH).a
 
 ### Collect the files to be linked: object files (`.o`) and libraries (`.a`)
 OBJS      = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
@@ -122,9 +125,10 @@ $(ARCHIVE): $(OBJS)
 	@$(AR) rcs $@ $^
 else
 # $(1): library name
+# Pass BUILD_DIR down to recursive makes to ensure libraries are also built in unique locations
 define LIB_TEMPLATE =
 $$(AM_HOME)/$(1)/build/$(1)-$$(ARCH).a: force
-	@$$(MAKE) -s -C $$(AM_HOME)/$(1) archive
+	@$$(MAKE) -s -C $$(AM_HOME)/$(1) archive BUILD_DIR=$$(AM_HOME)/$(1)/build
 LINKAGE += $$(AM_HOME)/$(1)/build/$(1)-$$(ARCH).a
 endef
 
@@ -159,7 +163,7 @@ force:
 
 ### Clean a single project (remove `build/`)
 clean:
-	rm -rf Makefile.html $(WORK_DIR)/build/
+	rm -rf Makefile.html $(BUILD_DIR)
 .PHONY: clean
 
 ### Clean all sub-projects within depth 2 (and ignore errors)
