@@ -1,4 +1,5 @@
 #include "/opt/rtl2gds/tools/ysyx-workbench/abstract-machine/tools/minirv/inst-replace.h"
+#include "/opt/rtl2gds/tools/ysyx-workbench/abstract-machine/tools/minirv/inst-replace.h"
 #define concat_temp(x, y) x ## y
 #define concat(x, y) concat_temp(x, y)
 #define MAP(c, f) c(f)

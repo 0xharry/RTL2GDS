@@ -1,4 +1,5 @@
 #include "/opt/rtl2gds/tools/ysyx-workbench/abstract-machine/tools/minirv/inst-replace.h"
+#include "/opt/rtl2gds/tools/ysyx-workbench/abstract-machine/tools/minirv/inst-replace.h"
 /* Integer division routines for RISC-V.
 
    Copyright (C) 2016-2022 Free Software Foundation, Inc.

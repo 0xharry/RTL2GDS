@@ -4,10 +4,10 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--rtl_file', help='Path to the RTL file for simulation')
     parser.add_argument('--mainargs', default='train')
     parser.add_argument('--tests', nargs='*', choices=['cpu-tests', 'coremark', 'dhrystone', 'microbench', 'all'], default=['all'])
-    parser.add_argument('--rtl_file', help='Path to the RTL file for simulation')
-    
+
     args, unknown = parser.parse_known_args()
 
     from simulate import Simulator

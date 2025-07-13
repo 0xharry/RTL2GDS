@@ -979,7 +979,7 @@ module NPC(	// @[src/main/NPC.scala:26:7]
   );	// @[src/main/NPC.scala:57:20]
 endmodule
 
-module minirv_top(	// @[src/main/NPC.scala:75:7]
+module rv_top(	// @[src/main/NPC.scala:75:7]
   input         clock,	// @[src/main/NPC.scala:75:7]
                 reset,	// @[src/main/NPC.scala:75:7]
                 io_master_awready,	// @[src/main/NPC.scala:76:14]

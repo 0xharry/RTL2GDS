@@ -49,11 +49,11 @@ benchmark:
   cmd_template:
     - python3
     - ${YSYX_HOME}/scripts/__main__.py
+    - --rtl_file
+    - ${RTL_FILE}
     - --tests 
     - ${TESTS}
     - --mainargs=${MICROBENCH_ARGS}
-    - --rtl_file
-    - ${RTL_FILE}
   input_env:
     files:
       RTL_FILE: top.v
