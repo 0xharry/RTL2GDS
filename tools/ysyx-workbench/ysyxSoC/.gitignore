@@ -1,4 +1,4 @@
 *
-!build/
-!build/**
+!perip/
+!ysyxSoCFull.v
 !.gitignore
