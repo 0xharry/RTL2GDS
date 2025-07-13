@@ -1,4 +1,6 @@
 *
-!perip/
+!/perip/
+!/perip/**/
+!/perip/**/*.v
 !ysyxSoCFull.v
 !.gitignore
