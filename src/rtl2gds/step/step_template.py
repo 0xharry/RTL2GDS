@@ -441,7 +441,7 @@ if __name__ == "__main__":
         "STAGE": "D",
         "ARCH": "minirv-minirv",
         "MAX_SIMULATE_TIME": "1000000000",
-        "TESTS": "cpu-tests",  # or "coremark", "dhrystone", "cpu-tests", "all"
+        "TESTS": "all",  # or "coremark", "dhrystone", "cpu-tests", "all"
         "MICROBENCH_ARGS": "test",  # or "train"
     }
     run_step("benchmark", test_benchmark)

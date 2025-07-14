@@ -2008,7 +2008,7 @@ endmodule
 import "DPI-C" function void update_perf_counter(input int tags);
 import "DPI-C" function void npc_update_pc(input int addr);
 `endif
-module ysyx_22050499 (
+module rv_top (
     input clock,
     input reset,
     input io_interrupt,

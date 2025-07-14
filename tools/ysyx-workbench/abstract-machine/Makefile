@@ -127,9 +127,9 @@ else
 # $(1): library name
 # Pass BUILD_DIR down to recursive makes to ensure libraries are also built in unique locations
 define LIB_TEMPLATE =
-$$(AM_HOME)/$(1)/build/$(1)-$$(ARCH).a: force
-	@$$(MAKE) -s -C $$(AM_HOME)/$(1) archive BUILD_DIR=$$(AM_HOME)/$(1)/build
-LINKAGE += $$(AM_HOME)/$(1)/build/$(1)-$$(ARCH).a
+$$(BUILD_DIR)/$(1)-$$(ARCH).a: force
+	$$(MAKE) -C $$(AM_HOME)/$(1) archive BUILD_DIR=$$(BUILD_DIR)
+LINKAGE += $$(BUILD_DIR)/$(1)-$$(ARCH).a
 endef
 
 ### Rule (recursive make): build a dependent library (am, klib, ...)

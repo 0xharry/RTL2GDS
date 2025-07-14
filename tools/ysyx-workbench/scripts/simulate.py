@@ -35,10 +35,10 @@ class Simulator:
             rtl_arg = [f"RTL_FILE={self.rtl_file}"]
         
         test_cmds = {
-            "cpu-tests": ["make", "-C", f"{self.am_kernels_home}/tests/cpu-tests", f"ARCH={arch}", f"CROSS_COMPILE={cross_compile}", "-j4", "run"] + rtl_arg,
-            "coremark": ["make", "-C", f"{self.am_kernels_home}/benchmarks/coremark", f"ARCH={arch}", f"CROSS_COMPILE={cross_compile}", "-j1", "run"] + rtl_arg,
-            "dhrystone": ["make", "-C", f"{self.am_kernels_home}/benchmarks/dhrystone", f"ARCH={arch}", f"CROSS_COMPILE={cross_compile}", "-j1", "run"] + rtl_arg,
-            "microbench": ["make", "-C", f"{self.am_kernels_home}/benchmarks/microbench", f"ARCH={arch}", f"CROSS_COMPILE={cross_compile}", f"mainargs={mainargs}", "-j1", "run"] + rtl_arg,
+            "cpu-tests": ["make", "-C", f"{self.am_kernels_home}/tests/cpu-tests", f"ARCH={arch}", f"CROSS_COMPILE={cross_compile}", "-j32", "run"] + rtl_arg,
+            "coremark": ["make", "-C", f"{self.am_kernels_home}/benchmarks/coremark", f"ARCH={arch}", f"CROSS_COMPILE={cross_compile}", "-j8", "run"] + rtl_arg,
+            "dhrystone": ["make", "-C", f"{self.am_kernels_home}/benchmarks/dhrystone", f"ARCH={arch}", f"CROSS_COMPILE={cross_compile}", "-j8", "run"] + rtl_arg,
+            "microbench": ["make", "-C", f"{self.am_kernels_home}/benchmarks/microbench", f"ARCH={arch}", f"CROSS_COMPILE={cross_compile}", f"mainargs={mainargs}", "-j8", "run"] + rtl_arg,
         }
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             futures = [executor.submit(self.run_make, test_cmds[test]) for test in tests]
