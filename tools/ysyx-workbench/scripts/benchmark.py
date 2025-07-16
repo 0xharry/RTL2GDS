@@ -1,176 +1,179 @@
+import os
 import json
 import re
-import os
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, Any, Optional, Iterable, Tuple, List
+import argparse
+import sys
 
 class BenchmarkLogParser:
-    def __init__(self, log_dir):
-        top_name = os.environ.get("TOP_NAME")
-        self.coremark_log = os.path.join(log_dir, f"{top_name}_coremark.log")
-        self.dhrystone_log = os.path.join(log_dir, f"{top_name}_dhrystone.log")
-        self.microbench_log = os.path.join(log_dir, f"{top_name}_microbench.log")
-        self.result_json = os.path.join(log_dir, f"{top_name}_benchmark.json")
+    """
+    Parses multiple benchmark log files (CoreMark, Dhrystone, MicroBench)
+    to generate a single, structured JSON summary.
+    """
+    # CoreMark Regex
+    _CM_SIZE_RE = re.compile(r"CoreMark Size\s*:\s*(\d+)")
+    _CM_TIME_RE = re.compile(r"Total time \(ms\)\s*:\s*(\d+)")
+    _CM_ITER_RE = re.compile(r"Iterations\s*:\s*(\d+)")
+    _CM_CRC_RE = re.compile(r"\[0\]crc\w+\s*:\s*0x([0-9a-fA-F]{4})")
+    _CM_FINAL_RE = re.compile(r"CoreMark (PASS|FAIL)\s+([\d.]+)", re.IGNORECASE)
 
-    def parse_coremark(self, log_file):
-        details_list = []
-        if not os.path.exists(log_file):
-            return {"coremark": "fail", "details": [], "pass_count": 0, "total_count": 0}
-        with open(log_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-        i = 0
+    # Dhrystone Regex
+    _DH_ITER_RE = re.compile(r"Trying\s+(\d+)\s+runs")
+    _DH_TIME_RE = re.compile(r"Finished in\s+(\d+)\s*ms")
+    _DH_FINAL_RE = re.compile(r"Dhrystone (PASS|FAIL)\s+([\d.]+)", re.IGNORECASE)
+
+    # MicroBench Regex
+    _MB_INPUT_RE = re.compile(r'input \*(.*?)\*')
+    _MB_TEST_RE = re.compile(r"\[(\w+)\]\s+(.+?):\s+\*\s+(\w+)\.")
+    _MB_SCORED_TIME_RE = re.compile(r"Scored time:\s*([\d.]+)\s*ms")
+    _MB_TOTAL_TIME_RE = re.compile(r"Total\s+time:\s*([\d.]+)\s*ms")
+    _MB_FINAL_RE = re.compile(r"MicroBench (PASS|FAIL)", re.IGNORECASE)
+
+    def __init__(self, log_dir: str):
+        if not log_dir:
+            raise ValueError("log_dir cannot be empty.")
+        
+        top_name = os.environ.get("TOP_NAME", "unknown_top")
+        log_path = Path(log_dir)
+        
+        self.log_files = {
+            "coremark": log_path / f"{top_name}_coremark.log",
+            "dhrystone": log_path / f"{top_name}_dhrystone.log",
+            "microbench": log_path / f"{top_name}_microbench.log",
+        }
+        self.result_json = log_path / f"{top_name}_benchmark.json"
+        
+        self.result_json.parent.mkdir(parents=True, exist_ok=True)
+
+    def _parse_coremark(self, lines: Iterable[str]) -> Dict[str, Any]:
+        results: Dict[str, Any] = {"status": "FAIL", "details": {}}
+        crc_values: List[str] = []
+
+        for line in lines:
+            if (m := self._CM_SIZE_RE.search(line)):
+                results["details"]["CoreMark Size"] = int(m.group(1))
+            elif (m := self._CM_TIME_RE.search(line)):
+                results["details"]["Total time (ms)"] = int(m.group(1))
+            elif (m := self._CM_ITER_RE.search(line)):
+                results["details"]["Iterations"] = int(m.group(1))
+            elif (m := self._CM_CRC_RE.search(line)):
+                crc_values.append(m.group(1))
+            elif (m := self._CM_FINAL_RE.search(line)):
+                results["status"] = m.group(1).upper()
+                results["details"]["Marks"] = m.group(2)
+        
+        crc_pass = all(val == crc_values[0] for val in crc_values if crc_values)
+        results["details"]["crc_values"] = crc_values
+        results["details"]["crc_check"] = "PASS" if crc_pass else "FAIL"
+        
+        if results["status"] == "PASS" and not crc_pass:
+            results["status"] = "FAIL"
+
+        return results
+
+    def _parse_dhrystone(self, lines: Iterable[str]) -> Dict[str, Any]:
+        results: Dict[str, Any] = {"status": "FAIL", "details": {}}
+        for line in lines:
+            if (m := self._DH_ITER_RE.search(line)):
+                results["details"]["Iterations"] = int(m.group(1))
+            elif (m := self._DH_TIME_RE.search(line)):
+                results["details"]["Total time (ms)"] = int(m.group(1))
+            elif (m := self._DH_FINAL_RE.search(line)):
+                results["status"] = m.group(1).upper()
+                results["details"]["Marks"] = m.group(2)
+        return results
+
+    def _parse_microbench(self, lines: Iterable[str]) -> Dict[str, Any]:
+        results: Dict[str, Any] = {"status": "FAIL", "details": {"tests": []}}
         pass_count = 0
-        total_count = 0
-        while i < len(lines):
-            line = lines[i]
-            if "CoreMark Size" in line:
-                details = {}
-                m = re.search(r"CoreMark Size\s*:\s*(\d+)", line)
-                if m:
-                    details["CoreMark Size"] = int(m.group(1))
-                m = re.search(r"Total time \(ms\)\s*:\s*(\d+)", lines[i+1])
-                if m:
-                    details["Total time (ms)"] = int(m.group(1))
-                m = re.search(r"Iterations\s*:\s*(\d+)", lines[i+2])
-                if m:
-                    details["Iterations"] = int(m.group(1))
-                crc_items = [
-                    ("[0]crclist", r"\[0\]crclist\s*:\s*(\S+)"),
-                    ("[0]crcmatrix", r"\[0\]crcmatrix\s*:\s*(\S+)"),
-                    ("[0]crcstate", r"\[0\]crcstate\s*:\s*(\S+)"),
-                    ("[0]crcfinal", r"\[0]crcfinal\s*:\s*(\S+)")
-                ]
-                crc_pass = 0
-                crc_total = 0
-                for idx, (key, pattern) in enumerate(crc_items):
-                    m = re.search(pattern, lines[i+5+idx])
-                    if m:
-                        details[key] = m.group(1)
-                        crc_total += 1
-                        if m.group(1) != "":
-                            crc_pass += 1
-                for j in range(i+9, min(i+20, len(lines))):
-                    if "CoreMark PASS" in lines[j]:
-                        m = re.search(r"CoreMark PASS\s+(\d+)", lines[j])
-                        details["Marks"] = m.group(1) if m else ""
-                        details["status"] = "pass"
-                        pass_count += crc_pass
-                        total_count += crc_total
-                        break
-                    elif "CoreMark FAIL" in lines[j]:
-                        m = re.search(r"CoreMark FAIL\s+(\d+)", lines[j])
-                        details["Marks"] = m.group(1) if m else ""
-                        details["status"] = "fail"
-                        total_count += crc_total
-                        break
-                details_list.append(details)
-                i += 10
-            else:
-                i += 1
-        overall_status = "pass" if pass_count == total_count and total_count > 0 else "fail"
-        return {
-            "coremark": overall_status,
-            "details": details_list,
-            "pass_count": pass_count,
-            "total_count": total_count
+        for line in lines:
+            if (m := self._MB_INPUT_RE.search(line)):
+                results["details"]["input"] = m.group(1)
+            elif (m := self._MB_TEST_RE.match(line)):
+                test_result = {"name": m.group(1), "desc": m.group(2).strip(), "result": m.group(3)}
+                results["details"]["tests"].append(test_result)
+                if test_result["result"].lower() == "passed":
+                    pass_count += 1
+            elif (m := self._MB_SCORED_TIME_RE.search(line)):
+                results["details"]["Scored time (ms)"] = float(m.group(1))
+            elif (m := self._MB_TOTAL_TIME_RE.search(line)):
+                results["details"]["Total time (ms)"] = float(m.group(1))
+            elif (m := self._MB_FINAL_RE.search(line)):
+                results["status"] = m.group(1).upper()
+        
+        total_count = len(results["details"]["tests"])
+        results["summary"] = {
+            "passed": pass_count, "total": total_count,
+            "pass_rate": f"{pass_count/total_count:.2%}" if total_count > 0 else "N/A"
         }
+        return results
 
-    def parse_dhrystone(self, log_file):
-        details = {}
-        status = "fail"
-        if not os.path.exists(log_file):
-            return {"dhrystone": "fail", "details": {}}
-        with open(log_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-            for line in lines:
-                if "Trying" in line and "runs through Dhrystone" in line:
-                    m = re.search(r"Trying\s+(\d+)\s+runs", line)
-                    if m:
-                        details["Iterations"] = int(m.group(1))
-                if "Finished in" in line:
-                    m = re.search(r"Finished in\s+(\d+)\s*ms", line)
-                    if m:
-                        details["Total time (ms)"] = int(m.group(1))
-                if "Dhrystone PASS" in line:
-                    m = re.search(r"Dhrystone PASS\s+(\d+)", line)
-                    details["Marks"] = m.group(1) if m else ""
-                    status = "pass"
-                elif "Dhrystone FAIL" in line:
-                    m = re.search(r"Dhrystone FAIL\s+(\d+)", line)
-                    details["Marks"] = m.group(1) if m else ""
-                    status = "fail"
-        return {
-            "dhrystone": status,
-            "details": details
-        }
-
-    def parse_microbench(self, log_file):
-        details = {
-            "input": "",
-            "tests": [],
-            "Scored time (ms)": None,
-            "Total time (ms)": None
-        }
-        status = "fail"
-        pass_count = 0
-        total_count = 0
-        if not os.path.exists(log_file):
-            return {"microbench": "fail", "details": details, "pass_count": 0, "total_count": 0}
-        with open(log_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-            for line in lines:
-                if "Running MicroBench [input" in line:
-                    m = re.search(r'input \*(.*?)\*', line)
-                    if m:
-                        details["input"] = m.group(1)
-                m = re.match(r"\[(\w+)\]\s+(.+?):\s+\*\s+(\w+)\.", line)
-                if m:
-                    test_name = m.group(1)
-                    desc = m.group(2).strip()
-                    result = m.group(3)
-                    details["tests"].append({
-                        "name": test_name,
-                        "desc": desc,
-                        "result": result
-                    })
-                    total_count += 1
-                    if result.lower() == "passed":
-                        pass_count += 1
-                m = re.search(r"Scored time:\s*([\d.]+)\s*ms", line)
-                if m:
-                    details["Scored time (ms)"] = float(m.group(1))
-                m = re.search(r"Total\s+time:\s*([\d.]+)\s*ms", line)
-                if m:
-                    details["Total time (ms)"] = float(m.group(1))
-                if "MicroBench PASS" in line:
-                    status = "pass"
-                elif "MicroBench FAIL" in line:
-                    status = "fail"
-        return {
-            "microbench": status,
-            "details": details,
-            "pass_count": pass_count,
-            "total_count": total_count
-        }
+    def _parse_single_log(self, name: str, parser_func) -> Dict[str, Any]:
+        log_file = self.log_files.get(name)
+        if not log_file or not log_file.is_file():
+            return {"status": "FAIL", "error": f"Log file not found at {log_file}"}
+        
+        try:
+            with log_file.open("r", encoding="utf-8") as f:
+                return parser_func(f)
+        except Exception as e:
+            return {"status": "FAIL", "error": f"Error parsing {log_file}: {e}"}
 
     def parse(self):
-        coremark_result = self.parse_coremark(self.coremark_log)
-        dhrystone_result = self.parse_dhrystone(self.dhrystone_log)
-        microbench_result = self.parse_microbench(self.microbench_log)
-        result = {
-            "coremark": coremark_result["coremark"],
-            "coremark_details": coremark_result["details"],
-            "coremark_stat": f"{coremark_result['pass_count']}/{coremark_result['total_count']}",
-            "dhrystone": dhrystone_result["dhrystone"],
-            "dhrystone_details": dhrystone_result["details"],
-            "microbench": microbench_result["microbench"],
-            "microbench_details": microbench_result["details"],
-            "microbench_stat": f"{microbench_result['pass_count']}/{microbench_result['total_count']}"
+        benchmark_results = {
+            "coremark": self._parse_single_log("coremark", self._parse_coremark),
+            "dhrystone": self._parse_single_log("dhrystone", self._parse_dhrystone),
+            "microbench": self._parse_single_log("microbench", self._parse_microbench),
         }
-        with open(self.result_json, "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=2, ensure_ascii=False)
-        print(f"coremark: {result['coremark']} ({result['coremark_stat']})")
-        print(f"dhrystone: {result['dhrystone']}")
-        print(f"microbench: {result['microbench']} ({result['microbench_stat']})")
+
+        final_report = {
+            "metadata": {
+                "source_logs": {k: str(v) for k, v in self.log_files.items()},
+                "parser": self.__class__.__name__,
+                "parsed_at_utc": datetime.now(timezone.utc).isoformat(),
+                "parsed_by":  os.environ.get("USER", "unknown_user"),
+            },
+            "benchmarks": benchmark_results
+        }
+        
+        self._write_json(final_report)
+        self._print_summary(final_report)
+
+    def _write_json(self, data: Dict[str, Any]):
+        try:
+            with self.result_json.open("w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+        except IOError as e:
+            print(f"Error: Could not write JSON to {self.result_json}. Reason: {e}", file=sys.stderr)
+
+    def _print_summary(self, report: Dict[str, Any]):
+        print("Benchmark Summary:")
+        for name, result in report.get("benchmarks", {}).items():
+            status = result.get('status', 'FAIL')
+            summary_str = ""
+            if name == "microbench" and "summary" in result:
+                summary = result["summary"]
+                summary_str = f"({summary['passed']}/{summary['total']})"
+            elif name == "coremark" and result.get("details", {}).get("crc_check"):
+                summary_str = f"(CRC Check: {result['details']['crc_check']})"
+
+            print(f"- {name:<12}: {status} {summary_str}")
+        print(f"Result JSON saved to: {self.result_json}")
 
 if __name__ == "__main__":
-    log_dir = os.environ.get("LOG_DIR", "./log")
-    BenchmarkLogParser(log_dir).parse()
+    parser = argparse.ArgumentParser(description="Parse benchmark logs into a JSON summary.")
+    parser.add_argument(
+        "--log_dir",
+        type=str,
+        default=os.environ.get("LOG_DIR", "./log"),
+        help="Directory containing the log files. Defaults to LOG_DIR env var or './log'."
+    )
+    args = parser.parse_args()
+    
+    try:
+        log_parser = BenchmarkLogParser(log_dir=args.log_dir)
+        log_parser.parse()
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)

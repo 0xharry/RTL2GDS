@@ -48,7 +48,7 @@ benchmark:
   tool_name: verilator
   cmd_template:
     - python3
-    - ${YSYX_HOME}/scripts/__main__.py
+    - ${YSYX_HOME}/scripts/workflow.py
     - --rtl_file
     - ${RTL_FILE}
     - --tests 
@@ -67,8 +67,12 @@ benchmark:
   output_env:
     dir_template: ${OUTPUT_PREFIX}_${OUTPUT_STEP_NAME}_${OUTPUT_TOP_NAME}
     files:
-      CPU_TEST_JSON: ${OUTPUT_TOP_NAME}_cpu_test.json
-      BENCHMARK_RESULT_JSON: ${OUTPUT_TOP_NAME}_benchmark.json
+      - name: CPU_TEST_JSON
+        path: ${OUTPUT_TOP_NAME}_cpu_test.json
+        condition: "'cpu-tests' in '${TESTS}' or 'all' in '${TESTS}'"
+      - name: BENCHMARK_RESULT_JSON
+        path: ${OUTPUT_TOP_NAME}_benchmark.json
+        condition: "'coremark' in '${TESTS}' or 'dhrystone' in '${TESTS}' or 'microbench' in '${TESTS}' or 'all' in '${TESTS}'"
     metrics:
       - test_pass
       - test_fail
