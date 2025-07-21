@@ -81,11 +81,32 @@ extern char _data_end [];
 /* 用于将my_memcpy 和memcpy分别放在entry,fsbl中，方便内存的移动*/
 void my_memcpy(void *dest, const void *src, size_t n)__attribute__((section(".entry")));
 void my_memcpy(void *dest, const void *src, size_t n) {
-    unsigned char *d = (unsigned char *)dest;
-    const unsigned char *s = (const unsigned char *)src;
+    char *d = (char *)dest;
+    const char *s = (const char *)src;
 
-    for (size_t i = 0; i < n; i++) {
-        d[i] = s[i];
+    if (n < 8 || ((uintptr_t)d & 3) != ((uintptr_t)s & 3)) {
+        for (size_t i = 0; i < n; i++) { d[i] = s[i]; }
+        return;
+    }
+
+    while (((uintptr_t)d & 3) != 0 && n > 0) {
+        *d++ = *s++;
+        n--;
+    }
+
+    uint32_t *d_word = (uint32_t *)d;
+    const uint32_t *s_word = (const uint32_t *)s;
+    size_t word_count = n / sizeof(uint32_t);
+    for (size_t i = 0; i < word_count; i++) {
+        *d_word++ = *s_word++;
+    }
+
+    n %= sizeof(uint32_t);
+    d = (char *)d_word;
+    s = (const char *)s_word;
+    while (n > 0) {
+        *d++ = *s++;
+        n--;
     }
 }
 
