@@ -11,7 +11,7 @@ R2G_TOOL_DIR = os.path.abspath(R2G_BASE_DIR + "/tools")
 
 _BIN_ENV = os.environ["PATH"] if "PATH" in os.environ else ""
 _LIB_ENV = os.environ["LD_LIBRARY_PATH"] if "LD_LIBRARY_PATH" in os.environ else ""
-_USE_PROJ_BIN_LIB = os.environ.get("RTL2GDS_USE_PROJ_BIN_LIB", "1") == "1"
+_USE_PROJ_BIN_LIB = os.environ.get("RTL2GDS_USE_PROJ_BIN_LIB", "0") == "1"
 
 if _USE_PROJ_BIN_LIB:
     _TOOL_PATH = f"{R2G_BIN_DIR}/iEDA:{R2G_BIN_DIR}/sv2v-Linux:{R2G_BIN_DIR}/yosys/bin:{_BIN_ENV}"
