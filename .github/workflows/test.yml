@@ -59,7 +59,7 @@ jobs:
 
       - name: Install Nix packages
         run: |
-          nix profile install github:Emin017/ieda-infra#yosysWithSlang \
+          nix profile add github:Emin017/ieda-infra#yosysWithSlang \
             github:Emin017/ieda-infra#magic-vlsi \
             github:Emin017/ieda-infra#iedaUnstable \
             --option substituters "$NIX_SUBSTITUTERS" \
