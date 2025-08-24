@@ -225,7 +225,7 @@ placement:
       TOOL_METRICS_JSON: ${OUTPUT_TOP_NAME}_placement_metrics.json
       TOOL_REPORT_DIR: ./
       DESIGN_EVAL_REPORT: ${OUTPUT_TOP_NAME}_eval
-      CONGESTION_MAP: rt/place_egr_union_overflow.csv
+      CONGESTION_MAP: egr_congestion_map/place_egr_union_overflow.csv
       DENSITY_MAP_CELL: density_map/legalization_allcell_density.csv
       DENSITY_MAP_PIN: density_map/legalization_allcell_pin_density.csv
       DENSITY_MAP_NET: density_map/legalization_allnet_density.csv
