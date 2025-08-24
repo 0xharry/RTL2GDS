@@ -34,37 +34,10 @@
           ...
         }:
         {
-          devShells = {
-            default = pkgs.mkShell {
-              nativeBuildInputs = [
-                pkgs.python3
-                pkgs.python3Packages.pip
-                pkgs.python3Packages.virtualenv
-                pkgs.git
-                pkgs.black
-              ];
-              shellHook = ''
-                export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
-              '';
-            };
-            ieda = pkgs.mkShell {
-              inputsFrom = [
-                inputs'.ieda-infra.packages.iedaUnstable
-              ];
-              nativeBuildInputs = [
-                pkgs.black
-              ];
-            };
-          };
-          treefmt = {
-            projectRootFile = "flake.nix";
-            programs = {
-              nixfmt.enable = true;
-              nixfmt.package = pkgs.nixfmt-rfc-style;
-              black.enable = true;
-            };
-            flakeCheck = true;
-          };
+
+          imports = [
+            ./nix
+          ];
         };
     };
 }
