@@ -19,6 +19,7 @@ A tool to compile your RTL files into GDSII layouts.
     - [0. Setup Runtime Environment](#0-setup-runtime-environment)
     - [1. Prepare File Inputs](#1-prepare-file-inputs)
     - [2. Run RTL2GDS flow](#2-run-rtl2gds-flow)
+    - [3. Run Single Step Flow](#3-run-single-step-flow)
   - [Contributing](#contributing)
 
 ## Overview
@@ -70,6 +71,48 @@ $ cd RTL2GDS # make sure you are in the root directory of RTL2GDS
 $ docker run --rm -it -v $(pwd):/opt/rtl2gds docker.cnb.cool/ecoslab/rtl2gds:latest bash
 # Enter the design directory, e.g., cd /opt/rtl2gds/design_zoo/gcd
 $ python3 -m rtl2gds -c <your-design-config>.yaml
+```
+
+### 3. Run Single Step Flow
+
+The single step flow allows you to run individual steps of the RTL2GDS flow separately, which is useful for debugging, testing, or running specific stages of the design flow.
+
+**Available Steps:**
+- `synthesis` - Synthesize RTL to netlist
+- `floorplan` - Create floorplan
+- `netlist_opt` - Optimize netlist
+- `placement` - Place cells
+- `cts` - Clock tree synthesis
+- `legalization` - Legalize placement
+- `routing` - Route connections
+
+**Usage:**
+
+```shell
+$ cd RTL2GDS # make sure you are in the root directory of RTL2GDS
+$ docker run --rm -it -v $(pwd):/opt/rtl2gds docker.cnb.cool/ecoslab/rtl2gds:latest bash
+# Enter the design directory, e.g., cd /opt/rtl2gds/design_zoo/gcd
+$ python3 -m rtl2gds.flow.single_step_main -c <your-design-config>.yaml --step <step-name>
+```
+
+**Additional Options:**
+- `--log_level` - Set log level (DEBUG, INFO, WARNING, ERROR)
+- `--take_snapshot` - Take snapshot of current step
+- `--cloud_outputs` - Generate cloud outputs (layout json)
+- `--result_dir` - Custom result directory path
+- `--input_def` - Custom input DEF file path for routing steps
+
+**Example:**
+
+```shell
+# Run only the synthesis step
+$ python3 -m rtl2gds.flow.single_step_main -c gcd.yaml --step synthesis
+
+# Run synthesis with custom result directory
+$ python3 -m rtl2gds.flow.single_step_main -c gcd.yaml --step synthesis --result_dir my_results
+
+# Run routing with custom input DEF file
+$ python3 -m rtl2gds.flow.single_step_main -c gcd.yaml --step routing --input_def custom_input.def
 ```
 
 ## Contributing
