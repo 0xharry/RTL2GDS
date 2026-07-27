@@ -146,7 +146,7 @@ jobs:
         working-directory: ${{ matrix.path }}
         run: |
           echo "::group::Running single step checks for ${{ matrix.design }}"
-          python3 -m rtl2gds.flow.single_step_main -c ${{ matrix.config }} --step synthesis
+          python3 -m rtl2gds.flow.single_step_main -c ${{ matrix.config }} --step benchmark/synthesis/all
           echo "::endgroup::"
 
       - name: Upload artifacts on failure
